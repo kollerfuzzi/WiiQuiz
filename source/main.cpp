@@ -2,9 +2,9 @@
  
 #include <stdlib.h>
 #include <wiiuse/wpad.h>
-#include "resources/c64font.h"
-#include "resources/quizbg.h"
-#include "textbox.h"
+#include "resources/c64font.hpp"
+#include "resources/quizbg.hpp"
+#include "textbox.hpp"
  
 int main(int argc, char **argv) {
     // Initialise the Graphics & Video subsystem
@@ -23,6 +23,8 @@ int main(int argc, char **argv) {
  
     // Loop forever
     while(true) {
+
+        //GRRLIB_DrawImg();
  
         WPAD_ScanPads();  // Scan the Wiimotes
  

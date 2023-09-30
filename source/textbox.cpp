@@ -1,4 +1,4 @@
-#include "textbox.h"
+#include "textbox.hpp"
 
 void TextBox::setText(std::string text) {
     //this->_textContent.push_back(text);
