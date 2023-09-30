@@ -1,0 +1,11 @@
+# JETBRAINS
+.idea/
+
+# build
+build/
+*.dol
+*.elf
+
+# qt creator
+*.creator.user
+
