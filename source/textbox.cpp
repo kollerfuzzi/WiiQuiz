@@ -1,7 +1,42 @@
 #include "textbox.hpp"
 
 void TextBox::setText(std::string text) {
-    //this->_textContent.push_back(text);
+    this->_textContent.clear();
+    this->_textBuffer.clear();
+
+    std::string line;
+    for(std::string::iterator it = text.begin(); it != text.end(); ++it) {
+        line += *it;
+        GRRLIB_2dMode();
+        bool lineOverflow = GRRLIB_WidthTTF(this->_font, line.c_str(),
+                                this->_fontSize) + this->_marginLeft
+                                > SCREEN_WIDTH - this->_marginRight;
+        bool breakLine = *it == '\n';
+
+        if (lineOverflow || breakLine) {
+            std::string carry;
+            carry += *it;
+            line.pop_back();
+            this->_textContent.push_back(line);
+            line.clear();
+            if (!breakLine) {
+                line += carry;
+            }
+        }
+
+        bool stringEnd = (it + 1) == text.end();
+        if (stringEnd) {
+            this->_textContent.push_back(line);
+        }
+    }
+}
+
+void TextBox::renderText() {
+    for (int line = 0 ; line < this->_textContent.size(); line++) {
+        GRRLIB_PrintfTTF(this->_marginLeft,
+            this->_marginTop + line * this->_fontSize * 1.25, this->_font,
+            this->_textContent[line].c_str(), this->_fontSize, this->_color);
+    }
 }
 
 TextBox::Builder TextBox::builder() {

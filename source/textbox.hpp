@@ -1,5 +1,5 @@
-#ifndef SCREENPRINTER_H
-#define SCREENPRINTER_H
+#ifndef TEXTBOX_HPP
+#define TEXTBOX_HPP
 
 #include <vector>
 #include <string>
@@ -28,9 +28,9 @@ public:
         std::string _text;
         int _fontSize = 10;
         int _color = RGBA(255, 255, 255, 255);
-        int _marginTop = 10;
-        int _marginLeft = 10;
-        int _marginRight = 10;
+        int _marginTop = 25;
+        int _marginLeft = 25;
+        int _marginRight = 25;
     };
     static Builder builder();
 
@@ -46,4 +46,4 @@ private:
     int _marginRight;
 };
 
-#endif // SCREENPRINTER_H
+#endif // TEXTBOX_HPP
