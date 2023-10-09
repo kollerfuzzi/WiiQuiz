@@ -8,18 +8,22 @@ Resources::~Resources() {
     this->clearAll();
 }
 
-GRRLIB_texImg * Resources::get(Texture texture) {
+GRRLIB_texImg* Resources::get(Texture texture) {
     if (!this->_textures.contains(texture)) {
         this->_loadTexture(texture);
     }
     return this->_textures[texture];
 }
 
-GRRLIB_ttfFont * Resources::get(Font font) {
+GRRLIB_ttfFont* Resources::get(Font font) {
     if (!this->_fonts.contains(font)) {
         this->_loadFont(font);
     }
     return this->_fonts[font];
+}
+
+AudioDef Resources::get(Audio audio){
+    return AUDIO_DEFINITIONS[audio];
 }
 
 void Resources::clearAll() {

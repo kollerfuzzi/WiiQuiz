@@ -1,34 +1,55 @@
 #include <grrlib.h>
- 
+
+#include <memory>
 #include <stdlib.h>
 #include <wiiuse/wpad.h>
+
 #include "textbox.hpp"
 #include "clock.hpp"
 #include "resources.hpp"
 #include "resourcemap.hpp"
 
+#include "asndlib.h"
+#include "mp3player.h"
 
-int main(int argc, char **argv) {
-    // Initialise the Graphics & Video subsystem
+#include "qaquestion.hpp"
+#include "qascoreboard.hpp"
+#include "quiz.hpp"
+#include "player.hpp"
+
+int main(int argc, char** argv)
+{
     GRRLIB_Init();
     GRRLIB_SetBackgroundColour(0x00, 0xaa, 0x00, 0xFF);
- 
-    // Initialise the Wiimotes
     WPAD_Init();
 
-    //GRRLIB_Font* font = GRRLIB_LoadTTF(c64font_ttf, c64font_ttf_len);
-    //GRRLIB_texImg* img = GRRLIB_LoadTexturePNG(quizbg_png);
+    std::unique_ptr<Resources> resources = std::make_unique<Resources>();
 
-    Resources * resources = new Resources();
-
-
-    TextBox textbox = TextBox::builder()
-        .text("Weit hinten, hinter den Wortbergen, fern der Laender Vokalien und Konsonantien leben die Blindtexte. Abgeschieden wohnen Sie in Buchstabhausen an der Kueste des Semantik, eines groszen Sprachozeans. ")
-        .font(resources->get(Font::C64FONT))
-        .fontSize(15)
-        .build();
-
-    GRRLIB_texImg * img = GRRLIB_LoadTexturePNG(TEXTURE_DEFINITIONS[Texture::QUIZ_BG].textureRef);
+    Quiz* quiz = Quiz::builder()
+                     .resources(resources.get())
+                     .action(QAQuestion::builder()
+                                 .question("choose correct plz")
+                                 .correctAnswer("correct")
+                                 .wrongAnswer("wrong")
+                                 .build())
+                     .action(QAScoreboard::builder().build())
+                     .player(Player::builder().name("André").build())
+                     .player(Player::builder().name("Alexander Paul").build())
+                     .build();
+/*
+    TextBox textbox
+        = TextBox::builder()
+              .text("GRRLIB_texImg* img = GRRLIB_LoadTexturePNG(quizbg_png);GRRLIB_texImg* img = "
+                    "GRRLIB_LoadTexturePNG(quizbg_png);")
+              .font(resources->get(Font::C64FONT))
+              .fontSize(25)
+              .marginTop(50)
+              .animationSpeed(100)
+              .build();
+*/
+    //MP3 TEST
+    ASND_Init();
+    MP3Player_Init();
 
     Clock frameClock;
     while(true) {
@@ -36,30 +57,26 @@ int main(int argc, char **argv) {
 
         WPAD_ScanPads();  // Scan the Wiimotes
  
-        // If [HOME] was pressed on the first Wiimote, break out of the loop
         if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME)  break;
 
+        quiz->update(frameClock);
 
-        std::string elstring;
-        elstring += "DELLLEF:::::: ";
-        elstring += std::to_string(frameClock.currentFPS());
-        textbox.setText(elstring);
-        //timeElapsedTotal += clk.timeElapsedMillis();
+        if (!MP3Player_IsPlaying())
+            MP3Player_PlayBuffer(resources->get(Audio::EVAN_MM).audioRef,
+                                 resources->get(Audio::EVAN_MM).audioLen,
+                                 NULL);
 
-
+        /*
         GRRLIB_DrawImg(0, 0, resources->get(Texture::QUIZ_BG), 0, 1, 1.4, RGBA(255, 255, 255, 255));
-        //GRRLIB_DrawImg(0, 0, img, 0, 1, 1.4, RGBA(255, 255, 255, 255));
-        //GRRLIB_PrintfTTF(20,20, font, "hey duke", 30, RGBA(255, 255, 255, 255));
-        textbox.renderText();
+        textbox.update(frameClock);
+        textbox.render();
+        */
+        quiz->render();
 
-        GRRLIB_Render();  // Render the frame buffer to the TV
+        GRRLIB_Render();
     }
 
-    delete resources;
+    GRRLIB_Exit();
 
-    //GRRLIB_FreeTTF(font);
- 
-    GRRLIB_Exit(); // Be a good boy, clear the memory allocated by GRRLIB
- 
-    exit(0);  // Use exit() to exit a program, do not use 'return' from main()
+    exit(0);
 }

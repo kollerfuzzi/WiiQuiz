@@ -11,10 +11,13 @@ public:
     ~Resources();
     GRRLIB_texImg* get(Texture texture);
     GRRLIB_ttfFont* get(Font font);
+    AudioDef get(Audio audio);
+    char* get();
     void clearAll();
 private:
     std::map<Texture, GRRLIB_texImg*> _textures;
     std::map<Font, GRRLIB_ttfFont*> _fonts;
+
 
     void _loadTexture(Texture texture);
     void _loadFont(Font font);

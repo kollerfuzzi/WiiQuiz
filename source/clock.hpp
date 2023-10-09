@@ -3,15 +3,14 @@
 
 #include "sys/time.h"
 
-
-class Clock
-{
+class Clock {
 public:
     Clock();
     void tick();
-    int timeElapsedMicros();
-    float timeElapsedMillis();
-    int currentFPS();
+    int timeElapsedMicros() const;
+    float timeElapsedMillis() const;
+    int timeElapsedMillisInt() const;
+    int currentFPS() const;
 private:
     timeval _lastTime;
     int _timeElapsedMicros;

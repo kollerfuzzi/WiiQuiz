@@ -3,3 +3,7 @@
 Renderable::Renderable() {
 
 }
+
+Renderable::~Renderable() {
+
+}
