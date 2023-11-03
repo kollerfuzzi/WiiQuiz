@@ -13,8 +13,12 @@ std::string Player::getName() {
     return _name;
 }
 
-int Player::getPoints() {
+int32_t Player::getPoints() {
     return _points;
+}
+
+void Player::addPoints(int32_t points) {
+    _points += points;
 }
 
 Player::Builder& Player::Builder::name(std::string name) {

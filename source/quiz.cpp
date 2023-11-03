@@ -12,14 +12,18 @@ Quiz::~Quiz() {
 void Quiz::update(const Clock &clock) {
     QuizAction* currentAction = _actions[_currentAction];
     if (currentAction->isDone() && _actions.size() != _currentAction + 1) {
-        ++_currentAction;
-        currentAction++;
+        _currentAction++;
+        currentAction = _actions[_currentAction];
     }
     currentAction->update(clock);
 }
 
 void Quiz::render() {
     _actions[_currentAction]->render();
+}
+
+std::vector<Player*> Quiz::getPlayers() {
+    return _players;
 }
 
 Quiz::Builder Quiz::builder() {

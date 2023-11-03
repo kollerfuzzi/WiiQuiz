@@ -6,7 +6,8 @@ FontDef FONT_DEFINITIONS[] = {
 };
 
 TextureDef TEXTURE_DEFINITIONS[] = {
-    {Texture::QUIZ_BG, quizbg_png}
+    {Texture::QUIZ_BG, quizbg_png},
+    {Texture::SCOREBOARD_BG, scoreboard_png}
 };
 
 

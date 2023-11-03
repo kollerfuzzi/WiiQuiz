@@ -17,6 +17,7 @@ public:
     void setText(std::string text);
     void update(const Clock& clock);
     void render();
+    size_t lineCount();
 
 
     class Builder {

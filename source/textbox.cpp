@@ -84,6 +84,10 @@ void TextBox::render() {
     }
 }
 
+size_t TextBox::lineCount() {
+    return _textContent.size();
+}
+
 TextBox::Builder TextBox::builder() {
     return TextBox::Builder();
 }

@@ -1,18 +1,21 @@
 #ifndef RESOURCEMAP_HPP
 #define RESOURCEMAP_HPP
 
-#include "c64font.hpp"
-#include "quizbg.hpp"
-#include "text_done.hpp"
-#include "text_letter.hpp"
-#include "evan_mm.hpp"
+#include "zr_c64font.hpp"
+#include "zr_quizbg.hpp"
+#include "zr_text_done.hpp"
+#include "zr_text_letter.hpp"
+#include "zr_evan_mm.hpp"
+#include "zr_scoreboard.hpp"
+#include "zr_image_test.hpp"
 
 enum Font {
     C64FONT
 };
 
 enum Texture {
-    QUIZ_BG
+    QUIZ_BG,
+    SCOREBOARD_BG
 };
 
 enum Audio {

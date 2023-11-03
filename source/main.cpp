@@ -28,25 +28,24 @@ int main(int argc, char** argv)
     Quiz* quiz = Quiz::builder()
                      .resources(resources.get())
                      .action(QAQuestion::builder()
-                                 .question("choose correct plz")
+                                 .question("choose correct plz hey duke hey duke hey duke hey duke hey duke hey duke hey duke hey duke hey duke hey duke")
                                  .correctAnswer("correct")
                                  .wrongAnswer("wrong")
                                  .build())
                      .action(QAScoreboard::builder().build())
-                     .player(Player::builder().name("André").build())
+                     .player(Player::builder().name("Andre").build())
                      .player(Player::builder().name("Alexander Paul").build())
+                     .player(Player::builder().name("Elias").build())
+                     .player(Player::builder().name("Gabsy").build())
+                     .player(Player::builder().name("Detlef").build())
                      .build();
-/*
-    TextBox textbox
-        = TextBox::builder()
-              .text("GRRLIB_texImg* img = GRRLIB_LoadTexturePNG(quizbg_png);GRRLIB_texImg* img = "
-                    "GRRLIB_LoadTexturePNG(quizbg_png);")
-              .font(resources->get(Font::C64FONT))
-              .fontSize(25)
-              .marginTop(50)
-              .animationSpeed(100)
-              .build();
-*/
+    quiz->getPlayers()[0]->addPoints(1134);
+    quiz->getPlayers()[1]->addPoints(2543);
+    quiz->getPlayers()[2]->addPoints(45);
+    quiz->getPlayers()[3]->addPoints(0);
+    quiz->getPlayers()[4]->addPoints(20000);
+
+
     //MP3 TEST
     ASND_Init();
     MP3Player_Init();
@@ -66,11 +65,6 @@ int main(int argc, char** argv)
                                  resources->get(Audio::EVAN_MM).audioLen,
                                  NULL);
 
-        /*
-        GRRLIB_DrawImg(0, 0, resources->get(Texture::QUIZ_BG), 0, 1, 1.4, RGBA(255, 255, 255, 255));
-        textbox.update(frameClock);
-        textbox.render();
-        */
         quiz->render();
 
         GRRLIB_Render();

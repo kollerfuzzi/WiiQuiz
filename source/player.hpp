@@ -16,7 +16,8 @@ public:
 
     static Builder builder();
     std::string getName();
-    int getPoints();
+    int32_t getPoints();
+    void addPoints(int32_t points);
 private:
     Player(std::string name);
     std::string _name;

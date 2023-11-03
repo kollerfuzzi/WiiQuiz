@@ -25,14 +25,17 @@ public:
         QAQuestion* build();
     private:
         std::string _question;
-        std::map<std::string, bool> _answers;
+        std::vector<std::string> _answers;
+        std::vector<int> _correctAnswers;
     };
     static Builder builder();
 private:
-    QAQuestion(std::string question, std::map<std::string, bool> answers);
+    QAQuestion(std::string question, std::vector<std::string> answers,
+               std::vector<int> correctAnswers);
     void init();
     std::string _question;
-    std::map<std::string, bool> _answers;
+    std::vector<std::string> _answers;
+    std::vector<int> _correctAnswers;
     bool _initialized = false;
     bool _done = false;
     int32_t _timePassed;

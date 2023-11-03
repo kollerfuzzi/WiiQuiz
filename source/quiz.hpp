@@ -15,6 +15,7 @@ public:
     ~Quiz();
     void update(const Clock& clock);
     void render();
+    std::vector<Player*> getPlayers();
 
     class Builder {
     public:
