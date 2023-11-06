@@ -7,7 +7,7 @@
 #include "clock.hpp"
 
 #define SCREEN_WIDTH 640
-#define NO_ANIMATION -1
+#define NO_ANIMATION -2
 #define ANIMATION_END -1
 
 #include "renderable.hpp"
@@ -16,6 +16,7 @@ class TextBox : Renderable {
 public:
     void setText(std::string text);
     void update(const Clock& clock);
+    void copyBufferToContent();
     void render();
     size_t lineCount();
 

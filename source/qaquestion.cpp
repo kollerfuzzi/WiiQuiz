@@ -47,6 +47,7 @@ void QAQuestion::update(const Clock &clock) {
     if (_timePassed > 5000) {
         _done = true;
     }
+
     _textQuestion->update(clock);
     _textAnswers->update(clock);
 }

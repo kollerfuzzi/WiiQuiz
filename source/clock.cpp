@@ -12,7 +12,7 @@ void Clock::tick() {
     this->_lastTime = now;
 }
 
-int Clock::timeElapsedMicros() const {
+int32_t Clock::timeElapsedMicros() const {
     return this->_timeElapsedMicros;
 }
 
@@ -20,11 +20,11 @@ float Clock::timeElapsedMillis() const {
     return static_cast<float>(this->_timeElapsedMicros) / 1000;
 }
 
-int Clock::timeElapsedMillisInt() const {
+int32_t Clock::timeElapsedMillisInt() const {
     return this->_timeElapsedMicros / 1000;
 }
 
-int Clock::currentFPS() const {
+int32_t Clock::currentFPS() const {
     double fps = 1000.0 / this->timeElapsedMillis();
     return static_cast<int>(fps + 0.5);
 }

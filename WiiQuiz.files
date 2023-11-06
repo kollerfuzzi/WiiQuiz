@@ -3,6 +3,7 @@ Makefile
 buildAndRun.sh
 source/clock.cpp
 source/clock.hpp
+source/magic_enum.hpp
 source/main.cpp
 source/player.cpp
 source/player.hpp
@@ -20,8 +21,12 @@ source/resourcemap.cpp
 source/resourcemap.hpp
 source/resources.cpp
 source/resources.hpp
+source/screendebug.cpp
+source/screendebug.hpp
 source/textbox.cpp
 source/textbox.hpp
+source/wiiapiclient.cpp
+source/wiiapiclient.hpp
 source/zr_c64font.cpp
 source/zr_c64font.hpp
 source/zr_evan_mm.cpp
