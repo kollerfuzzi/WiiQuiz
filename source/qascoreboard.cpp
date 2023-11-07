@@ -1,38 +1,49 @@
 #include "qascoreboard.hpp"
 
+#include <cmath>
+
 QAScoreboard::QAScoreboard() {
 
 }
 
 QAScoreboard::~QAScoreboard(){
-
-}
-
-bool pointSort(Player* p1, Player* p2) {
-    return p1->getPoints() > p2->getPoints();
+    delete _playerText;
+    delete _points;
+    delete _title;
 }
 
 void QAScoreboard::init() {
-    std::sort(_players.begin(), _players.end(), pointSort);
+    _state->sortPlayersByScore();
+    std::vector<Player*> players = _state->getPlayers();
+
     std::string playerScores;
     std::string points;
 
-    for (size_t i = 0; i < _players.size(); ++i) {
+    for (size_t i = 0; i < players.size(); ++i) {
         playerScores += std::to_string(i + 1);
         playerScores += ". ";
-        playerScores += _players[i]->getName();
+        playerScores += players[i]->getName();
         playerScores += "\n";
         points += "| ";
-        points += std::to_string(_players[i]->getPoints());
+        points += std::to_string(players[i]->getPoints());
         points += " pts.\n";
     }
+
+    _title = TextBox::builder()
+        .text("LEADERBOARD")
+        .color(RGBA(150, 150, 255, 255))
+        .font(_resources->get(Font::C64FONT))
+        .fontSize(40)
+        .marginTop(40)
+        .animationSpeed(50)
+        .build();
 
     _playerText = TextBox::builder()
         .text(playerScores)
         .color(RGBA(255, 255, 255, 255))
         .font(_resources->get(Font::C64FONT))
         .fontSize(20)
-        .marginTop(130)
+        .marginTop(160)
         .animationSpeed(50)
         .build();
     _points = TextBox::builder()
@@ -40,7 +51,7 @@ void QAScoreboard::init() {
         .color(RGBA(255, 255, 255, 255))
         .font(_resources->get(Font::C64FONT))
         .fontSize(20)
-        .marginTop(130)
+        .marginTop(160)
         .marginLeft(400)
         .animationSpeed(50)
         .build();
@@ -53,13 +64,17 @@ void QAScoreboard::update(const Clock &clock) {
     }
     _playerText->update(clock);
     _points->update(clock);
+    _title->update(clock);
+    _bgAnimation += 0.04f;
 }
 
 void QAScoreboard::render() {
-    GRRLIB_DrawImg(0, 0, _resources->get(Texture::SCOREBOARD_BG), 0, 1, 1.5,
+    GRRLIB_DrawImg((int)(-200 + tan(sin(_bgAnimation)/16) * 200),
+                   0, _resources->get(Texture::SCOREBOARD_BG), 0, 1, 1.5,
                    RGBA(255, 255, 255, 255));
     _playerText->render();
     _points->render();
+    _title->render();
 }
 
 bool QAScoreboard::isDone() {

@@ -1,10 +1,23 @@
 #include "qaquestion.hpp"
 
+#include <cmath>
+
 QAQuestion::QAQuestion(std::string question, std::vector<std::string> answers,
                        std::vector<int> correctAnswers) {
     _question = question;
     _answers = answers;
     _correctAnswers = correctAnswers;
+}
+
+std::vector<Answer> QAQuestion::_getCorrectAnswerPlayers() {
+    std::string correctAnswer(_answers[_correctAnswers[0]]);
+    std::vector<Answer> correctAnswers;
+    for (Answer answer : _state->getAnswers()) {
+        if (answer.getAnswer() == correctAnswer) {
+            correctAnswers.push_back(answer);
+        }
+    }
+    return correctAnswers;
 }
 
 void QAQuestion::init() {
@@ -30,7 +43,58 @@ void QAQuestion::init() {
                        .marginTop(100 + 25 * _textQuestion->lineCount())
                        .animationSpeed(100)
                        .build();
+
+    Question question = toQuestion();
+    _client->askQuestion(question);
+
     _initialized = true;
+}
+
+void QAQuestion::_manageState() {
+    if (_questionState == QAQuestionState::INPUT && _timePassed > 10000) {
+        _timePassed = 0;
+        _questionState = QAQuestionState::SHOW_ANSWERS;
+
+        _client->loadAnswers();
+        std::vector<Answer> answers = _state->getAnswers();
+        _client->endQuestion();
+        std::string playerAnswersText;
+
+        for (Answer& answer : answers) {
+            playerAnswersText += answer.getPlayer()->getName();
+            playerAnswersText += ": ";
+            playerAnswersText += answer.getAnswer();
+            playerAnswersText += "\n";
+        }
+        _textAnswers->setText(playerAnswersText);
+        _textQuestion->setColor(RGBA(100, 100, 100, 255));
+        _textAnswers->setColor(RGBA(150, 150, 255, 255));
+        _textAnswers->setAnimationSpeed(50);
+    } else if (_questionState == QAQuestionState::SHOW_ANSWERS && _timePassed > 7000) {
+        _timePassed = 0;
+        _questionState = QAQuestionState::SHOW_SOLUTION;
+
+        std::string correctAnswerStr = _answers[_correctAnswers[0]];
+        std::string correctAnswerDisplay("The correct answer is:\n");
+        correctAnswerDisplay += correctAnswerStr;
+        _textQuestion->setText(correctAnswerDisplay);
+        _textQuestion->setColor(RGBA(150, 255, 150, 255));
+        std::vector<Answer> correctAnswers = _getCorrectAnswerPlayers();
+        std::string playerPointAdd;
+        for (Answer& correctAnswer : correctAnswers) {
+            playerPointAdd += correctAnswer.getPlayer()->getName();
+            playerPointAdd += " +";
+            playerPointAdd += std::to_string(_questionPoints);
+            playerPointAdd += " pts\n";
+            correctAnswer.getPlayer()->addPoints(_questionPoints);
+        }
+        _textAnswers->setText(playerPointAdd);
+        _textAnswers->setAnimationSpeed(25);
+        _textQuestion->setAnimationSpeed(25);
+        _client->setPoints();
+    } else if (_questionState == QAQuestionState::SHOW_SOLUTION && _timePassed > 5000) {
+        _done = true;
+    }
 }
 
 QAQuestion::~QAQuestion() {
@@ -42,18 +106,19 @@ void QAQuestion::update(const Clock &clock) {
     if (!_initialized) {
         init();
     }
+    _manageState();
 
     _timePassed += clock.timeElapsedMillisInt();
-    if (_timePassed > 5000) {
-        _done = true;
-    }
+    _bgAnimation += 0.02;
 
     _textQuestion->update(clock);
     _textAnswers->update(clock);
 }
 
 void QAQuestion::render() {
-    GRRLIB_DrawImg(0, 0, _resources->get(Texture::QUIZ_BG), 0, 1, 1.4,
+    GRRLIB_DrawImg((int)(-100 + sin(_bgAnimation/2) * 100),
+                   (int)(-100 + cos(_bgAnimation/3) * 100),
+                   _resources->get(Texture::QUIZ_BG), 0, 1, 1.6,
                    RGBA(255, 255, 255, 255));
     _textQuestion->render();
     _textAnswers->render();
@@ -61,6 +126,14 @@ void QAQuestion::render() {
 
 bool QAQuestion::isDone() {
     return _done;
+}
+
+Question QAQuestion::toQuestion() {
+    return Question::builder()
+        .prompt(_question)
+        .answers(_answers)
+        .type(QuestionType::SINGLE_CHOICE)
+        .build();
 }
 
 QAQuestion::Builder QAQuestion::builder() {

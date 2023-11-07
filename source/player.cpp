@@ -1,8 +1,9 @@
 #include "player.hpp"
 
 
-Player::Player(std::string name) {
+Player::Player(std::string name, int32_t points) {
     _name = name;
+    _points = points;
 }
 
 Player::Builder Player::builder() {
@@ -21,11 +22,25 @@ void Player::addPoints(int32_t points) {
     _points += points;
 }
 
+std::string Player::to_str() {
+    std::string string_repr("Player{name=");
+    string_repr += _name;
+    string_repr += ";points=";
+    string_repr += std::to_string(_points);
+    string_repr += "}";
+    return string_repr;
+}
+
 Player::Builder& Player::Builder::name(std::string name) {
     _name = name;
     return *this;
 }
 
+Player::Builder &Player::Builder::points(int32_t points) {
+    _points = points;
+    return *this;
+}
+
 Player* Player::Builder::build() {
-    return new Player(_name);
+    return new Player(_name, _points);
 }

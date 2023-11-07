@@ -26,6 +26,12 @@ void ScreenDebug::printLn(std::string text) {
     instance()->_printLn(text);
 }
 
+void ScreenDebug::print(std::vector<std::string>& lines) {
+    for (std::string& line : lines) {
+        ScreenDebug::printLn(line);
+    }
+}
+
 void ScreenDebug::_printLn(std::string text) {
     _text += text;
     _text += "\n";
@@ -61,5 +67,8 @@ void ScreenDebug::clear() {
 
 void ScreenDebug::_clear() {
     _text = std::string();
-    _textbox = nullptr;
+    if (_textbox != nullptr) {
+        _textbox->setText(_text);
+        _textbox->copyBufferToContent();
+    }
 }

@@ -8,14 +8,22 @@
 
 #include "quizaction.hpp"
 #include "textbox.hpp"
+#include "question.hpp"
+#include "answer.hpp"
+
+enum QAQuestionState {
+    INPUT,
+    SHOW_ANSWERS,
+    SHOW_SOLUTION
+};
 
 class QAQuestion : public QuizAction {
 public:
-
     ~QAQuestion();
     void update(const Clock &clock);
     void render();
     bool isDone();
+    Question toQuestion();
 
     class Builder {
     public:
@@ -32,15 +40,22 @@ public:
 private:
     QAQuestion(std::string question, std::vector<std::string> answers,
                std::vector<int> correctAnswers);
+    std::vector<Answer> _getCorrectAnswerPlayers();
     void init();
+    void _manageState();
     std::string _question;
     std::vector<std::string> _answers;
     std::vector<int> _correctAnswers;
+    QAQuestionState _questionState = QAQuestionState::INPUT;
     bool _initialized = false;
     bool _done = false;
-    int32_t _timePassed;
+    int32_t _timePassed = 0;
     TextBox* _textQuestion;
     TextBox* _textAnswers;
+    TextBox* _textPlayerInput;
+    TextBox* _textCorrectAnswer;
+    float _bgAnimation = 0.0f;
+    unsigned int _questionPoints = 100;
 };
 
 #endif // QAQUESTION_HPP

@@ -1,0 +1,78 @@
+#include "quizstate.hpp"
+
+QuizState::QuizState(Resources* resources) {
+    _resources = resources;
+}
+
+QuizState::~QuizState() {
+    _deletePlayers();
+    _deleteActions();
+}
+
+Resources *QuizState::getResources() {
+    return _resources;
+}
+
+bool pointSort(Player* p1, Player* p2) {
+    return p1->getPoints() > p2->getPoints();
+}
+
+void QuizState::sortPlayersByScore() {
+    std::sort(_players.begin(), _players.end(), pointSort);
+}
+
+void QuizState::setPlayers(std::vector<Player*>& players) {
+    _deletePlayers();
+    _players = players;
+}
+
+std::vector<Player*>& QuizState::getPlayers() {
+    return _players;
+}
+
+Player* QuizState::getPlayerByName(std::string name) {
+    for (Player* player : _players) {
+        if (player->getName() == name) {
+            return player;
+        }
+    }
+    return nullptr;
+}
+
+void QuizState::setActions(std::vector<QuizAction*>& actions) {
+    _deleteActions();
+    _actions = actions;
+}
+
+std::vector<QuizAction*>& QuizState::getActons() {
+    return _actions;
+}
+
+void QuizState::setAnswers(std::vector<Answer>& answers) {
+    _answers = answers;
+}
+
+std::vector<Answer>& QuizState::getAnswers() {
+    return _answers;
+}
+
+QuizAction* QuizState::getCurrentAction() {
+    return _actions[_currentAction];
+}
+
+QuizAction* QuizState::nextAction() {
+    _currentAction++;
+    return _actions[_currentAction];
+}
+
+void QuizState::_deletePlayers() {
+    for (Player* player : _players) {
+        delete player;
+    }
+}
+
+void QuizState::_deleteActions() {
+    for (QuizAction* action : _actions) {
+        delete action;
+    }
+}

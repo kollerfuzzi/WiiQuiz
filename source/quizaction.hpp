@@ -6,6 +6,11 @@
 #include "renderable.hpp"
 #include "resources.hpp"
 #include "player.hpp"
+#include "quizstate.hpp"
+#include "quizapiclient.hpp"
+
+class QuizState;
+class QuizAPIClient;
 
 class QuizAction {
 public:
@@ -14,10 +19,12 @@ public:
     virtual void render() = 0;
     virtual bool isDone() = 0;
     void setResources(Resources* resources);
-    void setPlayers(std::vector<Player*> players);
+    void setState(QuizState* state);
+    void setClient(QuizAPIClient* state);
 protected:
     Resources* _resources;
-    std::vector<Player*> _players;
+    QuizState* _state;
+    QuizAPIClient* _client;
 };
 
 #endif // QUIZACTION_HPP

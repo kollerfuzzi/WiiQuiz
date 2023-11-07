@@ -11,51 +11,49 @@
 #include "asndlib.h"
 #include "mp3player.h"
 
+#include "qastart.hpp"
 #include "qaquestion.hpp"
 #include "qascoreboard.hpp"
 #include "quiz.hpp"
 #include "player.hpp"
-#include "wiiapiclient.hpp"
+#include "quizapiclient.hpp"
 #include "screendebug.hpp"
+
 
 int main(int argc, char** argv) {
     GRRLIB_Init();
-    GRRLIB_SetBackgroundColour(0x00, 0xaa, 0x00, 0xFF);
+    GRRLIB_SetBackgroundColour(0x00, 0x00, 0x00, 0xFF);
     WPAD_Init();
 
     std::unique_ptr<Resources> resources = std::make_unique<Resources>();
     ScreenDebug::init(resources.get());
 
-    WiiAPIClient* client = new WiiAPIClient();
-    client->init();
-    ScreenDebug::printLn("HEY_DUKE:");
-    client->request(ApiCommand::HEY_DUKE);
-    ScreenDebug::printLn("\nGET_PLAYERS:");
-    client->request(ApiCommand::GET_PLAYERS);
-    ScreenDebug::printLn("\nEND_QUESTION:");
-    client->request(ApiCommand::END_QUESTION);
-
-
-
     Quiz* quiz = Quiz::builder()
                      .resources(resources.get())
+                     .action(QAStart::builder().build())
+                     .action(QAQuestion::builder()
+                                 .question("Was ist der operative casflow?")
+                                 .correctAnswer("OCF")
+                                 .wrongAnswer("UCF")
+                                 .wrongAnswer("FCF")
+                                 .wrongAnswer("BUEB")
+                                 .wrongAnswer("BAB")
+                                 .build())
+                     /*.action(QAQuestion::builder()
+                                 .question("Was ist 4x4 (hexadezimal)?")
+                                 .correctAnswer("10")
+                                 .wrongAnswer("F")
+                                 .wrongAnswer("FF")
+                                 .wrongAnswer("8")
+                                 .wrongAnswer("NullPointerException")
+                                 .build())
                      .action(QAQuestion::builder()
                                  .question("What is the Answer?")
                                  .correctAnswer("correct")
                                  .wrongAnswer("wrong")
-                                 .build())
+                                 .build())*/
                      .action(QAScoreboard::builder().build())
-                     .player(Player::builder().name("Andre").build())
-                     .player(Player::builder().name("Alexander Paul").build())
-                     .player(Player::builder().name("Elias").build())
-                     .player(Player::builder().name("Gabsy").build())
-                     .player(Player::builder().name("Detlef").build())
                      .build();
-    quiz->getPlayers()[0]->addPoints(1134);
-    quiz->getPlayers()[1]->addPoints(2543);
-    quiz->getPlayers()[2]->addPoints(45);
-    quiz->getPlayers()[3]->addPoints(0);
-    quiz->getPlayers()[4]->addPoints(20000);
 
 
     //MP3 TEST
@@ -66,7 +64,6 @@ int main(int argc, char** argv) {
     while(true) {
         frameClock.tick();
 
-
         WPAD_ScanPads();  // Scan the Wiimotes
  
         if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME)  break;
@@ -74,20 +71,22 @@ int main(int argc, char** argv) {
         quiz->update(frameClock);
 
         if (!MP3Player_IsPlaying())
-            MP3Player_PlayBuffer(resources->get(Audio::EVAN_MM).audioRef,
-                                 resources->get(Audio::EVAN_MM).audioLen,
+            MP3Player_PlayBuffer(resources->get(Audio::GETTING_READY).audioRef,
+                                 resources->get(Audio::GETTING_READY).audioLen,
                                  NULL);
 
 
         quiz->render();
-        ScreenDebug::instance()->render();
+        ScreenDebug::render();
 
         GRRLIB_Render();
     }
 
-    ScreenDebug::destroy();
+
     GRRLIB_Exit();
 
+    ScreenDebug::destroy();
+    //delete quiz;
 
     exit(0);
 }

@@ -3,6 +3,11 @@
 void TextBox::setText(std::string text) {
     _textContent.clear();
     _textBuffer.clear();
+    _animationTimePassed = 0;
+    _animationCursorCharCount = 0;
+    _animationCursorLine = 0;
+    _animationCursorLinePos = 0;
+    _animationState = TextBoxAnimationState::RUNNING;
 
     std::string line;
     for (auto &character : text) {
@@ -32,12 +37,20 @@ void TextBox::setText(std::string text) {
     _textContent.push_back(line);
 }
 
+void TextBox::setColor(int color) {
+    _color = color;
+}
+
+void TextBox::setAnimationSpeed(unsigned int speed) {
+    _animationSpeed = speed;
+}
+
 void TextBox::update(const Clock &clock) {
-    if (_animationSpeed == ANIMATION_END) {
+    if (_animationState == TextBoxAnimationState::TERMINATED) {
         return;
     }
 
-    if (_animationSpeed == NO_ANIMATION) {
+    if (_animationSpeed == NO_ANIMATION || _textContent.empty()) {
         copyBufferToContent();
         return;
     }
@@ -54,7 +67,7 @@ void TextBox::update(const Clock &clock) {
         }
 
         if (_animationCursorLine >= _textContent.size()) {
-            _animationSpeed = ANIMATION_END;
+            _animationState = TextBoxAnimationState::TERMINATED;
             break;
         }
 

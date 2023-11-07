@@ -1,8 +1,6 @@
 #ifndef QASCOREBOARD_HPP
 #define QASCOREBOARD_HPP
 
-#include <algorithm>
-
 #include "quizaction.hpp"
 #include "textbox.hpp"
 #include "player.hpp"
@@ -23,10 +21,11 @@ public:
     static Builder builder();
 private:
     void init();
-
+    TextBox* _title;
     TextBox* _playerText;
     TextBox* _points;
     bool _initialized = false;
+    float _bgAnimation = 0.0f;
 };
 
 #endif // QASCOREBOARD_HPP

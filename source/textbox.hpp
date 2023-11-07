@@ -7,14 +7,20 @@
 #include "clock.hpp"
 
 #define SCREEN_WIDTH 640
-#define NO_ANIMATION -2
-#define ANIMATION_END -1
+#define NO_ANIMATION -1
 
 #include "renderable.hpp"
+
+enum TextBoxAnimationState {
+    RUNNING,
+    TERMINATED
+};
 
 class TextBox : Renderable {
 public:
     void setText(std::string text);
+    void setColor(int color);
+    void setAnimationSpeed(unsigned int speed);
     void update(const Clock& clock);
     void copyBufferToContent();
     void render();
@@ -57,6 +63,7 @@ private:
     unsigned int _marginLeft;
     unsigned int _marginRight;
     int _animationSpeed;
+    TextBoxAnimationState _animationState = TextBoxAnimationState::RUNNING;
     unsigned int _animationTimePassed = 0;
     unsigned int _animationCursorCharCount = 0;
     unsigned int _animationCursorLine = 0;

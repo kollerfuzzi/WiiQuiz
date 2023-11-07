@@ -8,14 +8,15 @@
 #include "clock.hpp"
 #include "renderable.hpp"
 #include "resources.hpp"
-
+#include "quizstate.hpp"
+#include "quizapiclient.hpp"
 
 class Quiz : Renderable {
 public:
     ~Quiz();
     void update(const Clock& clock);
     void render();
-    std::vector<Player*> getPlayers();
+    QuizState* getState();
 
     class Builder {
     public:
@@ -31,12 +32,11 @@ public:
     static Builder builder();
 
 private:
-    Quiz(Resources* resources, std::vector<QuizAction*> actions,
-         std::vector<Player*> players);
-    std::vector<QuizAction*> _actions;
-    std::vector<Player*> _players;
-    size_t _currentAction = 0;
+    Quiz(QuizState* state, QuizAPIClient* client);
+
+    QuizState* _state;
     Resources* _resources;
+    QuizAPIClient* _client;
 };
 
 #endif // QUIZ_HPP

@@ -8,12 +8,15 @@
 #include "zr_evan_mm.hpp"
 #include "zr_scoreboard.hpp"
 #include "zr_image_test.hpp"
+#include "zr_start.hpp"
+#include "zr_getting_ready.hpp"
 
 enum Font {
     C64FONT
 };
 
 enum Texture {
+    START_BG,
     QUIZ_BG,
     SCOREBOARD_BG
 };
@@ -21,7 +24,8 @@ enum Texture {
 enum Audio {
     TEXT_LETTER,
     TEXT_DONE,
-    EVAN_MM
+    EVAN_MM,
+    GETTING_READY
 };
 
 

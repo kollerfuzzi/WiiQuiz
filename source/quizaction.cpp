@@ -5,9 +5,13 @@ QuizAction::~QuizAction() {
 }
 
 void QuizAction::setResources(Resources* resources) {
-    this->_resources = resources;
+    _resources = resources;
 }
 
-void QuizAction::setPlayers(std::vector<Player*> players) {
-    this->_players = players;
+void QuizAction::setState(QuizState* state) {
+    _state = state;
+}
+
+void QuizAction::setClient(QuizAPIClient* client) {
+    _client = client;
 }

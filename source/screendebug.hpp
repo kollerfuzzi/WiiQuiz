@@ -12,6 +12,7 @@ public:
     static void destroy();
     static ScreenDebug* instance();
     static void printLn(std::string text);
+    static void print(std::vector<std::string>& lines);
     static void render();
     static void clear();
 private:

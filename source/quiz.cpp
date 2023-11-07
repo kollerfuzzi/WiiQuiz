@@ -1,60 +1,60 @@
 #include "quiz.hpp"
 
 Quiz::~Quiz() {
-    for (QuizAction* quizAction: this->_actions) {
-        delete quizAction;
-    }
-    for (Player* player: this->_players) {
-        delete player;
-    }
+    delete _state;
 }
 
 void Quiz::update(const Clock &clock) {
-    QuizAction* currentAction = _actions[_currentAction];
-    if (currentAction->isDone() && _actions.size() != _currentAction + 1) {
-        _currentAction++;
-        currentAction = _actions[_currentAction];
+    QuizAction* currentAction = _state->getCurrentAction();
+    if (currentAction->isDone()) {
+        currentAction = _state->nextAction();
     }
     currentAction->update(clock);
 }
 
 void Quiz::render() {
-    _actions[_currentAction]->render();
+    _state->getCurrentAction()->render();
 }
 
-std::vector<Player*> Quiz::getPlayers() {
-    return _players;
+QuizState *Quiz::getState() {
+    return _state;
 }
 
 Quiz::Builder Quiz::builder() {
     return Quiz::Builder();
 }
 
-Quiz::Quiz(Resources *resources, std::vector<QuizAction*> actions, std::vector<Player*> players) {
-    _resources = resources;
-    _actions = actions;
-    _players = players;
+Quiz::Quiz(QuizState* state, QuizAPIClient *client) {
+    _resources = state->getResources();
+    _state = state;
+    _client = client;
 }
 
 Quiz::Builder& Quiz::Builder::resources(Resources* resources) {
-    this->_resources = resources;
+    _resources = resources;
     return *this;
 }
 
 Quiz::Builder& Quiz::Builder::action(QuizAction* action) {
-    this->_actions.push_back(action);
+    _actions.push_back(action);
     return *this;
 }
 
 Quiz::Builder& Quiz::Builder::player(Player* player) {
-    this->_players.push_back(player);
+    _players.push_back(player);
     return *this;
 }
 
 Quiz* Quiz::Builder::build() {
-    for (QuizAction* action : this->_actions) {
-        action->setResources(this->_resources);
-        action->setPlayers(this->_players);
+    QuizState* state = new QuizState(_resources);
+    QuizAPIClient* client = new QuizAPIClient(state);
+    state->setPlayers(_players);
+    state->setActions(_actions);
+    for (QuizAction* action : _actions) {
+        action->setClient(client);
+        action->setState(state);
+        action->setResources(_resources);
     }
-    return new Quiz(this->_resources, this->_actions, this->_players);
+
+    return new Quiz(state, client);
 }
