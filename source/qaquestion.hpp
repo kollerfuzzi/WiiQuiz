@@ -49,13 +49,13 @@ private:
     QAQuestionState _questionState = QAQuestionState::INPUT;
     bool _initialized = false;
     bool _done = false;
-    int32_t _timePassed = 0;
+    u32 _timePassed = 0;
     TextBox* _textQuestion;
     TextBox* _textAnswers;
-    TextBox* _textPlayerInput;
-    TextBox* _textCorrectAnswer;
+    TextBox* _textTimeLeft;
     float _bgAnimation = 0.0f;
-    unsigned int _questionPoints = 100;
+    u32 _questionPoints = 100;
+    u32 _answerTime = 10000;
 };
 
 #endif // QAQUESTION_HPP

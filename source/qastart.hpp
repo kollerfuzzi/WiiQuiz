@@ -5,7 +5,7 @@
 #include "quizaction.hpp"
 #include "wiiuse/wpad.h"
 #include "grrlib.h"
-
+#include "confirm.hpp"
 
 class QAStart : public QuizAction {
 public:
@@ -29,6 +29,7 @@ private:
     int32_t _loadTimer = 0;
     TextBox* _welcomeText;
     TextBox* _playerText;
+    Confirm* _startConfirm;
 };
 
 #endif // QASTART_HPP

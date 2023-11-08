@@ -18,7 +18,7 @@
 #include "screendebug.hpp"
 #include "wiimote.hpp"
 
-enum QuizLoopState { Q_TERMINATE, Q_RUN };
+enum QuizLoopState { Q_RUN, Q_TERMINATE };
 
 QuizLoopState quizLoop(Quiz* quiz, Clock& frameClock, Resources* resources);
 
@@ -33,11 +33,12 @@ int main(int argc, char** argv) {
 
     Quiz* quiz = QuizTemplate::getDefaultQuiz(resources.get());
 
+    Clock frameClock;
+
     //MP3 TEST
     ASND_Init();
     MP3Player_Init();
 
-    Clock frameClock;
     while(QuizLoopState::Q_RUN == quizLoop(quiz, frameClock, resources.get()));
 
 
@@ -54,14 +55,14 @@ QuizLoopState quizLoop(Quiz* quiz, Clock& frameClock, Resources* resources) {
     WiiMote::update();
 
     if (WiiMote::buttonPressed(Remote::R1, Button::HOME)) {
-        return QuizLoopState::Q_RUN;
+        return QuizLoopState::Q_TERMINATE;
     }
 
     quiz->update(frameClock);
 
     if (!MP3Player_IsPlaying()) {
-        MP3Player_PlayBuffer(resources->get(Audio::GETTING_READY).audioRef,
-                             resources->get(Audio::GETTING_READY).audioLen,
+        MP3Player_PlayBuffer(resources->get(Audio::DISCOQUALLEN).audioRef,
+                             resources->get(Audio::DISCOQUALLEN).audioLen,
                              NULL);
     }
 
@@ -70,5 +71,6 @@ QuizLoopState quizLoop(Quiz* quiz, Clock& frameClock, Resources* resources) {
     ScreenDebug::render();
 
     GRRLIB_Render();
-    return QuizLoopState::Q_TERMINATE;
+
+    return QuizLoopState::Q_RUN;
 }

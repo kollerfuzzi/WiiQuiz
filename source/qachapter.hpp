@@ -5,8 +5,9 @@
 #include "quizaction.hpp"
 #include "clock.hpp"
 #include "wiimote.hpp"
+#include "confirm.hpp"
 
-class QAChapter : QuizAction {
+class QAChapter : public QuizAction {
 public:
     QAChapter(std::string title);
     ~QAChapter();
@@ -26,7 +27,7 @@ private:
     bool _initialized;
     std::string _title;
     TextBox* _titleBox;
-    TextBox* _continueText;
+    Confirm* _confirm;
 };
 
 #endif // QACHAPTER_HPP

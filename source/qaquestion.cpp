@@ -22,12 +22,12 @@ std::vector<Answer> QAQuestion::_getCorrectAnswerPlayers() {
 
 void QAQuestion::init() {
     _textQuestion = TextBox::builder()
-                        .text(_question)
-                        .font(_resources->get(Font::C64FONT))
-                        .fontSize(25)
-                        .marginTop(50)
-                        .animationSpeed(100)
-                        .build();
+        .text(_question)
+        .font(_resources->get(Font::C64FONT))
+        .fontSize(25)
+        .marginTop(50)
+        .animationSpeed(100)
+        .build();
     std::string answers;
     for (size_t answerNr = 0; answerNr < _answers.size(); ++answerNr) {
         answers += (char)(answerNr + 'A');
@@ -36,13 +36,20 @@ void QAQuestion::init() {
         answers += "\n";
     }
     _textAnswers = TextBox::builder()
-                       .text(answers)
-                       .color(RGBA(230, 230, 230, 255))
-                       .font(_resources->get(Font::C64FONT))
-                       .fontSize(25)
-                       .marginTop(100 + 25 * _textQuestion->lineCount())
-                       .animationSpeed(100)
-                       .build();
+        .text(answers)
+        .color(RGBA(230, 230, 230, 255))
+        .font(_resources->get(Font::C64FONT))
+        .fontSize(25)
+        .marginTop(100 + 25 * _textQuestion->lineCount())
+        .animationSpeed(100)
+        .build();
+
+    _textTimeLeft = TextBox::builder()
+        .color(RGBA(255, 150, 150, 255))
+        .font(_resources->get(Font::C64FONT))
+        .fontSize(35)
+        .marginTop(400)
+        .build();
 
     Question question = toQuestion();
     _client->askQuestion(question);
@@ -51,7 +58,13 @@ void QAQuestion::init() {
 }
 
 void QAQuestion::_manageState() {
-    if (_questionState == QAQuestionState::INPUT && _timePassed > 10000) {
+    if (_timePassed > 5000 && _timePassed < _answerTime) {
+        _textTimeLeft->setText(
+            std::to_string(((_answerTime - _timePassed) / 1000) + 1));
+        _textTimeLeft->copyBufferToContent();
+    }
+
+    if (_questionState == QAQuestionState::INPUT && _timePassed > _answerTime) {
         _timePassed = 0;
         _questionState = QAQuestionState::SHOW_ANSWERS;
 
@@ -70,6 +83,7 @@ void QAQuestion::_manageState() {
         _textQuestion->setColor(RGBA(100, 100, 100, 255));
         _textAnswers->setColor(RGBA(150, 150, 255, 255));
         _textAnswers->setAnimationSpeed(50);
+
     } else if (_questionState == QAQuestionState::SHOW_ANSWERS && _timePassed > 7000) {
         _timePassed = 0;
         _questionState = QAQuestionState::SHOW_SOLUTION;
@@ -113,6 +127,7 @@ void QAQuestion::update(const Clock &clock) {
 
     _textQuestion->update(clock);
     _textAnswers->update(clock);
+    _textTimeLeft->update(clock);
 }
 
 void QAQuestion::render() {
@@ -122,6 +137,9 @@ void QAQuestion::render() {
                    RGBA(255, 255, 255, 255));
     _textQuestion->render();
     _textAnswers->render();
+    if (_questionState == QAQuestionState::INPUT) {
+        _textTimeLeft->render();
+    }
 }
 
 bool QAQuestion::isDone() {

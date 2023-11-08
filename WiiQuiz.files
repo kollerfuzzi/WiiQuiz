@@ -7,6 +7,8 @@ source/apiclient.cpp
 source/apiclient.hpp
 source/clock.cpp
 source/clock.hpp
+source/confirm.cpp
+source/confirm.hpp
 source/magic_enum.hpp
 source/main.cpp
 source/player.cpp
@@ -15,6 +17,8 @@ source/qachapter.cpp
 source/qachapter.hpp
 source/qaquestion.cpp
 source/qaquestion.hpp
+source/qarythmminigame.cpp
+source/qarythmminigame.hpp
 source/qascoreboard.cpp
 source/qascoreboard.hpp
 source/qastart.cpp
@@ -45,6 +49,9 @@ source/textbox.cpp
 source/textbox.hpp
 source/wiimote.cpp
 source/wiimote.hpp
+source/zr_btn_a.hpp
+source/zr_btn_one.hpp
+source/zr_btn_two.hpp
 source/zr_c64font.cpp
 source/zr_c64font.hpp
 source/zr_evan_mm.cpp
@@ -61,3 +68,9 @@ source/zr_text_done.hpp
 source/zr_text_letter.cpp
 source/zr_text_letter.hpp
 source/zr_getting_ready.hpp
+source/zr_btn_dpad.cpp
+source/zr_btn_a.cpp
+source/zr_btn_one.cpp
+source/zr_btn_two.cpp
+source/zr_btn_two.cpp
+source/zr_discoquallen.cpp

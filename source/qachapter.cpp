@@ -6,17 +6,20 @@ QAChapter::QAChapter(std::string title) {
 
 QAChapter::~QAChapter() {
     delete _titleBox;
+    delete _confirm;
 }
 
 void QAChapter::update(const Clock &clock) {
+    _init();
     _titleBox->update(clock);
-    if (_titleBox->getAnimationState() == TextBoxAnimationState::TERMINATED) {
-        _continueText->update(clock);
-    }
+    _confirm->update(clock);
+    _confirm->setEnabled(_titleBox->getAnimationState()
+                         == TextBoxAnimationState::TERMINATED);
 }
 
 void QAChapter::render() {
     _titleBox->render();
+    _confirm->render();
 }
 
 bool QAChapter::isDone() {
@@ -36,23 +39,16 @@ void QAChapter::_init() {
         .text(_title)
         .color(RGBA(255, 255, 255, 255))
         .font(_resources->get(Font::C64FONT))
-        .fontSize(50)
-        .marginTop(200)
+        .fontSize(40)
+        .marginTop(150)
         .marginLeft(50)
         .marginRight(50)
         .animationSpeed(50)
         .build();
 
-
-    _continueText = TextBox::builder()
-        .text("Press <A> to continue")
-        .color(RGBA(255, 255, 255, 255))
-        .font(_resources->get(Font::C64FONT))
-        .fontSize(50)
-        .marginTop(300)
-        .marginLeft(100)
-        .marginRight(100)
-        .animationSpeed(50)
+    _confirm = Confirm::builder()
+        .resources(_resources)
+        .enabled(false)
         .build();
 
     _initialized = true;

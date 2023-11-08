@@ -11,6 +11,12 @@
 #include "zr_start.hpp"
 #include "zr_getting_ready.hpp"
 
+#include "zr_discoquallen.hpp"
+#include "zr_btn_a.hpp"
+#include "zr_btn_dpad.hpp"
+#include "zr_btn_one.hpp"
+#include "zr_btn_two.hpp"
+
 enum Font {
     C64FONT
 };
@@ -18,14 +24,19 @@ enum Font {
 enum Texture {
     START_BG,
     QUIZ_BG,
-    SCOREBOARD_BG
+    SCOREBOARD_BG,
+    BTN_A,
+    BTN_DPAD,
+    BTN_ONE,
+    BTN_TWO
 };
 
 enum Audio {
     TEXT_LETTER,
     TEXT_DONE,
     EVAN_MM,
-    GETTING_READY
+    GETTING_READY,
+    DISCOQUALLEN
 };
 
 

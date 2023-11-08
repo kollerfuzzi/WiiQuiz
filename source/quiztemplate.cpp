@@ -3,11 +3,15 @@
 #include "qastart.hpp"
 #include "qaquestion.hpp"
 #include "qascoreboard.hpp"
+#include "qachapter.hpp"
+#include "qarythmminigame.hpp"
 
 Quiz* QuizTemplate::getDefaultQuiz(Resources* resources) {
     return Quiz::builder()
         .resources(resources)
         .action(QAStart::builder().build())
+        .action(QARythmMinigame::builder().build())
+        .action(QAChapter::builder().title("Kapitel 1:\nRechnungswesen").build())
         .action(QAQuestion::builder()
                  .question("Was ist der operative casflow?")
                  .correctAnswer("OCF")

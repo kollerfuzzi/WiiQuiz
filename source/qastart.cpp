@@ -8,6 +8,7 @@ QAStart::QAStart() {
 QAStart::~QAStart() {
     delete _welcomeText;
     delete _playerText;
+    delete _startConfirm;
 }
 
 void QAStart::init() {
@@ -21,30 +22,35 @@ void QAStart::init() {
     welcome += "\nand enter your name.\n\nLobby:\n";
 
     _welcomeText = TextBox::builder()
-                      .text(welcome)
-                      .color(RGBA(255, 255, 255, 255))
-                      .font(_resources->get(Font::C64FONT))
-                      .fontSize(20)
-                      .marginTop(50)
-                      .marginLeft(50)
-                      .marginRight(50)
-                      .animationSpeed(50)
-                      .build();
+        .text(welcome)
+        .color(RGBA(255, 255, 255, 255))
+        .font(_resources->get(Font::C64FONT))
+        .fontSize(20)
+        .marginTop(50)
+        .marginLeft(50)
+        .marginRight(50)
+        .animationSpeed(50)
+        .build();
     _playerText = TextBox::builder()
-                  .text("")
-                  .color(RGBA(180, 100, 255, 255))
-                  .font(_resources->get(Font::C64FONT))
-                  .fontSize(15)
-                  .marginTop(200)
-                  .marginLeft(75)
-                  .marginRight(75)
-                  .build();
+        .text("")
+        .color(RGBA(180, 100, 255, 255))
+        .font(_resources->get(Font::C64FONT))
+        .fontSize(15)
+        .marginTop(200)
+        .marginLeft(75)
+        .marginRight(75)
+        .build();
+    _startConfirm = Confirm::builder()
+        .resources(_resources)
+        .enabled(false)
+        .build();
+
     _initialized = true;
 }
 
 void QAStart::update(const Clock &clock) {
     init();
-    _started = WPAD_ButtonsDown(0) & WPAD_BUTTON_A;
+
     _lightx += 0.05f;
     if (_loadTimer <= 0) {
         _client->loadPlayers();
@@ -63,8 +69,11 @@ void QAStart::update(const Clock &clock) {
     }
     _welcomeText->update(clock);
 
-    _loadTimer--;
+    _startConfirm->update(clock);
+    _startConfirm->setEnabled(!_state->getPlayers().empty());
+    _started = _startConfirm->isConfirmed();
 
+    _loadTimer--;
 }
 
 void QAStart::render() {
@@ -73,11 +82,11 @@ void QAStart::render() {
 
     GRRLIB_SetLightAmbient(0x404040FF);
 
-    GRRLIB_SetLightSpot(1, (guVector){ sin(_lightx)*2.5f, 0.8f, 0 },
-                        (guVector){  sin(_lightx)*2.5f, 0.0f, 0.0f },
+    GRRLIB_SetLightSpot(1, (guVector){(f32) (sin(_lightx)*2.5f), 0.8f, 0 },
+                        (guVector){(f32) (sin(_lightx)*2.5f), 0.0f, 0.0f },
                         -4.0f, 5.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0x0000FFFF);
-    GRRLIB_SetLightSpot(2, (guVector){ -sin(_lightx)*2.5f, 0.8f, 0 },
-                        (guVector){  -sin(_lightx)*2.5f, 0.0f, 0.0f },
+    GRRLIB_SetLightSpot(2, (guVector){(f32) (-sin(_lightx)*2.5f), 0.8f, 0 },
+                        (guVector){(f32) (-sin(_lightx)*2.5f), 0.0f, 0.0f },
                         -4.0f, 5.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0xFF0000FF);
 
     GRRLIB_3dMode(0.1,1000,45,0,1);
@@ -87,7 +96,7 @@ void QAStart::render() {
     GRRLIB_2dMode();
     _welcomeText->render();
     _playerText->render();
-    //GRRLIB_DrawImg(0, 0, _resources->get(Texture::START_BG), 0, 0.8, 0.8, RGBA(255, 255, 255, 255));
+    _startConfirm->render();
 }
 
 bool QAStart::isDone() {
