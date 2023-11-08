@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
     MP3Player_Init();
 
     Clock frameClock;
-    while(QuizLoopState::Q_TERMINATE == quizLoop(quiz, frameClock, resources.get()));
+    while(QuizLoopState::Q_RUN == quizLoop(quiz, frameClock, resources.get()));
 
 
     GRRLIB_Exit();
