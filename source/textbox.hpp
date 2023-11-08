@@ -24,6 +24,7 @@ public:
     void update(const Clock& clock);
     void copyBufferToContent();
     void render();
+    TextBoxAnimationState getAnimationState();
     size_t lineCount();
 
 

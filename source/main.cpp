@@ -11,82 +11,64 @@
 #include "asndlib.h"
 #include "mp3player.h"
 
-#include "qastart.hpp"
-#include "qaquestion.hpp"
-#include "qascoreboard.hpp"
+#include "quiztemplate.hpp"
 #include "quiz.hpp"
 #include "player.hpp"
 #include "quizapiclient.hpp"
 #include "screendebug.hpp"
+#include "wiimote.hpp"
 
+enum QuizLoopState { Q_TERMINATE, Q_RUN };
+
+QuizLoopState quizLoop(Quiz* quiz, Clock& frameClock, Resources* resources);
 
 int main(int argc, char** argv) {
     GRRLIB_Init();
     GRRLIB_SetBackgroundColour(0x00, 0x00, 0x00, 0xFF);
-    WPAD_Init();
+
+    WiiMote::init();
 
     std::unique_ptr<Resources> resources = std::make_unique<Resources>();
     ScreenDebug::init(resources.get());
 
-    Quiz* quiz = Quiz::builder()
-                     .resources(resources.get())
-                     .action(QAStart::builder().build())
-                     .action(QAQuestion::builder()
-                                 .question("Was ist der operative casflow?")
-                                 .correctAnswer("OCF")
-                                 .wrongAnswer("UCF")
-                                 .wrongAnswer("FCF")
-                                 .wrongAnswer("BUEB")
-                                 .wrongAnswer("BAB")
-                                 .build())
-                     /*.action(QAQuestion::builder()
-                                 .question("Was ist 4x4 (hexadezimal)?")
-                                 .correctAnswer("10")
-                                 .wrongAnswer("F")
-                                 .wrongAnswer("FF")
-                                 .wrongAnswer("8")
-                                 .wrongAnswer("NullPointerException")
-                                 .build())
-                     .action(QAQuestion::builder()
-                                 .question("What is the Answer?")
-                                 .correctAnswer("correct")
-                                 .wrongAnswer("wrong")
-                                 .build())*/
-                     .action(QAScoreboard::builder().build())
-                     .build();
-
+    Quiz* quiz = QuizTemplate::getDefaultQuiz(resources.get());
 
     //MP3 TEST
     ASND_Init();
     MP3Player_Init();
 
     Clock frameClock;
-    while(true) {
-        frameClock.tick();
-
-        WPAD_ScanPads();  // Scan the Wiimotes
- 
-        if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME)  break;
-
-        quiz->update(frameClock);
-
-        if (!MP3Player_IsPlaying())
-            MP3Player_PlayBuffer(resources->get(Audio::GETTING_READY).audioRef,
-                                 resources->get(Audio::GETTING_READY).audioLen,
-                                 NULL);
-
-
-        quiz->render();
-        ScreenDebug::render();
-
-        GRRLIB_Render();
-    }
+    while(QuizLoopState::Q_TERMINATE == quizLoop(quiz, frameClock, resources.get()));
 
 
     GRRLIB_Exit();
 
     ScreenDebug::destroy();
-    //delete quiz;
+    //delete quiz; // TODO crashes
 
     exit(0);
+}
+
+QuizLoopState quizLoop(Quiz* quiz, Clock& frameClock, Resources* resources) {
+    frameClock.tick();
+    WiiMote::update();
+
+    if (WiiMote::buttonPressed(Remote::R1, Button::HOME)) {
+        return QuizLoopState::Q_RUN;
+    }
+
+    quiz->update(frameClock);
+
+    if (!MP3Player_IsPlaying()) {
+        MP3Player_PlayBuffer(resources->get(Audio::GETTING_READY).audioRef,
+                             resources->get(Audio::GETTING_READY).audioLen,
+                             NULL);
+    }
+
+
+    quiz->render();
+    ScreenDebug::render();
+
+    GRRLIB_Render();
+    return QuizLoopState::Q_TERMINATE;
 }

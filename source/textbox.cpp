@@ -101,6 +101,10 @@ void TextBox::render() {
     }
 }
 
+TextBoxAnimationState TextBox::getAnimationState() {
+    return _animationState;
+}
+
 size_t TextBox::lineCount() {
     return _textContent.size();
 }

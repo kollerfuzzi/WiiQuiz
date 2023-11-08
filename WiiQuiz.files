@@ -11,6 +11,8 @@ source/magic_enum.hpp
 source/main.cpp
 source/player.cpp
 source/player.hpp
+source/qachapter.cpp
+source/qachapter.hpp
 source/qaquestion.cpp
 source/qaquestion.hpp
 source/qascoreboard.cpp
@@ -27,6 +29,8 @@ source/quizapiclient.cpp
 source/quizapiclient.hpp
 source/quizstate.cpp
 source/quizstate.hpp
+source/quiztemplate.cpp
+source/quiztemplate.hpp
 source/renderable.cpp
 source/renderable.hpp
 source/resourcemap.cpp
@@ -39,6 +43,8 @@ source/stringutils.cpp
 source/stringutils.hpp
 source/textbox.cpp
 source/textbox.hpp
+source/wiimote.cpp
+source/wiimote.hpp
 source/zr_c64font.cpp
 source/zr_c64font.hpp
 source/zr_evan_mm.cpp
