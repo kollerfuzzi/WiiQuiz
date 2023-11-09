@@ -1,7 +1,7 @@
 #include "resourcefilemanager.hpp"
 
 ResourceFileManager::ResourceFileManager() {
-
+    init();
 }
 
 
@@ -9,45 +9,66 @@ void ResourceFileManager::init() {
     if (!fatInitDefault()) {
         throw -1;
     }
-
-    const char* dir = "SD:/wiiquiz";
-    struct stat sb;
-    if (stat(dir, &sb) != 0) {
-        mkdir("SD:/wiiquiz", 0777);
-    }
 }
 
 void ResourceFileManager::saveResource(std::string& resourceName, std::string& contentBase64) {
-    std::vector<unsigned char> bytes = base64_decode(contentBase64);
-
-    std::string filePath("SD:/wiiquiz/");
-    filePath += resourceName;
-    filePath += ".BIN";
-
-    std::ofstream file(filePath, std::ios::out | std::ios::binary);
-    file.open(filePath.c_str());
-    file.write((char*) bytes.data(), bytes.size());
-    file.close();
-}
-
-unsigned char* ResourceFileManager::loadResource(std::string &resourceName) {
-    std::string filePath("SD:/wiiquiz/");
-    filePath += resourceName;
-    filePath += ".BIN";
-
-    std::ifstream file(filePath, std::ios::binary | std::ios::ate);
-    std::streamsize size = file.tellg();
-    file.seekg(0, std::ios::beg);
-
-    std::vector<char> buffer(size);
-    if (!file.read(buffer.data(), size)) {
+    std::string fileName = _resourceNameToFileName(resourceName);
+    FILE *f = fopen (fileName.c_str(), "wb");
+    if (f == NULL) {
         throw -1;
+    } else {
+        std::vector<unsigned char> base = base64_decode(contentBase64);
+        fwrite(&base[0], 1, base.size(), f);
+        fclose(f);
     }
-    unsigned char* bytes = new unsigned char[buffer.size()];
-    std::copy(buffer.begin(), buffer.end(), bytes);
-    return bytes;
 }
 
-void ResourceFileManager::freeResource(unsigned char* resource) {
-    free(resource);
+void ResourceFileManager::saveResourcePlain(std::string &resourceName, std::string& contentPlain){
+    std::string fileName = _resourceNameToFileName(resourceName);
+    FILE *f = fopen (fileName.c_str(), "wb");
+    if (f == NULL) {
+        throw -1;
+    } else {
+        fwrite(&contentPlain[0], 1, contentPlain.size(), f);
+        fclose(f);
+    }
+}
+
+BinaryResource ResourceFileManager::loadResource(std::string& resourceName) {
+    std::string fileName = _resourceNameToFileName(resourceName);
+    FILE *f = fopen (fileName.c_str(), "rb");
+
+    if (f == NULL) {
+        return BinaryResource { nullptr, 0 };
+    } else {
+        std::vector<unsigned char> content;
+        unsigned char buffer[128];
+
+        while(true) {
+            size_t bytes_read = fread(buffer, 1, sizeof(buffer), f);
+            if (bytes_read <= 0) {
+                break;
+            }
+            for (size_t i = 0; i < bytes_read; ++i) {
+                content.push_back(buffer[i]);
+            }
+        }
+
+        unsigned char* bytes = (unsigned char*)malloc(content.size());
+        std::copy(content.begin(), content.end(), bytes);
+
+        return BinaryResource(bytes, content.size());
+    }
+}
+
+void ResourceFileManager::freeResource(const BinaryResource& resource) {
+    free(resource.data);
+}
+
+std::string ResourceFileManager::_resourceNameToFileName(std::string &resourceName) {
+    std::string fileName("ZWQ_");
+    fileName += resourceName;
+    fileName += ".BIN";
+    return fileName;
+
 }

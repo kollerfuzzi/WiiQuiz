@@ -18,6 +18,8 @@
 #include "screendebug.hpp"
 #include "wiimote.hpp"
 
+#define FETCH_NETWORK_RESOURCES true
+
 enum QuizLoopState { Q_RUN, Q_TERMINATE };
 
 QuizLoopState quizLoop(Quiz* quiz, Clock& frameClock, Resources* resources);
@@ -28,10 +30,11 @@ int main(int argc, char** argv) {
 
     WiiMote::init();
 
-    std::unique_ptr<Resources> resources = std::make_unique<Resources>();
-    ScreenDebug::init(resources.get());
+    Resources* resources = new Resources();
+    ScreenDebug::init(resources);
+    resources->fetchNetworkResources();
 
-    Quiz* quiz = QuizTemplate::getDefaultQuiz(resources.get());
+    Quiz* quiz = QuizTemplate::getDefaultQuiz(resources);
 
     Clock frameClock;
 
@@ -39,13 +42,14 @@ int main(int argc, char** argv) {
     ASND_Init();
     MP3Player_Init();
 
-    while(QuizLoopState::Q_RUN == quizLoop(quiz, frameClock, resources.get()));
+    while(QuizLoopState::Q_RUN == quizLoop(quiz, frameClock, resources));
 
 
     GRRLIB_Exit();
 
     ScreenDebug::destroy();
     //delete quiz; // TODO crashes
+    delete resources;
 
     exit(0);
 }
@@ -61,8 +65,8 @@ QuizLoopState quizLoop(Quiz* quiz, Clock& frameClock, Resources* resources) {
     quiz->update(frameClock);
 
     if (!MP3Player_IsPlaying()) {
-        MP3Player_PlayBuffer(resources->get(Audio::DISCOQUALLEN).audioRef,
-                             resources->get(Audio::DISCOQUALLEN).audioLen,
+        MP3Player_PlayBuffer(resources->get(Audio::GETTING_READY).data,
+                             resources->get(Audio::GETTING_READY).size,
                              NULL);
     }
 

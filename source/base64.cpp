@@ -54,7 +54,7 @@ std::string base64_encode(unsigned char
     return ret;
 }
 
-std::vector < unsigned char > base64_decode(std::string
+std::vector<unsigned char> base64_decode(std::string
     const & encoded_string) {
     int in_len = encoded_string.size();
     int i = 0;

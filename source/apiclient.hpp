@@ -13,9 +13,11 @@
 #include <vector>
 #include "magic_enum.hpp"
 
-enum ApiCommand {
+enum APICommand {
     HEY_DUKE,
     GET_SERVER_ADDR,
+    GET_RESOURCE,
+    GET_RESOURCES_VERSION,
     GET_PLAYERS,
     ASK_QUESTION,
     END_QUESTION,
@@ -28,13 +30,13 @@ enum ApiCommand {
 class APIClient {
 public:
     APIClient();
-    std::vector<std::string> request(ApiCommand command);
-    std::vector<std::string> request(ApiCommand command, std::vector<std::string>& payload);
+    std::vector<std::string> request(APICommand command);
+    std::vector<std::string> request(APICommand command, std::vector<std::string>& payload);
 private:
     void _init();
     s32 _connect();
     void _disconnect(s32 socket);
-    void _sendRequest(s32 socket, ApiCommand command, std::vector<std::string>& payload);
+    void _sendRequest(s32 socket, APICommand command, std::vector<std::string>& payload);
     std::vector<std::string> _recvResponse(s32 socket);
     std::vector<std::string> _responseToLines(std::string& response);
     void _recvBuffered(s32 socket, std::string& response);

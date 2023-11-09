@@ -23,8 +23,8 @@ private:
     MP3Player_Init();
 // run
     if (!MP3Player_IsPlaying()) {
-        MP3Player_PlayBuffer(resources->get(Audio::GETTING_READY).audioRef,
-                             resources->get(Audio::GETTING_READY).audioLen,
+        MP3Player_PlayBuffer(resources->get(Audio::GETTING_READY).data,
+                             resources->get(Audio::GETTING_READY).size,
                              NULL);
     }
 

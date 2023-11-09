@@ -4,20 +4,6 @@
 #include <string>
 
 #include "zr_c64font.hpp"
-#include "zr_quizbg.hpp"
-#include "zr_text_done.hpp"
-#include "zr_text_letter.hpp"
-#include "zr_evan_mm.hpp"
-#include "zr_scoreboard.hpp"
-#include "zr_image_test.hpp"
-#include "zr_start.hpp"
-#include "zr_getting_ready.hpp"
-
-#include "zr_discoquallen.hpp"
-#include "zr_btn_a.hpp"
-#include "zr_btn_dpad.hpp"
-#include "zr_btn_one.hpp"
-#include "zr_btn_two.hpp"
 
 enum ResourceLocation {
     SERVER,
@@ -49,26 +35,21 @@ enum Audio {
 
 struct FontDef {
     Font font;
-    unsigned char * fontRef;
-    unsigned int fontLen;
-    std::string path;
+    std::string remotePath;
 };
 
 extern FontDef FONT_DEFINITIONS[];
 
 struct TextureDef {
     Texture texture;
-    unsigned char * textureRef;
-    std::string path;
+    std::string remotePath;
 };
 
 extern TextureDef TEXTURE_DEFINITIONS[];
 
 struct AudioDef {
     Audio audio;
-    unsigned char * audioRef;
-    unsigned int audioLen;
-    std::string path;
+    std::string remotePath;
 };
 
 extern AudioDef AUDIO_DEFINITIONS[];

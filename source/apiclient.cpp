@@ -13,12 +13,12 @@ void APIClient::_init() {
     while(net_init() == -EAGAIN);
 }
 
-std::vector<std::string> APIClient::request(ApiCommand command) {
+std::vector<std::string> APIClient::request(APICommand command) {
     std::vector<std::string> emptyPayload;
     return request(command, emptyPayload);
 }
 
-std::vector<std::string> APIClient::request(ApiCommand command, std::vector<std::string>& payload) {
+std::vector<std::string> APIClient::request(APICommand command, std::vector<std::string>& payload) {
     s32 socket = _connect();
 
     _sendRequest(socket, command, payload);
@@ -34,7 +34,7 @@ s32 APIClient::_connect() {
     s32 socket = net_socket(PF_INET, SOCK_STREAM, IPPROTO_IP);
     address.sin_family = AF_INET;
     address.sin_port = htons(3110);
-    address.sin_addr.s_addr = inet_addr("10.0.0.2");
+    address.sin_addr.s_addr = inet_addr("127.0.0.1");
     net_connect(socket, (struct sockaddr *)&address, sizeof(address));
     return socket;
 }
@@ -43,7 +43,7 @@ void APIClient::_disconnect(s32 socket){
     net_close(socket);
 }
 
-void APIClient::_sendRequest(s32 socket, ApiCommand command, std::vector<std::string>& payload) {
+void APIClient::_sendRequest(s32 socket, APICommand command, std::vector<std::string>& payload) {
     auto commandStrView = magic_enum::enum_name(command);
     std::string commandStr(commandStrView);
     commandStr += "\n";

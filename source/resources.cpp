@@ -1,11 +1,18 @@
 #include "resources.hpp"
+#include "screendebug.hpp"
+#include "grrlib.h"
+
+std::string loadingAnimation = "|/-\\";
 
 Resources::Resources() {
-
+    _staticFontInit();
+    _resourceAPIClient = new ResourceAPIClient();
+    _resourceFileManager = new ResourceFileManager();
 }
 
 Resources::~Resources() {
     this->clearAll();
+    delete _resourceAPIClient;
 }
 
 GRRLIB_texImg* Resources::get(Texture texture) {
@@ -19,32 +26,138 @@ GRRLIB_ttfFont* Resources::get(Font font) {
     if (!this->_fonts.contains(font)) {
         this->_loadFont(font);
     }
-    return this->_fonts[font];
+    return this->_fonts[font].ttfFont;
 }
 
-AudioDef Resources::get(Audio audio){
-    return AUDIO_DEFINITIONS[audio];
+BinaryResource Resources::get(Audio audio){
+    if (!this->_audio.contains(audio)) {
+        this->_loadAudio(audio);
+    }
+    return this->_audio[audio];
 }
 
 void Resources::clearAll() {
-    for (const auto& [key, value] : this->_textures) {
+    for (const auto& [key, value] : _textures) {
         GRRLIB_FreeTexture(value);
     }
-    for (const auto& [key, value] : this->_fonts) {
-        GRRLIB_FreeTTF(value);
+    for (const auto& [key, value] : _fonts) {
+        GRRLIB_FreeTTF(value.ttfFont);
+        _resourceFileManager->freeResource(value.resource);
     }
+    for (const auto& [key, value] : _audio) {
+        _resourceFileManager->freeResource(value);
+    }
+}
+
+void Resources::fetchNetworkResources() {
+    if (!_isUpdateAvailable()) {
+        return;
+    }
+
+    _fetchNetworkAudio();
+    _fetchNetworkTextures();
+    _fetchNetworkFonts();
+    _fetchNetworkVersion();
+
+    ScreenDebug::clear();
+}
+
+void Resources::_staticFontInit() {
+    BinaryResource resource {c64font_ttf, c64font_ttf_len};
+    _fonts[Font::C64FONT] = {
+        GRRLIB_LoadTTF(resource.data, resource.size),
+        resource
+    };
+}
+
+bool Resources::_isUpdateAvailable() {
+    std::string version("VERSION");
+    BinaryResource localVersion = _resourceFileManager->loadResource(version);
+    if (localVersion.data == nullptr) {
+        return true;
+    }
+    std::string localVersionStr(reinterpret_cast<char*>(localVersion.data));
+    std::string remoteVersion = _resourceAPIClient->fetchResourceVersion();
+
+    return localVersionStr != remoteVersion;
+}
+
+void Resources::_fetchNetworkTextures() {
+    constexpr auto textures = magic_enum::enum_values<Texture>();
+    for (Texture tex : textures) {
+        auto enumNameView = magic_enum::enum_name(tex);
+        std::string enumName(enumNameView);
+        _fetchAndStoreResource(enumName, TEXTURE_DEFINITIONS[tex].remotePath);
+    }
+}
+
+void Resources::_fetchNetworkFonts() {
+    constexpr auto fonts = magic_enum::enum_values<Font>();
+    for (Font font : fonts) {
+        auto enumNameView = magic_enum::enum_name(font);
+        std::string enumName(enumNameView);
+        _fetchAndStoreResource(enumName, FONT_DEFINITIONS[font].remotePath);
+    }
+}
+
+void Resources::_fetchNetworkAudio() {
+    constexpr auto audios = magic_enum::enum_values<Audio>();
+    for (Audio audio : audios) {
+        auto enumNameView = magic_enum::enum_name(audio);
+        std::string enumName(enumNameView);
+        _fetchAndStoreResource(enumName, AUDIO_DEFINITIONS[audio].remotePath);
+    }
+}
+
+void Resources::_fetchNetworkVersion() {
+    std::string remoteVersion = _resourceAPIClient->fetchResourceVersion();
+    std::string version("VERSION");
+    _resourceFileManager->saveResourcePlain(version, remoteVersion);
+}
+
+void Resources::_fetchAndStoreResource(std::string& name, std::string& path) {
+    _renderDebugStr(name);
+    std::string resource = _resourceAPIClient->fetchResource(path);
+    _resourceFileManager->saveResource(name, resource);
+}
+
+BinaryResource Resources::_loadResource(std::string& name) {
+    return _resourceFileManager->loadResource(name);
 }
 
 void Resources::_loadTexture(Texture texture) {
-    TextureDef textureDef = TEXTURE_DEFINITIONS[texture];
-    this->_textures[texture] = GRRLIB_LoadTexturePNG(
-        textureDef.textureRef
+    auto enumNameView = magic_enum::enum_name(texture);
+    std::string enumName(enumNameView);
+    BinaryResource resource = _loadResource(enumName);
+    _textures[texture] = GRRLIB_LoadTexturePNG(
+        resource.data
     );
+    _resourceFileManager->freeResource(resource);
 }
 
 void Resources::_loadFont(Font font) {
-    FontDef fontDef = FONT_DEFINITIONS[font];
-    this->_fonts[font] = GRRLIB_LoadTTF(
-        fontDef.fontRef, fontDef.fontLen
-    );
+    auto enumNameView = magic_enum::enum_name(font);
+    std::string enumName(enumNameView);
+    BinaryResource resource = _loadResource(enumName);
+    _fonts[font] = {
+        GRRLIB_LoadTTF(resource.data, resource.size),
+        resource
+    };
+}
+
+void Resources::_loadAudio(Audio audio) {
+    auto enumNameView = magic_enum::enum_name(audio);
+    std::string enumName(enumNameView);
+    _audio[audio] = _loadResource(enumName);
+}
+
+void Resources::_renderDebugStr(std::string text) {
+    loadCount++;
+    std::string loadingStr("Loading resources ");
+    loadingStr += loadingAnimation[loadCount % 4];
+    ScreenDebug::clear();
+    ScreenDebug::printLn(loadingStr);
+    ScreenDebug::printLn(text);
+    ScreenDebug::render();
+    GRRLIB_Render();
 }

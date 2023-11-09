@@ -13,10 +13,12 @@ public:
     static ScreenDebug* instance();
     static void printLn(std::string text);
     static void print(std::vector<std::string>& lines);
+    static void print(std::string lines);
     static void render();
     static void clear();
 private:
     void _printLn(std::string text);
+    void _print(std::string text);
     void _render();
     void _clear();
     ScreenDebug(Resources* resources);

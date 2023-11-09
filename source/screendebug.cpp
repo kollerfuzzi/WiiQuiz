@@ -32,9 +32,18 @@ void ScreenDebug::print(std::vector<std::string>& lines) {
     }
 }
 
+void ScreenDebug::print(std::string lines) {
+    _instance->_print(lines);
+}
+
 void ScreenDebug::_printLn(std::string text) {
+    text += '\n';
+
+    _print(text);
+}
+
+void ScreenDebug::_print(std::string text) {
     _text += text;
-    _text += "\n";
 
     if (_textbox == nullptr) {
         _textbox = TextBox::builder()
@@ -42,7 +51,7 @@ void ScreenDebug::_printLn(std::string text) {
                        .font(_resources->get(Font::C64FONT))
                        .fontSize(20)
                        .marginTop(50)
-                       .color(RGBA(255, 100, 100, 255))
+                       .color(RGBA(150, 150, 255, 255))
                        .build();
     } else {
         _textbox->setText(_text);

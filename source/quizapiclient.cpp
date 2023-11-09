@@ -11,7 +11,7 @@ QuizAPIClient::QuizAPIClient(QuizState *state) {
 }
 
 void QuizAPIClient::loadPlayers() {
-    std::vector<std::string> response = request(ApiCommand::GET_PLAYERS);
+    std::vector<std::string> response = request(APICommand::GET_PLAYERS);
     std::vector<Player*> players;
     for (std::string& playerLn : response) {
         std::vector<std::string> playerParts = StringUtils::split(playerLn, ';');
@@ -25,7 +25,7 @@ void QuizAPIClient::loadPlayers() {
 }
 
 std::string QuizAPIClient::getServerAddress() {
-    return request(ApiCommand::GET_SERVER_ADDR)[0];
+    return request(APICommand::GET_SERVER_ADDR)[0];
 }
 
 void QuizAPIClient::askQuestion(Question& question) {
@@ -37,11 +37,11 @@ void QuizAPIClient::askQuestion(Question& question) {
     for (std::string& answer : question.getAnswers()) {
         requestLines.push_back(answer);
     }
-    request(ApiCommand::ASK_QUESTION, requestLines);
+    request(APICommand::ASK_QUESTION, requestLines);
 }
 
 void QuizAPIClient::loadAnswers() {
-    std::vector<std::string> lines = request(ApiCommand::GET_ANSWERS);
+    std::vector<std::string> lines = request(APICommand::GET_ANSWERS);
     std::vector<Answer> answers;
     for (std::string& line : lines) {
         std::vector<std::string> answerParts = StringUtils::split(line, ';');
@@ -56,7 +56,7 @@ void QuizAPIClient::loadAnswers() {
 }
 
 void QuizAPIClient::endQuestion() {
-    request(ApiCommand::END_QUESTION);
+    request(APICommand::END_QUESTION);
 }
 
 void QuizAPIClient::setPoints() {
@@ -67,5 +67,5 @@ void QuizAPIClient::setPoints() {
         playerWithPoints += std::to_string(player->getPoints());
         requestLines.push_back(playerWithPoints);
     }
-    request(ApiCommand::SET_POINTS, requestLines);
+    request(APICommand::SET_POINTS, requestLines);
 }
