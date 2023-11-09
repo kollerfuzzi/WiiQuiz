@@ -1,6 +1,8 @@
 #ifndef RESOURCEMAP_HPP
 #define RESOURCEMAP_HPP
 
+#include <string>
+
 #include "zr_c64font.hpp"
 #include "zr_quizbg.hpp"
 #include "zr_text_done.hpp"
@@ -16,6 +18,11 @@
 #include "zr_btn_dpad.hpp"
 #include "zr_btn_one.hpp"
 #include "zr_btn_two.hpp"
+
+enum ResourceLocation {
+    SERVER,
+    BINARY
+};
 
 enum Font {
     C64FONT
@@ -44,6 +51,7 @@ struct FontDef {
     Font font;
     unsigned char * fontRef;
     unsigned int fontLen;
+    std::string path;
 };
 
 extern FontDef FONT_DEFINITIONS[];
@@ -51,6 +59,7 @@ extern FontDef FONT_DEFINITIONS[];
 struct TextureDef {
     Texture texture;
     unsigned char * textureRef;
+    std::string path;
 };
 
 extern TextureDef TEXTURE_DEFINITIONS[];
@@ -59,6 +68,7 @@ struct AudioDef {
     Audio audio;
     unsigned char * audioRef;
     unsigned int audioLen;
+    std::string path;
 };
 
 extern AudioDef AUDIO_DEFINITIONS[];
