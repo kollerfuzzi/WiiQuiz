@@ -50,9 +50,9 @@ private:
     bool _initialized = false;
     bool _done = false;
     u32 _timePassed = 0;
-    TextBox* _textQuestion;
-    TextBox* _textAnswers;
-    TextBox* _textTimeLeft;
+    TextBox* _textQuestion = nullptr;
+    TextBox* _textAnswers = nullptr;
+    TextBox* _textTimeLeft = nullptr;
     float _bgAnimation = 0.0f;
     u32 _questionPoints = 100;
     u32 _answerTime = 10000;

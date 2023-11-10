@@ -5,8 +5,12 @@ QAChapter::QAChapter(std::string title) {
 }
 
 QAChapter::~QAChapter() {
-    delete _titleBox;
-    delete _confirm;
+    if (_titleBox != nullptr) {
+        delete _titleBox;
+    }
+    if (_confirm != nullptr) {
+        delete _confirm;
+    }
 }
 
 void QAChapter::update(const Clock &clock) {

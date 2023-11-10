@@ -12,6 +12,7 @@ class QuizState;
 class QuizAPIClient : public APIClient {
 public:
     QuizAPIClient(QuizState* state);
+    ~QuizAPIClient();
     void loadPlayers();
     std::string getServerAddress();
     void askQuestion(Question& question);
@@ -19,7 +20,7 @@ public:
     void endQuestion();
     void setPoints();
 private:
-    QuizState* _state;
+    QuizState* _state = nullptr;
 };
 
 #endif // QUIZAPICLIENT_HPP

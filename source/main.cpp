@@ -31,7 +31,6 @@ int main(int argc, char** argv) {
     WiiMote::init();
 
     Resources* resources = new Resources();
-    ScreenDebug::init(resources);
     resources->fetchNetworkResources();
 
     Quiz* quiz = QuizTemplate::getDefaultQuiz(resources);
@@ -45,11 +44,13 @@ int main(int argc, char** argv) {
     while(QuizLoopState::Q_RUN == quizLoop(quiz, frameClock, resources));
 
 
-    GRRLIB_Exit();
+    MP3Player_Stop();
 
     ScreenDebug::destroy();
-    //delete quiz; // TODO crashes
+    delete quiz;
     delete resources;
+
+    GRRLIB_Exit();
 
     exit(0);
 }
@@ -58,7 +59,7 @@ QuizLoopState quizLoop(Quiz* quiz, Clock& frameClock, Resources* resources) {
     frameClock.tick();
     WiiMote::update();
 
-    if (WiiMote::buttonPressed(Remote::R1, Button::HOME)) {
+    if (WiiMote::buttonPressed(Remote::R1, Button::HOME) || quiz->isDone()) {
         return QuizLoopState::Q_TERMINATE;
     }
 

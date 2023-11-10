@@ -28,6 +28,7 @@ namespace WiiMote {
     void init();
     void update();
     bool buttonPressed(Remote remote, Button button);
+    bool buttonReleased(Remote remote, Button button);
 }
 
 #endif // WIIMOTE_HPP

@@ -26,8 +26,8 @@ private:
     std::map<Texture, GRRLIB_texImg*> _textures;
     std::map<Font, TTFFontWithResources> _fonts;
     std::map<Audio, BinaryResource> _audio;
-    void _staticFontInit();
     bool _isUpdateAvailable();
+    void _initC64Font();
     void _fetchNetworkTextures();
     void _fetchNetworkFonts();
     void _fetchNetworkAudio();
@@ -38,8 +38,8 @@ private:
     void _loadFont(Font font);
     void _loadAudio(Audio font);
     void _renderDebugStr(std::string text);
-    ResourceAPIClient* _resourceAPIClient;
-    ResourceFileManager* _resourceFileManager;
+    ResourceAPIClient* _resourceAPIClient = nullptr;
+    ResourceFileManager* _resourceFileManager = nullptr;
     int loadCount = 0;
 };
 

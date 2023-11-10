@@ -28,6 +28,7 @@ public:
     void setCurrentAction(size_t currentAction);
     QuizAction* getCurrentAction();
     QuizAction* nextAction();
+    bool hasNextAction();
 private:
     void _deletePlayers();
     void _deleteActions();

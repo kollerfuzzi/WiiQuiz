@@ -27,9 +27,9 @@ private:
     bool _started = false;
     f32 _lightx=0.0f;
     int32_t _loadTimer = 0;
-    TextBox* _welcomeText;
-    TextBox* _playerText;
-    Confirm* _startConfirm;
+    TextBox* _welcomeText = nullptr;
+    TextBox* _playerText = nullptr;
+    Confirm* _startConfirm = nullptr;
 };
 
 #endif // QASTART_HPP

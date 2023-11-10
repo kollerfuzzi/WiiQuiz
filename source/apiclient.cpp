@@ -9,8 +9,16 @@ APIClient::APIClient() {
     _init();
 }
 
+APIClient::~APIClient() {
+
+}
+
 void APIClient::_init() {
+    ScreenDebug::printLn("Initializing Network...");
+    ScreenDebug::render();
+    GRRLIB_Render();
     while(net_init() == -EAGAIN);
+    ScreenDebug::clear();
 }
 
 std::vector<std::string> APIClient::request(APICommand command) {
@@ -18,7 +26,7 @@ std::vector<std::string> APIClient::request(APICommand command) {
     return request(command, emptyPayload);
 }
 
-std::vector<std::string> APIClient::request(APICommand command, std::vector<std::string>& payload) {
+std::vector<std::string> APIClient::request(APICommand command, std::vector<std::string> payload) {
     s32 socket = _connect();
 
     _sendRequest(socket, command, payload);
@@ -34,7 +42,7 @@ s32 APIClient::_connect() {
     s32 socket = net_socket(PF_INET, SOCK_STREAM, IPPROTO_IP);
     address.sin_family = AF_INET;
     address.sin_port = htons(3110);
-    address.sin_addr.s_addr = inet_addr("127.0.0.1");
+    address.sin_addr.s_addr = inet_addr("10.0.0.2");
     net_connect(socket, (struct sockaddr *)&address, sizeof(address));
     return socket;
 }
@@ -43,11 +51,11 @@ void APIClient::_disconnect(s32 socket){
     net_close(socket);
 }
 
-void APIClient::_sendRequest(s32 socket, APICommand command, std::vector<std::string>& payload) {
+void APIClient::_sendRequest(s32 socket, APICommand command, std::vector<std::string> payload) {
     auto commandStrView = magic_enum::enum_name(command);
     std::string commandStr(commandStrView);
     commandStr += "\n";
-    for (std::string& line : payload) {
+    for (std::string line : payload) {
         commandStr += line;
         commandStr += "\n";
     }
@@ -58,15 +66,15 @@ void APIClient::_sendRequest(s32 socket, APICommand command, std::vector<std::st
 std::vector<std::string> APIClient::_recvResponse(s32 socket) {
     std::string response;
     do {
-        _recvBuffered(socket, response);
+        response += _recvBuffered(socket);
     } while (!_isResponseEnd(response));
     return _responseToLines(response);
 }
 
-std::vector<std::string> APIClient::_responseToLines(std::string &response) {
+std::vector<std::string> APIClient::_responseToLines(std::string response) {
     std::vector<std::string> lines = StringUtils::split(response, '\n');
     std::vector<std::string> nonEmptyLines;
-    for (std::string& line : lines) {
+    for (std::string line : lines) {
         if (line.size() != 0) {
             nonEmptyLines.push_back(line);
         }
@@ -74,19 +82,18 @@ std::vector<std::string> APIClient::_responseToLines(std::string &response) {
     return nonEmptyLines;
 }
 
-void APIClient::_recvBuffered(s32 socket, std::string &response) {
+std::string APIClient::_recvBuffered(s32 socket) {
     char buffer[1024];
     s32 msgLen = net_recv(socket, buffer, 1024, 0);
     if (msgLen <= 0) {
-        response += "\n";
-        return;
+        return std::string("\n");
     }
     std::string responseBuffer;
     responseBuffer += buffer;
-    response += responseBuffer.substr(0, msgLen);
+    return responseBuffer.substr(0, msgLen);
 }
 
-bool APIClient::_isResponseEnd(std::string &response) {
+bool APIClient::_isResponseEnd(std::string response) {
     return response.size() >= 2
         && response.substr(response.size() - 2, 2) == MSG_END;
 }

@@ -36,6 +36,7 @@ private:
     void _init();
     bool _initialized = false;
     bool _confirmed = false;
+    int _confirmTimer = 0;
     bool _enabled;
     std::string _prompt;
     Remote _remote;

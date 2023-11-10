@@ -4,6 +4,7 @@
 #include "quizaction.hpp"
 #include "textbox.hpp"
 #include "player.hpp"
+#include "confirm.hpp"
 
 class QAScoreboard : public QuizAction {
 public:
@@ -21,10 +22,12 @@ public:
     static Builder builder();
 private:
     void init();
-    TextBox* _title;
-    TextBox* _playerText;
-    TextBox* _points;
+    TextBox* _title = nullptr;
+    TextBox* _playerText = nullptr;
+    TextBox* _points = nullptr;
+    Confirm* _confirm = nullptr;
     bool _initialized = false;
+    bool _isDone = false;
     float _bgAnimation = 0.0f;
 };
 

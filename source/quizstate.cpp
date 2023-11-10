@@ -65,6 +65,10 @@ QuizAction* QuizState::nextAction() {
     return _actions[_currentAction];
 }
 
+bool QuizState::hasNextAction() {
+    return _currentAction < _actions.size() - 1;
+}
+
 void QuizState::_deletePlayers() {
     for (Player* player : _players) {
         delete player;

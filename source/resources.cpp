@@ -5,45 +5,53 @@
 std::string loadingAnimation = "|/-\\";
 
 Resources::Resources() {
-    _staticFontInit();
+    _initC64Font();
+    ScreenDebug::init(_fonts[Font::C64FONT].ttfFont);
     _resourceAPIClient = new ResourceAPIClient();
     _resourceFileManager = new ResourceFileManager();
 }
 
 Resources::~Resources() {
-    this->clearAll();
-    delete _resourceAPIClient;
+    clearAll();
+    if (_resourceAPIClient != nullptr) {
+        delete _resourceAPIClient;
+    }
+    if (_resourceFileManager != nullptr) {
+        delete _resourceFileManager;
+    }
 }
 
 GRRLIB_texImg* Resources::get(Texture texture) {
-    if (!this->_textures.contains(texture)) {
-        this->_loadTexture(texture);
+    if (!_textures.contains(texture)) {
+        _loadTexture(texture);
     }
-    return this->_textures[texture];
+    return _textures[texture];
 }
 
 GRRLIB_ttfFont* Resources::get(Font font) {
-    if (!this->_fonts.contains(font)) {
-        this->_loadFont(font);
+    if (!_fonts.contains(font)) {
+        _loadFont(font);
     }
-    return this->_fonts[font].ttfFont;
+    return _fonts[font].ttfFont;
 }
 
 BinaryResource Resources::get(Audio audio){
-    if (!this->_audio.contains(audio)) {
-        this->_loadAudio(audio);
+    if (!_audio.contains(audio)) {
+        _loadAudio(audio);
     }
-    return this->_audio[audio];
+    return _audio[audio];
 }
 
 void Resources::clearAll() {
     for (const auto& [key, value] : _textures) {
         GRRLIB_FreeTexture(value);
     }
+
     for (const auto& [key, value] : _fonts) {
         GRRLIB_FreeTTF(value.ttfFont);
         _resourceFileManager->freeResource(value.resource);
     }
+
     for (const auto& [key, value] : _audio) {
         _resourceFileManager->freeResource(value);
     }
@@ -54,20 +62,13 @@ void Resources::fetchNetworkResources() {
         return;
     }
 
+    _resourceFileManager->saveTestFile();
     _fetchNetworkAudio();
     _fetchNetworkTextures();
     _fetchNetworkFonts();
     _fetchNetworkVersion();
 
     ScreenDebug::clear();
-}
-
-void Resources::_staticFontInit() {
-    BinaryResource resource {c64font_ttf, c64font_ttf_len};
-    _fonts[Font::C64FONT] = {
-        GRRLIB_LoadTTF(resource.data, resource.size),
-        resource
-    };
 }
 
 bool Resources::_isUpdateAvailable() {
@@ -79,7 +80,19 @@ bool Resources::_isUpdateAvailable() {
     std::string localVersionStr(reinterpret_cast<char*>(localVersion.data));
     std::string remoteVersion = _resourceAPIClient->fetchResourceVersion();
 
-    return localVersionStr != remoteVersion;
+    bool isUpdate = localVersionStr != remoteVersion;
+    _resourceFileManager->freeResource(localVersion);
+    return isUpdate;
+}
+
+void Resources::_initC64Font() {
+    unsigned char* fontBin = (unsigned char*) malloc(c64font_ttf_len);
+    memcpy(fontBin, c64font_ttf, c64font_ttf_len);
+    BinaryResource font = {fontBin, c64font_ttf_len};
+    _fonts[Font::C64FONT] = {
+        GRRLIB_LoadTTF(font.data, font.size),
+        font
+    };
 }
 
 void Resources::_fetchNetworkTextures() {
@@ -116,7 +129,11 @@ void Resources::_fetchNetworkVersion() {
 }
 
 void Resources::_fetchAndStoreResource(std::string& name, std::string& path) {
-    _renderDebugStr(name);
+    std::string namePath;
+    namePath += name;
+    namePath += ": ";
+    namePath += path;
+    _renderDebugStr(namePath);
     std::string resource = _resourceAPIClient->fetchResource(path);
     _resourceFileManager->saveResource(name, resource);
 }

@@ -1,19 +1,32 @@
 #include "quiz.hpp"
 
 Quiz::~Quiz() {
-    delete _state;
+    if (_state != nullptr) {
+        delete _state;
+    }
+    if (_client != nullptr) {
+        delete _client;
+    }
 }
 
 void Quiz::update(const Clock &clock) {
     QuizAction* currentAction = _state->getCurrentAction();
     if (currentAction->isDone()) {
-        currentAction = _state->nextAction();
+        if (_state->hasNextAction()) {
+            currentAction = _state->nextAction();
+        } else {
+            _isDone = true;
+        }
     }
     currentAction->update(clock);
 }
 
 void Quiz::render() {
     _state->getCurrentAction()->render();
+}
+
+bool Quiz::isDone() {
+    return _isDone;
 }
 
 QuizState *Quiz::getState() {

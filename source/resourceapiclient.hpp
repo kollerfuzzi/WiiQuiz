@@ -2,9 +2,11 @@
 #define RESOURCEAPICLIENT_HPP
 
 #include "apiclient.hpp"
+
 class ResourceAPIClient : public APIClient {
 public:
     ResourceAPIClient();
+    ~ResourceAPIClient();
     std::string fetchResourceVersion();
     std::string fetchResource(std::string resourcePath);
 };

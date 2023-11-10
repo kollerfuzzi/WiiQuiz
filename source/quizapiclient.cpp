@@ -6,8 +6,12 @@
 #include "screendebug.hpp"
 #include "magic_enum.hpp"
 
-QuizAPIClient::QuizAPIClient(QuizState *state) {
+QuizAPIClient::QuizAPIClient(QuizState* state) {
     _state = state;
+}
+
+QuizAPIClient::~QuizAPIClient() {
+
 }
 
 void QuizAPIClient::loadPlayers() {

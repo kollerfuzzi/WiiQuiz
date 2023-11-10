@@ -6,9 +6,15 @@ QAStart::QAStart() {
 }
 
 QAStart::~QAStart() {
-    delete _welcomeText;
-    delete _playerText;
-    delete _startConfirm;
+    if (_welcomeText != nullptr) {
+        delete _welcomeText;
+    }
+    if (_playerText != nullptr) {
+        delete _playerText;
+    }
+    if (_startConfirm != nullptr) {
+        delete _startConfirm;
+    }
 }
 
 void QAStart::init() {
@@ -77,7 +83,6 @@ void QAStart::update(const Clock &clock) {
 }
 
 void QAStart::render() {
-
     GRRLIB_Camera3dSettings(0.0f,0.0f,3.0f, 0,1,0, 0,0,0);
 
     GRRLIB_SetLightAmbient(0x404040FF);

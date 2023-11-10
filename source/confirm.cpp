@@ -18,10 +18,12 @@ Confirm::~Confirm() {
 
 void Confirm::update(const Clock& clock) {
     _init();
+    _confirmTimer += clock.timeElapsedMillis();
     if (!_enabled) {
         return;
     }
-    _confirmed = WiiMote::buttonPressed(_remote, _button) || _confirmed;
+    _confirmed = (WiiMote::buttonPressed(_remote, _button) || _confirmed)
+                 && _confirmTimer > 1000;
     _promptTextbox->update(clock);
 }
 

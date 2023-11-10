@@ -16,6 +16,7 @@ public:
     ~Quiz();
     void update(const Clock& clock);
     void render();
+    bool isDone();
     QuizState* getState();
 
     class Builder {
@@ -34,9 +35,10 @@ public:
 private:
     Quiz(QuizState* state, QuizAPIClient* client);
 
-    QuizState* _state;
-    Resources* _resources;
-    QuizAPIClient* _client;
+    QuizState* _state = nullptr;
+    Resources* _resources = nullptr;
+    QuizAPIClient* _client = nullptr;
+    bool _isDone = false;
 };
 
 #endif // QUIZ_HPP

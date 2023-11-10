@@ -7,9 +7,18 @@ QAScoreboard::QAScoreboard() {
 }
 
 QAScoreboard::~QAScoreboard(){
-    delete _playerText;
-    delete _points;
-    delete _title;
+    if (_title != nullptr) {
+        delete _title;
+    }
+    if (_playerText != nullptr) {
+        delete _playerText;
+    }
+    if (_points != nullptr) {
+        delete _points;
+    }
+    if (_confirm != nullptr) {
+        delete _confirm;
+    }
 }
 
 void QAScoreboard::init() {
@@ -55,6 +64,10 @@ void QAScoreboard::init() {
         .marginLeft(400)
         .animationSpeed(50)
         .build();
+    _confirm = Confirm::builder()
+        .resources(_resources)
+        .build();
+
     _initialized = true;
 }
 
@@ -65,6 +78,8 @@ void QAScoreboard::update(const Clock &clock) {
     _playerText->update(clock);
     _points->update(clock);
     _title->update(clock);
+    _confirm->update(clock);
+    _isDone = _confirm->isConfirmed();
     _bgAnimation += 0.04f;
 }
 
@@ -75,10 +90,11 @@ void QAScoreboard::render() {
     _playerText->render();
     _points->render();
     _title->render();
+    _confirm->render();
 }
 
 bool QAScoreboard::isDone() {
-    return false;
+    return _isDone;
 }
 
 QAScoreboard::Builder QAScoreboard::builder() {

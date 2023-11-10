@@ -11,13 +11,25 @@ void ResourceFileManager::init() {
     }
 }
 
-void ResourceFileManager::saveResource(std::string& resourceName, std::string& contentBase64) {
-    std::string fileName = _resourceNameToFileName(resourceName);
-    FILE *f = fopen (fileName.c_str(), "wb");
+void ResourceFileManager::saveTestFile() {
+    std::string fileName("ZWQ_TEST.BIN");
+    FILE* f = fopen(fileName.c_str(), "wb");
     if (f == NULL) {
         throw -1;
     } else {
-        std::vector<unsigned char> base = base64_decode(contentBase64);
+        std::string content("hey");
+        fwrite(&content[0], 1, content.size(), f);
+        fclose(f);
+    }
+}
+
+void ResourceFileManager::saveResource(std::string& resourceName, std::string& contentBase64) {
+    std::string fileName = _resourceNameToFileName(resourceName);
+    FILE* f = fopen(fileName.c_str(), "wb");
+    if (f == NULL) {
+        throw -1;
+    } else {
+        std::string base = base64_decode(contentBase64);
         fwrite(&base[0], 1, base.size(), f);
         fclose(f);
     }
@@ -25,7 +37,7 @@ void ResourceFileManager::saveResource(std::string& resourceName, std::string& c
 
 void ResourceFileManager::saveResourcePlain(std::string &resourceName, std::string& contentPlain){
     std::string fileName = _resourceNameToFileName(resourceName);
-    FILE *f = fopen (fileName.c_str(), "wb");
+    FILE* f = fopen(fileName.c_str(), "wb");
     if (f == NULL) {
         throw -1;
     } else {
@@ -36,7 +48,7 @@ void ResourceFileManager::saveResourcePlain(std::string &resourceName, std::stri
 
 BinaryResource ResourceFileManager::loadResource(std::string& resourceName) {
     std::string fileName = _resourceNameToFileName(resourceName);
-    FILE *f = fopen (fileName.c_str(), "rb");
+    FILE* f = fopen(fileName.c_str(), "rb");
 
     if (f == NULL) {
         return BinaryResource { nullptr, 0 };
@@ -56,7 +68,7 @@ BinaryResource ResourceFileManager::loadResource(std::string& resourceName) {
 
         unsigned char* bytes = (unsigned char*)malloc(content.size());
         std::copy(content.begin(), content.end(), bytes);
-
+        fclose(f);
         return BinaryResource(bytes, content.size());
     }
 }

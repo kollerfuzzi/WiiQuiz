@@ -112,8 +112,15 @@ void QAQuestion::_manageState() {
 }
 
 QAQuestion::~QAQuestion() {
-    delete _textQuestion;
-    delete _textAnswers;
+    if (_textQuestion != nullptr) {
+        delete _textQuestion;
+    }
+    if (_textAnswers != nullptr) {
+        delete _textAnswers;
+    }
+    if (_textTimeLeft != nullptr) {
+        delete _textTimeLeft;
+    }
 }
 
 void QAQuestion::update(const Clock &clock) {

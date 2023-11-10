@@ -2,20 +2,24 @@
 
 ScreenDebug* ScreenDebug::_instance = nullptr;
 
-ScreenDebug::ScreenDebug(Resources *resources) {
-    _resources = resources;
+ScreenDebug::ScreenDebug(GRRLIB_ttfFont* font) {
+    _font = font;
 }
 
 ScreenDebug::~ScreenDebug() {
-    delete _textbox;
+    if (_textbox != nullptr) {
+        delete _textbox;
+    }
 }
 
-void ScreenDebug::init(Resources *resources) {
-    ScreenDebug::_instance = new ScreenDebug(resources);
+void ScreenDebug::init(GRRLIB_ttfFont* font) {
+    ScreenDebug::_instance = new ScreenDebug(font);
 }
 
 void ScreenDebug::destroy() {
-    delete _instance;
+    if (_instance != nullptr) {
+        delete _instance;
+    }
 }
 
 ScreenDebug* ScreenDebug::instance() {
@@ -48,7 +52,7 @@ void ScreenDebug::_print(std::string text) {
     if (_textbox == nullptr) {
         _textbox = TextBox::builder()
                        .text(_text)
-                       .font(_resources->get(Font::C64FONT))
+                       .font(_font)
                        .fontSize(20)
                        .marginTop(50)
                        .color(RGBA(150, 150, 255, 255))

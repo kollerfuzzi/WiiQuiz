@@ -57,7 +57,7 @@ private:
             unsigned int marginRight, int animationSpeed);
     std::vector<std::string> _textContent;
     std::vector<std::string> _textBuffer;
-    GRRLIB_Font* _font;
+    GRRLIB_Font* _font = nullptr;
     int _fontSize;
     int _color;
     unsigned int _marginTop;

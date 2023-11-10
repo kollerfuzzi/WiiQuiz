@@ -26,8 +26,8 @@ private:
     void _init();
     bool _initialized;
     std::string _title;
-    TextBox* _titleBox;
-    Confirm* _confirm;
+    TextBox* _titleBox = nullptr;
+    Confirm* _confirm = nullptr;
 };
 
 #endif // QACHAPTER_HPP

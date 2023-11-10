@@ -3,6 +3,8 @@
 
 #include <fat.h>
 #include <sys/stat.h>
+#include <vector>
+#include <string>
 #include "base64.hpp"
 
 struct BinaryResource {
@@ -22,6 +24,7 @@ class ResourceFileManager {
 public:
     ResourceFileManager();
     void init();
+    void saveTestFile();
     void saveResource(std::string& resourceName, std::string& contentBase64);
     void saveResourcePlain(std::string& resourceName, std::string& contentPlain);
     BinaryResource loadResource(std::string& resourceName);

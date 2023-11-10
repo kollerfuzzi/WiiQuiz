@@ -30,17 +30,18 @@ enum APICommand {
 class APIClient {
 public:
     APIClient();
+    ~APIClient();
     std::vector<std::string> request(APICommand command);
-    std::vector<std::string> request(APICommand command, std::vector<std::string>& payload);
+    std::vector<std::string> request(APICommand command, std::vector<std::string> payload);
 private:
     void _init();
     s32 _connect();
     void _disconnect(s32 socket);
-    void _sendRequest(s32 socket, APICommand command, std::vector<std::string>& payload);
+    void _sendRequest(s32 socket, APICommand command, std::vector<std::string> payload);
     std::vector<std::string> _recvResponse(s32 socket);
-    std::vector<std::string> _responseToLines(std::string& response);
-    void _recvBuffered(s32 socket, std::string& response);
-    bool _isResponseEnd(std::string& response);
+    std::vector<std::string> _responseToLines(std::string response);
+    std::string _recvBuffered(s32 socket);
+    bool _isResponseEnd(std::string response);
 };
 
 #endif // APICLIENT_HPP
