@@ -6,6 +6,7 @@
 #include "wiiuse/wpad.h"
 #include "grrlib.h"
 #include "confirm.hpp"
+#include "audioplayer.hpp"
 
 class QAStart : public QuizAction {
 public:

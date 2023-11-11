@@ -21,7 +21,9 @@ enum Texture {
     BTN_A,
     BTN_DPAD,
     BTN_ONE,
-    BTN_TWO
+    BTN_TWO,
+    RYTHM_BAR,
+    QUALLE
 };
 
 enum Audio {

@@ -8,15 +8,13 @@
 #include "resources.hpp"
 #include "resourcemap.hpp"
 
-#include "asndlib.h"
-#include "mp3player.h"
-
 #include "quiztemplate.hpp"
 #include "quiz.hpp"
 #include "player.hpp"
 #include "quizapiclient.hpp"
 #include "screendebug.hpp"
 #include "wiimote.hpp"
+#include "audioplayer.hpp"
 
 #define FETCH_NETWORK_RESOURCES true
 
@@ -37,15 +35,11 @@ int main(int argc, char** argv) {
 
     Clock frameClock;
 
-    //MP3 TEST
-    ASND_Init();
-    MP3Player_Init();
+    AudioPlayer::init();
 
     while(QuizLoopState::Q_RUN == quizLoop(quiz, frameClock, resources));
 
-
-    MP3Player_Stop();
-
+    AudioPlayer::stop();
     ScreenDebug::destroy();
     delete quiz;
     delete resources;
@@ -64,17 +58,8 @@ QuizLoopState quizLoop(Quiz* quiz, Clock& frameClock, Resources* resources) {
     }
 
     quiz->update(frameClock);
-
-    if (!MP3Player_IsPlaying()) {
-        MP3Player_PlayBuffer(resources->get(Audio::GETTING_READY).data,
-                             resources->get(Audio::GETTING_READY).size,
-                             NULL);
-    }
-
-
     quiz->render();
     ScreenDebug::render();
-
     GRRLIB_Render();
 
     return QuizLoopState::Q_RUN;

@@ -51,6 +51,8 @@ void QAStart::init() {
         .enabled(false)
         .build();
 
+    AudioPlayer::play(Audio::GETTING_READY, _resources);
+
     _initialized = true;
 }
 

@@ -12,7 +12,9 @@ TextureDef TEXTURE_DEFINITIONS[] = {
     {Texture::BTN_A, "textures/buttons/a.png"},
     {Texture::BTN_DPAD, "textures/buttons/dpad.png"},
     {Texture::BTN_ONE, "textures/buttons/one.png"},
-    {Texture::BTN_TWO, "textures/buttons/two.png"}
+    {Texture::BTN_TWO, "textures/buttons/two.png"},
+    {Texture::RYTHM_BAR, "textures/rythm_bar.png"},
+    {Texture::RYTHM_BAR, "textures/qualle.png"}
 };
 
 

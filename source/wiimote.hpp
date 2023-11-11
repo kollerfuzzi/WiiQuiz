@@ -2,6 +2,8 @@
 #define WIIMOTE_HPP
 
 #include <wiiuse/wpad.h>
+#include <vector>
+#include <algorithm>
 
 enum Remote {
     R1 = 0,
@@ -28,6 +30,7 @@ namespace WiiMote {
     void init();
     void update();
     bool buttonPressed(Remote remote, Button button);
+    std::vector<Button> buttonsPressed(Remote remote);
     bool buttonReleased(Remote remote, Button button);
 }
 

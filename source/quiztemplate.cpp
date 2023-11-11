@@ -10,7 +10,7 @@ Quiz* QuizTemplate::getDefaultQuiz(Resources* resources) {
     return Quiz::builder()
         .resources(resources)
         .action(QAStart::builder().build())
-        //.action(QARythmMinigame::builder().build())
+        .action(QARythmMinigame::builder().build())
         .action(QAScoreboard::builder().build())
         .action(QAChapter::builder().title("Kapitel 1:\nRechnungswesen").build())
         /*.action(QAQuestion::builder()
