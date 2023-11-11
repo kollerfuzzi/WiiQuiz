@@ -42,7 +42,7 @@ s32 APIClient::_connect() {
     s32 socket = net_socket(PF_INET, SOCK_STREAM, IPPROTO_IP);
     address.sin_family = AF_INET;
     address.sin_port = htons(3110);
-    address.sin_addr.s_addr = inet_addr("10.0.0.2");
+    address.sin_addr.s_addr = inet_addr("192.168.82.211");
     net_connect(socket, (struct sockaddr *)&address, sizeof(address));
     return socket;
 }

@@ -89,7 +89,7 @@ public:
 
 class QARythmMinigame : public QuizAction {
 public:
-    QARythmMinigame();
+    QARythmMinigame(Audio audio, Texture img, std::string data, int delayMs, int maxPts);
     ~QARythmMinigame();
     void update(const Clock& clock);
     void init3dCube();
@@ -99,8 +99,18 @@ public:
 
     class Builder {
     public:
+        Builder& img(Texture img);
+        Builder& audio(Audio audio);
+        Builder& data(std::string data);
+        Builder& delayMs(int ms);
+        Builder& maxPts(int maxPts);
         QARythmMinigame* build();
     private:
+        Texture _img;
+        Audio _audio;
+        std::string _data;
+        int _delayMs;
+        int _maxPts = 200;
     };
     static Builder builder();
 private:
@@ -108,19 +118,27 @@ private:
     bool _initialized = false;
     bool _dataLoaded = false;
     std::string _rawData;
+    Texture _cubeImg;
+    Audio _audio;
     u32 _timePassed = 0;
     std::vector<RythmNote> _notes;
     TextBox* _textBoxHits = nullptr;
     TextBox* _textBoxMiss = nullptr;
+    TextBox* _textBoxScore = nullptr;
 
     // cube
-    float a=0;
-    int cubeZ=0;
-    int i;
-    float sinx=0;
-    int misinput = 0;
-    int hitinput = 0;
-    f32 shiftx = 0;
+    float _a=0;
+    int _cubeZ=0;
+    int _i;
+    float _sinx=0;
+    int _misinput = 0;
+    int _misinputsTotal = 0;
+    int _hitinput = 0;
+    f32 _shiftx = 0;
+    int _delayMs = 0;
+    int _maxPts = 200;
+    bool _ending = false;
+    int _endingTimePassed = 0;
 };
 
 #endif // QARYTHMMINIGAME_HPP

@@ -16,6 +16,13 @@
 #include "wiimote.hpp"
 #include "audioplayer.hpp"
 
+// backlog
+
+// rythm
+// stop audio after finish
+// for every player set points
+// info screen
+
 #define FETCH_NETWORK_RESOURCES true
 
 enum QuizLoopState { Q_RUN, Q_TERMINATE };

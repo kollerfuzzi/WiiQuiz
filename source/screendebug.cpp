@@ -41,12 +41,18 @@ void ScreenDebug::print(std::string lines) {
 }
 
 void ScreenDebug::_printLn(std::string text) {
+    if (!_enabled) {
+        return;
+    }
     text += '\n';
 
     _print(text);
 }
 
 void ScreenDebug::_print(std::string text) {
+    if (!_enabled) {
+        return;
+    }
     _text += text;
 
     if (_textbox == nullptr) {
@@ -67,11 +73,35 @@ void ScreenDebug::render() {
     instance()->_render();
 }
 
+void ScreenDebug::disable() {
+    instance()->_disable();
+}
+
+void ScreenDebug::enable() {
+    instance()->_enable();
+}
+
+bool ScreenDebug::isEnabled() {
+    return instance()->_isEnabled();
+}
+
 void ScreenDebug::_render() {
     if (_textbox == nullptr) {
         return;
     }
     _textbox->render();
+}
+
+void ScreenDebug::_disable() {
+    _enabled = false;
+}
+
+void ScreenDebug::_enable() {
+    _enabled = true;
+}
+
+bool ScreenDebug::_isEnabled() {
+    return _enabled;
 }
 
 void ScreenDebug::clear() {

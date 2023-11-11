@@ -23,7 +23,8 @@ enum Texture {
     BTN_ONE,
     BTN_TWO,
     RYTHM_BAR,
-    QUALLE
+    QUALLE,
+    LINK_BOLERO
 };
 
 enum Audio {
@@ -31,7 +32,8 @@ enum Audio {
     TEXT_DONE,
     EVAN_MM,
     GETTING_READY,
-    DISCOQUALLEN
+    DISCOQUALLEN,
+    BOLERO_OF_FIRE
 };
 
 
