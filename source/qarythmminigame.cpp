@@ -16,19 +16,22 @@ QARythmMinigame::~QARythmMinigame() {
     if (_textBoxMiss != nullptr) {
         delete _textBoxMiss;
     }
+    if (_textBoxScore != nullptr) {
+        delete _textBoxScore;
+    }
 }
 
 void QARythmMinigame::update(const Clock& clock) {
     _init();
     std::vector<RythmNote*> greenNotes;
-    int hits = 0;
-    int misses = 0;
+    size_t hits = 0;
+    size_t misses = 0;
     for (RythmNote& note : _notes) {
         note.usec -= clock.timeElapsedMicros();
-        if (note.getRealYPos() > 248 && note.getRealYPos() < 350) {
+        if (note.getRealYPos() > 300 && note.getRealYPos() < 400) {
             greenNotes.push_back(&note);
         }
-        if (note.getRealYPos() > 350 && !note.hit) {
+        if (note.getRealYPos() > 400 && !note.hit) {
             note.miss = true;
         }
         if (note.hit) {
@@ -208,7 +211,7 @@ void QARythmMinigame::render() {
     if (_misinput > 0) {
         barColor = RGBA(255, 150, 150, 100);
     }
-    GRRLIB_DrawImg(0, 300, _resources->get(Texture::RYTHM_BAR), 0, 1, 1,
+    GRRLIB_DrawImg(0, 350 + _endingTimePassed/4, _resources->get(Texture::RYTHM_BAR), 0, 1, 1,
                    barColor);
 
     for (RythmNote& note : _notes) {

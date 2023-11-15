@@ -24,7 +24,7 @@ public:
     static Builder builder();
 private:
     void _init();
-    bool _initialized;
+    bool _initialized = false;
     std::string _title;
     TextBox* _titleBox = nullptr;
     Confirm* _confirm = nullptr;

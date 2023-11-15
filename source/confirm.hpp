@@ -37,12 +37,12 @@ private:
     bool _initialized = false;
     bool _confirmed = false;
     int _confirmTimer = 0;
-    bool _enabled;
+    bool _enabled = true;
     std::string _prompt;
     Remote _remote;
     Button _button;
     TextBox* _promptTextbox = nullptr;
-    Resources* _resources;
+    Resources* _resources = nullptr;
 };
 
 #endif // CONFIRM_HPP

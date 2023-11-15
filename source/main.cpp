@@ -23,6 +23,14 @@
 // for every player set points
 // info screen
 
+// network
+// socket error handling
+// progress bar
+
+// main menu
+
+
+// ideen: Fragen über die wii, team twiizers
 #define FETCH_NETWORK_RESOURCES true
 
 enum QuizLoopState { Q_RUN, Q_TERMINATE };

@@ -58,7 +58,7 @@ void Resources::clearAll() {
 }
 
 void Resources::fetchNetworkResources() {
-    if (!_isUpdateAvailable()) {
+    if (!_isUpdateAvailable()) { // todo broken on dolphin
         return;
     }
 

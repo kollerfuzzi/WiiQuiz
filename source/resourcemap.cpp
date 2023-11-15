@@ -15,7 +15,8 @@ TextureDef TEXTURE_DEFINITIONS[] = {
     {Texture::BTN_TWO, "textures/buttons/two.png"},
     {Texture::RYTHM_BAR, "textures/rythm_bar.png"},
     {Texture::QUALLE, "textures/qualle.png"},
-    {Texture::LINK_BOLERO, "textures/link_bolero.png"}
+    {Texture::LINK_BOLERO, "textures/link_bolero.png"},
+    {Texture::ANIME, "textures/anime.png"}
 };
 
 
@@ -25,5 +26,6 @@ AudioDef AUDIO_DEFINITIONS[] = {
     {Audio::EVAN_MM, "audio/evan_mm.mp3"},
     {Audio::GETTING_READY, "audio/getting_ready.mp3"},
     {Audio::DISCOQUALLEN, "audio/discoquallen.mp3"},
-    {Audio::BOLERO_OF_FIRE, "audio/bolero_of_fire.mp3"}
+    {Audio::BOLERO_OF_FIRE, "audio/bolero_of_fire.mp3"},
+    {Audio::ROCKEFELLER_ST, "audio/rockefeller_street.mp3"}
 };
