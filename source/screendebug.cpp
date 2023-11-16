@@ -40,6 +40,10 @@ void ScreenDebug::print(std::string lines) {
     _instance->_print(lines);
 }
 
+void ScreenDebug::setColor(u32 color) {
+    _instance->_setColor(color);
+}
+
 void ScreenDebug::_printLn(std::string text) {
     if (!_enabled) {
         return;
@@ -61,12 +65,19 @@ void ScreenDebug::_print(std::string text) {
                        .font(_font)
                        .fontSize(20)
                        .marginTop(50)
-                       .color(RGBA(150, 150, 255, 255))
+                       .color(_color)
                        .build();
     } else {
         _textbox->setText(_text);
     }
     _textbox->copyBufferToContent();
+}
+
+void ScreenDebug::_setColor(u32 color) {
+    _color = color;
+    if (_textbox != nullptr) {
+        _textbox->setColor(_color);
+    }
 }
 
 void ScreenDebug::render() {

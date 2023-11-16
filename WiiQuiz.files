@@ -9,6 +9,8 @@ source/audioplayer.cpp
 source/audioplayer.hpp
 source/base64.cpp
 source/base64.hpp
+source/bsod.cpp
+source/bsod.hpp
 source/clock.cpp
 source/clock.hpp
 source/confirm.cpp

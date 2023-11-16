@@ -2,6 +2,7 @@
 
 #include "screendebug.hpp"
 #include "stringutils.hpp"
+#include "bsod.hpp"
 
 #define TCP_PORT 311
 
@@ -40,10 +41,16 @@ std::vector<std::string> APIClient::request(APICommand command, std::vector<std:
 s32 APIClient::_connect() {
     struct sockaddr_in address;
     s32 socket = net_socket(PF_INET, SOCK_STREAM, IPPROTO_IP);
+    if (socket < 0) {
+        BSOD::raise("Socket create failed", socket);
+    }
     address.sin_family = AF_INET;
     address.sin_port = htons(3110);
-    address.sin_addr.s_addr = inet_addr("10.0.0.2");
-    net_connect(socket, (struct sockaddr *)&address, sizeof(address));
+    address.sin_addr.s_addr = inet_addr(_address.c_str());
+    s32 connection_status = net_connect(socket, (struct sockaddr *)&address, sizeof(address));
+    if (connection_status < 0) {
+        BSOD::raise("Socket connect failed", socket);
+    }
     return socket;
 }
 
@@ -60,7 +67,10 @@ void APIClient::_sendRequest(s32 socket, APICommand command, std::vector<std::st
         commandStr += "\n";
     }
     commandStr += "\n";
-    net_send(socket, commandStr.c_str(), commandStr.size(), 0);
+    s32 status = net_send(socket, commandStr.c_str(), commandStr.size(), 0);
+    if (status != 0) {
+        BSOD::raise("Socket send failed", status);
+    }
 }
 
 std::vector<std::string> APIClient::_recvResponse(s32 socket) {
@@ -85,8 +95,10 @@ std::vector<std::string> APIClient::_responseToLines(std::string response) {
 std::string APIClient::_recvBuffered(s32 socket) {
     char buffer[1024];
     s32 msgLen = net_recv(socket, buffer, 1024, 0);
-    if (msgLen <= 0) {
+    if (msgLen == 0) {
         return std::string("\n");
+    } else if (msgLen < 0) {
+        BSOD::raise("Socket recv failed", msgLen);
     }
     std::string responseBuffer;
     responseBuffer += buffer;

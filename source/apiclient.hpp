@@ -42,6 +42,7 @@ private:
     std::vector<std::string> _responseToLines(std::string response);
     std::string _recvBuffered(s32 socket);
     bool _isResponseEnd(std::string response);
+    std::string _address = "127.441234";
 };
 
 #endif // APICLIENT_HPP

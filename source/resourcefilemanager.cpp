@@ -38,7 +38,7 @@ void ResourceFileManager::saveResource(std::string& resourceName, std::string& c
 void ResourceFileManager::saveResourcePlain(std::string &resourceName, std::string& contentPlain){
     std::string fileName = _resourceNameToFileName(resourceName);
     FILE* f = fopen(fileName.c_str(), "wb");
-    if (f == NULL) {
+    if (f == nullptr) {
         throw -1;
     } else {
         fwrite(&contentPlain[0], 1, contentPlain.size(), f);
@@ -50,7 +50,7 @@ BinaryResource ResourceFileManager::loadResource(std::string& resourceName) {
     std::string fileName = _resourceNameToFileName(resourceName);
     FILE* f = fopen(fileName.c_str(), "rb");
 
-    if (f == NULL) {
+    if (f == nullptr) {
         return BinaryResource { nullptr, 0 };
     } else {
         std::vector<unsigned char> content;

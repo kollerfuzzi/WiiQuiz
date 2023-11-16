@@ -14,6 +14,7 @@ public:
     static void printLn(std::string text);
     static void print(std::vector<std::string>& lines);
     static void print(std::string lines);
+    static void setColor(u32 color);
     static void render();
     static void disable();
     static void enable();
@@ -22,6 +23,7 @@ public:
 private:
     void _printLn(std::string text);
     void _print(std::string text);
+    void _setColor(u32 color);
     void _render();
     void _disable();
     void _enable();
@@ -33,6 +35,7 @@ private:
     GRRLIB_Font* _font = nullptr;
     TextBox* _textbox = nullptr;
     bool _enabled = true;
+    u32 _color = RGBA(150, 150, 255, 255);
 };
 
 #endif // SCREENDEBUG_HPP

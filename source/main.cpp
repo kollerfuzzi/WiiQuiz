@@ -15,6 +15,7 @@
 #include "screendebug.hpp"
 #include "wiimote.hpp"
 #include "audioplayer.hpp"
+#include "bsod.hpp"
 
 // backlog
 
