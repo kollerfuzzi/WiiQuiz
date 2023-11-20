@@ -4,6 +4,8 @@
 #include <wiiuse/wpad.h>
 #include <vector>
 #include <algorithm>
+#include "resources.hpp"
+#include "grrlib.h"
 
 enum Remote {
     R1 = 0,
@@ -26,12 +28,20 @@ enum Button {
     B = WPAD_BUTTON_B
 };
 
+struct Pointer {
+    bool onScreen;
+    float xPos;
+    float yPos;
+};
+
 namespace WiiMote {
     void init();
     void update();
     bool buttonPressed(Remote remote, Button button);
     std::vector<Button> buttonsPressed(Remote remote);
     bool buttonReleased(Remote remote, Button button);
+    Pointer getPointerPosition(Remote remote);
+    void drawPointer(Resources* resources, Remote remote);
 }
 
 #endif // WIIMOTE_HPP

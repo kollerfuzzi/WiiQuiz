@@ -40,6 +40,10 @@ void ScreenDebug::print(std::string lines) {
     _instance->_print(lines);
 }
 
+void ScreenDebug::printAndRender(std::string lines) {
+    _instance->_printAndRender(lines);
+}
+
 void ScreenDebug::setColor(u32 color) {
     _instance->_setColor(color);
 }
@@ -71,6 +75,14 @@ void ScreenDebug::_print(std::string text) {
         _textbox->setText(_text);
     }
     _textbox->copyBufferToContent();
+}
+
+void ScreenDebug::_printAndRender(std::string text) {
+    clear();
+    print(text);
+    render();
+    GRRLIB_Render();
+    clear();
 }
 
 void ScreenDebug::_setColor(u32 color) {

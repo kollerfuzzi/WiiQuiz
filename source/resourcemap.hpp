@@ -15,11 +15,17 @@ enum Font {
 };
 
 enum Texture {
+    CURSOR,
+    MENU_BUTTON,
     START_BG,
     QUIZ_BG,
     SCOREBOARD_BG,
     BTN_A,
     BTN_DPAD,
+    BTN_DPAD_UP,
+    BTN_DPAD_LEFT,
+    BTN_DPAD_DOWN,
+    BTN_DPAD_RIGHT,
     BTN_ONE,
     BTN_TWO,
     RYTHM_BAR,

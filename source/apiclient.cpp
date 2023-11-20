@@ -15,11 +15,8 @@ APIClient::~APIClient() {
 }
 
 void APIClient::_init() {
-    ScreenDebug::printLn("Initializing Network...");
-    ScreenDebug::render();
-    GRRLIB_Render();
+    ScreenDebug::printAndRender("Initializing Network...");
     while(net_init() == -EAGAIN);
-    ScreenDebug::clear();
 }
 
 std::vector<std::string> APIClient::request(APICommand command) {
@@ -68,7 +65,7 @@ void APIClient::_sendRequest(s32 socket, APICommand command, std::vector<std::st
     }
     commandStr += "\n";
     s32 status = net_send(socket, commandStr.c_str(), commandStr.size(), 0);
-    if (status != 0) {
+    if (status < 0) {
         BSOD::raise("Socket send failed", status);
     }
 }
@@ -76,7 +73,9 @@ void APIClient::_sendRequest(s32 socket, APICommand command, std::vector<std::st
 std::vector<std::string> APIClient::_recvResponse(s32 socket) {
     std::string response;
     do {
-        response += _recvBuffered(socket);
+        char* buffer = _recvBuffered(socket, _bufferSize(response));
+        response += buffer;
+        _clearBuffer(buffer);
     } while (!_isResponseEnd(response));
     return _responseToLines(response);
 }
@@ -92,17 +91,25 @@ std::vector<std::string> APIClient::_responseToLines(std::string response) {
     return nonEmptyLines;
 }
 
-std::string APIClient::_recvBuffered(s32 socket) {
-    char buffer[1024];
-    s32 msgLen = net_recv(socket, buffer, 1024, 0);
-    if (msgLen == 0) {
-        return std::string("\n");
-    } else if (msgLen < 0) {
+char* APIClient::_recvBuffered(s32 socket, u16 bufferSize) {
+    char* buffer = (char*) malloc(bufferSize);
+    memset(buffer, 0, bufferSize);
+    s32 msgLen = net_recv(socket, buffer, bufferSize - 1, 0);
+    if (msgLen < 0) {
         BSOD::raise("Socket recv failed", msgLen);
     }
-    std::string responseBuffer;
-    responseBuffer += buffer;
-    return responseBuffer.substr(0, msgLen);
+    return buffer;
+}
+
+void APIClient::_clearBuffer(char* buffer) {
+    free(buffer);
+}
+
+u16 APIClient::_bufferSize(std::string string) {
+    if (string.size() > 4096) {
+        return 32768;
+    }
+    return 1024;
 }
 
 bool APIClient::_isResponseEnd(std::string response) {

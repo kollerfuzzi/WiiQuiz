@@ -1,0 +1,151 @@
+#include "menu.hpp"
+
+MenuItem::MenuItem(std::string text, std::vector<MenuItem*> children, MenuItem* parent) {
+    _text = text;
+    _children = children;
+    for (MenuItem* child : _children) {
+        child->setParent(this);
+    }
+    _parent = parent;
+}
+
+MenuItem::~MenuItem() {
+    for (MenuItem* child : _children) {
+        delete child;
+    }
+    if (_textBox != nullptr) {
+        delete _textBox;
+    }
+}
+
+std::string MenuItem::getText() {
+    return _text;
+}
+
+std::vector<MenuItem*> MenuItem::getChildren() {
+    return _children;
+}
+
+void MenuItem::setParent(MenuItem* parent) {
+    _parent = parent;
+}
+
+MenuItem* MenuItem::getParent() {
+    return _parent;
+}
+
+void MenuItem::setTextBox(TextBox* textBox) {
+    _textBox = textBox;
+}
+
+TextBox* MenuItem::getTextBox() {
+    return _textBox;
+}
+
+MenuItem::Builder MenuItem::builder() {
+    return MenuItem::Builder();
+}
+
+Menu::Menu(Resources* resources, MenuItem* root) {
+    _resources = resources;
+    _root = root;
+    _currentSubMenu = _root;
+}
+
+Menu::~Menu() {
+    delete _root;
+}
+
+void Menu::update(const Clock& clock) {
+    _updateSelection();
+    if (WiiMote::buttonPressed(Remote::R1, Button::A)
+            && _currentSelected != nullptr) {
+        _select(_currentSelected);
+    }
+    if (WiiMote::buttonPressed(Remote::R1, Button::B)) {
+        _back();
+    }
+    _updateSubMenus(clock);
+}
+
+void Menu::_updateSubMenus(const Clock& clock) {
+    for (size_t i = 0; i < _currentSubMenu->getChildren().size(); i++) {
+        MenuItem* menuItem = _currentSubMenu->getChildren()[i];
+        if (menuItem->getTextBox() == nullptr) {
+            menuItem->setTextBox(TextBox::builder()
+                                     .text(menuItem->getText())
+                                     .font(_resources->get(Font::C64FONT))
+                                     .fontSize(20)
+                                     .marginLeft(ITEM_MARGIN_LEFT + 5)
+                                     .marginTop(ITEM_MARGIN_TOP + i * ITEM_SPACING + 5)
+                                     .build());
+
+            menuItem->getTextBox()->update(clock);
+        }
+    }
+}
+
+void Menu::_updateSelection() {
+    Pointer ptr = WiiMote::getPointerPosition(Remote::R1);
+    if (ptr.onScreen && ptr.xPos > ITEM_MARGIN_LEFT && ptr.xPos < ITEM_MARGIN_LEFT + 240) {
+        int y = (ptr.yPos - ITEM_MARGIN_TOP) / ITEM_SPACING;
+        if (y >= 0 && y < _currentSubMenu->getChildren().size()) {
+            _currentSelected = _currentSubMenu->getChildren()[y];
+        } else {
+            _currentSelected = nullptr;
+        }
+    } else {
+        _currentSelected = nullptr;
+    }
+}
+
+void Menu::render() {
+    GRRLIB_SetBackgroundColour(10, 10, 10, 255);
+    for (size_t i = 0; i < _currentSubMenu->getChildren().size(); i++) {
+        MenuItem* menuItem = _currentSubMenu->getChildren()[i];
+        int textColor = RGBA(150, 150, 255, 255);
+        if (menuItem == _currentSelected) {
+            textColor = RGBA(255, 255, 255, 255);
+            GRRLIB_DrawImg(ITEM_MARGIN_LEFT - 20, ITEM_MARGIN_TOP + (i * ITEM_SPACING),
+                           _resources->get(Texture::MENU_BUTTON), 0, 2.4f, 1,
+                           RGBA(255, 255, 255, 255));
+        } else {
+            GRRLIB_DrawImg(ITEM_MARGIN_LEFT - 10, ITEM_MARGIN_TOP + (i * ITEM_SPACING),
+                           _resources->get(Texture::MENU_BUTTON), 0, 2.2f, 1,
+                           RGBA(255, 255, 255, 200));
+        }
+        menuItem->getTextBox()->setColor(textColor);
+
+        menuItem->getTextBox()->render();
+    }
+}
+
+void Menu::_select(MenuItem* menuItem) {
+    _currentSubMenu = menuItem;
+}
+
+void Menu::_back() {
+    if (_currentSubMenu == _root) {
+        return;
+    }
+    _currentSubMenu = _currentSubMenu->getParent();
+}
+
+MenuItem::Builder& MenuItem::Builder::text(std::string text) {
+    _text = text;
+    return *this;
+}
+
+MenuItem::Builder& MenuItem::Builder::child(MenuItem* child) {
+    _children.push_back(child);
+    return *this;
+}
+
+MenuItem::Builder& MenuItem::Builder::parent(MenuItem* parent) {
+    _parent = parent;
+    return *this;
+}
+
+MenuItem* MenuItem::Builder::build() {
+    return new MenuItem(_text, _children, _parent);
+}

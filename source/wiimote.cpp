@@ -3,6 +3,8 @@
 
 void WiiMote::init() {
     WPAD_Init();
+    WPAD_SetVRes(WPAD_CHAN_ALL, 640, 480);
+    WPAD_SetDataFormat(WPAD_CHAN_0, WPAD_FMT_BTNS_ACC_IR);
 }
 
 void WiiMote::update() {
@@ -37,4 +39,18 @@ std::vector<Button> WiiMote::buttonsPressed(Remote remote) {
     }
 
     return pressedButtons;
+}
+
+Pointer WiiMote::getPointerPosition(Remote remote) {
+    WPADData* data = WPAD_Data(remote);
+    struct Pointer ptrData = { (bool) data->ir.valid, data->ir.x, data->ir.y };
+    return ptrData;
+}
+
+void WiiMote::drawPointer(Resources* resources, Remote remote) {
+    Pointer ptr = WiiMote::getPointerPosition(remote);
+    if (ptr.onScreen) {
+        GRRLIB_texImg* ptrImg = resources->get(Texture::CURSOR);
+        GRRLIB_DrawImg(ptr.xPos, ptr.yPos, ptrImg, 0, 1, 1, RGBA(0xff, 0xff, 0xff, 0xff));
+    }
 }

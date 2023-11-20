@@ -15,8 +15,12 @@ source/clock.cpp
 source/clock.hpp
 source/confirm.cpp
 source/confirm.hpp
+source/dwqcp.cpp
+source/dwqcp.hpp
 source/magic_enum.hpp
 source/main.cpp
+source/menu.cpp
+source/menu.hpp
 source/player.cpp
 source/player.hpp
 source/qachapter.cpp

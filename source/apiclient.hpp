@@ -40,9 +40,11 @@ private:
     void _sendRequest(s32 socket, APICommand command, std::vector<std::string> payload);
     std::vector<std::string> _recvResponse(s32 socket);
     std::vector<std::string> _responseToLines(std::string response);
-    std::string _recvBuffered(s32 socket);
+    char* _recvBuffered(s32 socket, u16 bufferSize);
+    void _clearBuffer(char* buffer);
+    u16 _bufferSize(std::string string);
     bool _isResponseEnd(std::string response);
-    std::string _address = "127.441234";
+    std::string _address = "127.0.0.1";
 };
 
 #endif // APICLIENT_HPP

@@ -14,6 +14,7 @@ public:
     static void printLn(std::string text);
     static void print(std::vector<std::string>& lines);
     static void print(std::string lines);
+    static void printAndRender(std::string lines);
     static void setColor(u32 color);
     static void render();
     static void disable();
@@ -23,6 +24,7 @@ public:
 private:
     void _printLn(std::string text);
     void _print(std::string text);
+    void _printAndRender(std::string text);
     void _setColor(u32 color);
     void _render();
     void _disable();

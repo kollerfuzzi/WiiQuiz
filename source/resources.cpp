@@ -58,7 +58,7 @@ void Resources::clearAll() {
 }
 
 void Resources::fetchNetworkResources() {
-    if (!_isUpdateAvailable()) { // todo broken on dolphin
+    if (!_isUpdateAvailable()) {
         return;
     }
 
@@ -81,6 +81,7 @@ bool Resources::_isUpdateAvailable() {
     std::string remoteVersion = _resourceAPIClient->fetchResourceVersion();
 
     bool isUpdate = localVersionStr != remoteVersion;
+
     _resourceFileManager->freeResource(localVersion);
     return isUpdate;
 }
@@ -172,9 +173,7 @@ void Resources::_renderDebugStr(std::string text) {
     loadCount++;
     std::string loadingStr("Loading resources ");
     loadingStr += loadingAnimation[loadCount % 4];
-    ScreenDebug::clear();
-    ScreenDebug::printLn(loadingStr);
-    ScreenDebug::printLn(text);
-    ScreenDebug::render();
-    GRRLIB_Render();
+    loadingStr += "\n";
+    loadingStr += text;
+    ScreenDebug::printAndRender(loadingStr);
 }
