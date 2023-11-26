@@ -32,30 +32,6 @@
 
 // ideen: Fragen über die wii, team twiizers
 
-enum QuizLoopState { Q_RUN, Q_TERMINATE };
-
-QuizLoopState quizLoop(Quiz* quiz, Clock& frameClock, Resources* resources);
-
-QuizLoopState menuLoop(Menu* menu, Clock& frameClock, Resources* resources) {
-    frameClock.tick();
-    WiiMote::update();
-    GRRLIB_SetBackgroundColour(0x00, 0x00, 0x00, 0xFF);
-
-    if (WiiMote::buttonPressed(Remote::R1, Button::HOME)) {
-        return QuizLoopState::Q_TERMINATE;
-    }
-
-    menu->update(frameClock);
-    menu->render();
-
-    WiiMote::drawPointer(resources, Remote::R1);
-
-    ScreenDebug::render();
-    GRRLIB_Render();
-
-    return QuizLoopState::Q_RUN;
-}
-
 int main(int argc, char** argv) {
     GRRLIB_Init();
     GRRLIB_SetBackgroundColour(0x00, 0x00, 0x00, 0xFF);
@@ -77,31 +53,30 @@ int main(int argc, char** argv) {
     AudioPlayer::init();
 
     MenuItem* root = MenuItem::builder()
-                        .child(MenuItem::builder()
-                                   .text("Start Quiz")
-                                   .child(MenuItem::builder()
-                                          .text("Quiz 1")
-                                          .build())
-                                   .child(MenuItem::builder()
-                                          .text("The second")
-                                          .build())
-                                   .child(MenuItem::builder()
-                                          .text("Third")
-                                          .build())
-                                   .build())
-                        .child(MenuItem::builder()
-                                   .text("Something")
-                                   .build())
-                        .build();
+        .child(MenuItem::builder()
+                   .text("Start Quiz")
+                   .child(MenuItem::builder()
+                          .text("Quiz 1")
+                          .renderable(quiz)
+                          .build())
+                   .child(MenuItem::builder()
+                          .text("The second")
+                          .build())
+                   .child(MenuItem::builder()
+                          .text("Third")
+                          .build())
+                   .build())
+        .child(MenuItem::builder()
+                   .text("Something")
+                   .build())
+        .build();
 
     Menu* testMenu = new Menu(resources, root);
-    while(QuizLoopState::Q_RUN == menuLoop(testMenu, frameClock, resources));
-    delete testMenu;
-
-    while(QuizLoopState::Q_RUN == quizLoop(quiz, frameClock, resources));
-
+    testMenu->runUntilDone(frameClock, resources);
     AudioPlayer::stop();
     ScreenDebug::destroy();
+
+    delete testMenu;
     delete quiz;
     delete resources;
 
@@ -109,24 +84,3 @@ int main(int argc, char** argv) {
 
     exit(0);
 }
-
-QuizLoopState quizLoop(Quiz* quiz, Clock& frameClock, Resources* resources) {
-    frameClock.tick();
-    WiiMote::update();
-
-
-    if (WiiMote::buttonPressed(Remote::R1, Button::HOME) || quiz->isDone()) {
-        return QuizLoopState::Q_TERMINATE;
-    }
-
-    quiz->update(frameClock);
-    quiz->render();
-
-    WiiMote::drawPointer(resources, Remote::R1);
-
-    ScreenDebug::render();
-    GRRLIB_Render();
-
-    return QuizLoopState::Q_RUN;
-}
-

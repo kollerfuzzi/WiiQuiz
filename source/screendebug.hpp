@@ -2,8 +2,11 @@
 #define SCREENDEBUG_HPP
 
 #include <string>
-#include "textbox.hpp"
+#include <grrlib.h>
+#include <vector>
 #include "zr_c64font.hpp"
+
+class TextBox;
 
 class ScreenDebug {
 public:

@@ -71,7 +71,7 @@ void QAScoreboard::init() {
     _initialized = true;
 }
 
-void QAScoreboard::update(const Clock &clock) {
+void QAScoreboard::update(Clock &clock) {
     if (!_initialized) {
         init();
     }

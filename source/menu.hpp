@@ -7,6 +7,7 @@
 #include "textbox.hpp"
 #include "resources.hpp"
 #include "wiimote.hpp"
+#include "swinginglights.hpp"
 
 #define ITEM_MARGIN_LEFT 200
 #define ITEM_MARGIN_TOP 100
@@ -15,7 +16,8 @@
 
 class MenuItem  {
 public:
-    MenuItem(std::string text, std::vector<MenuItem*> child, MenuItem* parent);
+    MenuItem(std::string text, std::vector<MenuItem*> child, MenuItem* parent,
+             Renderable* renderable);
     ~MenuItem();
 
     std::string getText();
@@ -24,17 +26,20 @@ public:
     MenuItem* getParent();
     void setTextBox(TextBox* textBox);
     TextBox* getTextBox();
+    Renderable* getRenderable();
 
     class Builder {
     public:
         Builder& text(std::string text);
         Builder& child(MenuItem* child);
         Builder& parent(MenuItem* parent);
+        Builder& renderable(Renderable* renderable);
         MenuItem* build();
     private:
         std::string _text;
         std::vector<MenuItem*> _children;
         MenuItem* _parent = nullptr;
+        Renderable* _renderable = nullptr;
     };
     static Builder builder();
 
@@ -43,24 +48,26 @@ private:
     TextBox* _textBox = nullptr;
     std::vector<MenuItem*> _children;
     MenuItem* _parent = nullptr;
-    void(*action)();
+    Renderable* _renderable = nullptr;
 };
 
 class Menu : public Renderable {
 public:
     Menu(Resources* resources, MenuItem* root);
     ~Menu();
-    void update(const Clock& clock);
+    void update(Clock& clock);
     void render();
+    bool isDone();
 private:
-    void _updateSubMenus(const Clock& clock);
+    void _updateSubMenus(Clock& clock);
     void _updateSelection();
-    void _select(MenuItem* menuItem);
+    void _select(MenuItem* menuItem, Clock& clock);
     void _back();
     MenuItem* _root = nullptr;
     MenuItem* _currentSubMenu = nullptr;
     MenuItem* _currentSelected = nullptr;
     Resources* _resources = nullptr;
+    SwingingLights* _swingingLights = nullptr;
 };
 
 #endif // MENU_HPP

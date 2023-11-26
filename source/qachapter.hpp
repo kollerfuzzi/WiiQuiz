@@ -11,7 +11,7 @@ class QAChapter : public QuizAction {
 public:
     QAChapter(std::string title);
     ~QAChapter();
-    void update(const Clock &clock);
+    void update(Clock &clock);
     void render();
     bool isDone();
     class Builder {

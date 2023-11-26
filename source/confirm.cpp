@@ -16,7 +16,7 @@ Confirm::~Confirm() {
     }
 }
 
-void Confirm::update(const Clock& clock) {
+void Confirm::update(Clock& clock) {
     _init();
     _confirmTimer += clock.timeElapsedMillis();
     if (!_enabled) {
@@ -39,6 +39,10 @@ bool Confirm::isConfirmed() {
 
 void Confirm::setEnabled(bool enabled) {
     _enabled = enabled;
+}
+
+bool Confirm::isDone() {
+    return false;
 }
 
 Confirm::Builder Confirm::builder() {

@@ -13,7 +13,7 @@ QAChapter::~QAChapter() {
     }
 }
 
-void QAChapter::update(const Clock &clock) {
+void QAChapter::update(Clock &clock) {
     _init();
     _titleBox->update(clock);
     _confirm->update(clock);

@@ -44,7 +44,7 @@ private:
     void _clearBuffer(char* buffer);
     u16 _bufferSize(std::string string);
     bool _isResponseEnd(std::string response);
-    std::string _address = "127.0.0.1";
+    std::string _address = "10.0.0.2";
 };
 
 #endif // APICLIENT_HPP

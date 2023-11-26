@@ -1,12 +1,16 @@
 #include "menu.hpp"
 
-MenuItem::MenuItem(std::string text, std::vector<MenuItem*> children, MenuItem* parent) {
+MenuItem::MenuItem(std::string text,
+                   std::vector<MenuItem*> children,
+                   MenuItem* parent,
+                   Renderable* renderable) {
     _text = text;
     _children = children;
     for (MenuItem* child : _children) {
         child->setParent(this);
     }
     _parent = parent;
+    _renderable = renderable;
 }
 
 MenuItem::~MenuItem() {
@@ -42,6 +46,10 @@ TextBox* MenuItem::getTextBox() {
     return _textBox;
 }
 
+Renderable* MenuItem::getRenderable() {
+    return _renderable;
+}
+
 MenuItem::Builder MenuItem::builder() {
     return MenuItem::Builder();
 }
@@ -50,25 +58,31 @@ Menu::Menu(Resources* resources, MenuItem* root) {
     _resources = resources;
     _root = root;
     _currentSubMenu = _root;
+    _swingingLights = new SwingingLights();
 }
 
 Menu::~Menu() {
+    if (_swingingLights != nullptr) {
+        delete _swingingLights;
+    }
     delete _root;
 }
 
-void Menu::update(const Clock& clock) {
+void Menu::update(Clock& clock) {
+
     _updateSelection();
     if (WiiMote::buttonPressed(Remote::R1, Button::A)
             && _currentSelected != nullptr) {
-        _select(_currentSelected);
+        _select(_currentSelected, clock);
     }
     if (WiiMote::buttonPressed(Remote::R1, Button::B)) {
         _back();
     }
+    _swingingLights->update(clock);
     _updateSubMenus(clock);
 }
 
-void Menu::_updateSubMenus(const Clock& clock) {
+void Menu::_updateSubMenus(Clock& clock) {
     for (size_t i = 0; i < _currentSubMenu->getChildren().size(); i++) {
         MenuItem* menuItem = _currentSubMenu->getChildren()[i];
         if (menuItem->getTextBox() == nullptr) {
@@ -88,7 +102,7 @@ void Menu::_updateSubMenus(const Clock& clock) {
 void Menu::_updateSelection() {
     Pointer ptr = WiiMote::getPointerPosition(Remote::R1);
     if (ptr.onScreen && ptr.xPos > ITEM_MARGIN_LEFT && ptr.xPos < ITEM_MARGIN_LEFT + 240) {
-        int y = (ptr.yPos - ITEM_MARGIN_TOP) / ITEM_SPACING;
+        size_t y = (ptr.yPos - ITEM_MARGIN_TOP) / ITEM_SPACING;
         if (y >= 0 && y < _currentSubMenu->getChildren().size()) {
             _currentSelected = _currentSubMenu->getChildren()[y];
         } else {
@@ -100,7 +114,7 @@ void Menu::_updateSelection() {
 }
 
 void Menu::render() {
-    GRRLIB_SetBackgroundColour(10, 10, 10, 255);
+    _swingingLights->render();
     for (size_t i = 0; i < _currentSubMenu->getChildren().size(); i++) {
         MenuItem* menuItem = _currentSubMenu->getChildren()[i];
         int textColor = RGBA(150, 150, 255, 255);
@@ -120,8 +134,16 @@ void Menu::render() {
     }
 }
 
-void Menu::_select(MenuItem* menuItem) {
-    _currentSubMenu = menuItem;
+bool Menu::isDone() {
+    return false;
+}
+
+void Menu::_select(MenuItem* menuItem, Clock& clock) {
+    if (menuItem->getRenderable() == nullptr) {
+        _currentSubMenu = menuItem;
+    } else {
+        menuItem->getRenderable()->runUntilDone(clock, _resources);
+    }
 }
 
 void Menu::_back() {
@@ -146,6 +168,11 @@ MenuItem::Builder& MenuItem::Builder::parent(MenuItem* parent) {
     return *this;
 }
 
+MenuItem::Builder& MenuItem::Builder::renderable(Renderable* renderable) {
+    _renderable = renderable;
+    return *this;
+}
+
 MenuItem* MenuItem::Builder::build() {
-    return new MenuItem(_text, _children, _parent);
+    return new MenuItem(_text, _children, _parent, _renderable);
 }

@@ -11,10 +11,11 @@ public:
     Confirm(Resources* resources, std::string prompt,
             Remote remote, Button button, bool enabled);
     ~Confirm();
-    void update(const Clock& clock);
+    void update(Clock& clock);
     void render();
     bool isConfirmed();
     void setEnabled(bool enabled);
+    bool isDone();
 
     class Builder {
     public:

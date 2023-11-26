@@ -5,25 +5,26 @@
 #include <string>
 #include <grrlib.h>
 #include "clock.hpp"
+#include "renderable.hpp"
 
 #define SCREEN_WIDTH 640
 #define NO_ANIMATION -1
 
-#include "renderable.hpp"
 
 enum TextBoxAnimationState {
     RUNNING,
     TERMINATED
 };
 
-class TextBox : Renderable {
+class TextBox : public Renderable {
 public:
     void setText(std::string text);
     void setColor(int color);
     void setAnimationSpeed(unsigned int speed);
-    void update(const Clock& clock);
+    void update(Clock& clock);
     void copyBufferToContent();
     void render();
+    bool isDone();
     TextBoxAnimationState getAnimationState();
     size_t lineCount();
 

@@ -21,7 +21,7 @@ QARythmMinigame::~QARythmMinigame() {
     }
 }
 
-void QARythmMinigame::update(const Clock& clock) {
+void QARythmMinigame::update(Clock& clock) {
     _init();
     std::vector<RythmNote*> greenNotes;
     size_t hits = 0;
@@ -338,12 +338,12 @@ QARythmMinigame::Builder& QARythmMinigame::Builder::data(std::string data) {
     return *this;
 }
 
-QARythmMinigame::Builder &QARythmMinigame::Builder::delayMs(int ms) {
+QARythmMinigame::Builder& QARythmMinigame::Builder::delayMs(int ms) {
     _delayMs = ms;
     return *this;
 }
 
-QARythmMinigame::Builder &QARythmMinigame::Builder::maxPts(int maxPts) {
+QARythmMinigame::Builder& QARythmMinigame::Builder::maxPts(int maxPts) {
     _maxPts = maxPts;
     return *this;
 }

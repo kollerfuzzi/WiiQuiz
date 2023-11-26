@@ -15,7 +15,7 @@ class QuizAPIClient;
 class QuizAction {
 public:
     virtual ~QuizAction() = 0;
-    virtual void update(const Clock& clock) = 0;
+    virtual void update(Clock& clock) = 0;
     virtual void render() = 0;
     virtual bool isDone() = 0;
     void setResources(Resources* resources);

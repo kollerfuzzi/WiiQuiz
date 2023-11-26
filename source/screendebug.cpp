@@ -1,4 +1,5 @@
 #include "screendebug.hpp"
+#include "textbox.hpp"
 
 ScreenDebug* ScreenDebug::_instance = nullptr;
 

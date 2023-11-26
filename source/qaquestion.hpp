@@ -20,7 +20,7 @@ enum QAQuestionState {
 class QAQuestion : public QuizAction {
 public:
     ~QAQuestion();
-    void update(const Clock &clock);
+    void update(Clock &clock);
     void render();
     bool isDone();
     Question toQuestion();

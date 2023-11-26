@@ -59,6 +59,8 @@ source/screendebug.cpp
 source/screendebug.hpp
 source/stringutils.cpp
 source/stringutils.hpp
+source/swinginglights.cpp
+source/swinginglights.hpp
 source/textbox.cpp
 source/textbox.hpp
 source/wiimote.cpp

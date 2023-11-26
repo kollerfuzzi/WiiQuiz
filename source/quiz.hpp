@@ -11,10 +11,10 @@
 #include "quizstate.hpp"
 #include "quizapiclient.hpp"
 
-class Quiz : Renderable {
+class Quiz : public Renderable {
 public:
     ~Quiz();
-    void update(const Clock& clock);
+    void update(Clock& clock);
     void render();
     bool isDone();
     QuizState* getState();

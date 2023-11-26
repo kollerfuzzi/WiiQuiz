@@ -10,7 +10,7 @@ class QAScoreboard : public QuizAction {
 public:
     QAScoreboard();
     ~QAScoreboard();
-    void update(const Clock &clock);
+    void update(Clock &clock);
     void render();
     bool isDone();
 

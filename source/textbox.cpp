@@ -45,7 +45,7 @@ void TextBox::setAnimationSpeed(unsigned int speed) {
     _animationSpeed = speed;
 }
 
-void TextBox::update(const Clock &clock) {
+void TextBox::update(Clock &clock) {
     if (_animationState == TextBoxAnimationState::TERMINATED) {
         return;
     }
@@ -99,6 +99,10 @@ void TextBox::render() {
                          _font, _textBuffer[line].c_str(),
                          _fontSize, _color);
     }
+}
+
+bool TextBox::isDone() {
+    return false;
 }
 
 TextBoxAnimationState TextBox::getAnimationState() {

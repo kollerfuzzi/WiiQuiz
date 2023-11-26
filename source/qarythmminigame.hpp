@@ -5,6 +5,7 @@
 #include "wiimote.hpp"
 #include "audioplayer.hpp"
 #include "stringutils.hpp"
+#include "textbox.hpp"
 
 
 struct RythmNote {
@@ -91,7 +92,7 @@ class QARythmMinigame : public QuizAction {
 public:
     QARythmMinigame(Audio audio, Texture img, std::string data, int delayMs, int maxPts);
     ~QARythmMinigame();
-    void update(const Clock& clock);
+    void update(Clock& clock);
     void init3dCube();
     void draw3dCube();
     void render();

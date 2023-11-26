@@ -123,7 +123,7 @@ QAQuestion::~QAQuestion() {
     }
 }
 
-void QAQuestion::update(const Clock &clock) {
+void QAQuestion::update(Clock &clock) {
     if (!_initialized) {
         init();
     }
