@@ -8,10 +8,12 @@ Resources::Resources() {
     _initC64Font();
     ScreenDebug::init(_fonts[Font::C64FONT].ttfFont);
     _resourceAPIClient = new ResourceAPIClient();
+    _resourceAPIClient->request(APICommand::REGISTER_WII);
     _resourceFileManager = new ResourceFileManager();
 }
 
 Resources::~Resources() {
+    _resourceAPIClient->request(APICommand::UNREGISTER_WII);
     clearAll();
     if (_resourceAPIClient != nullptr) {
         delete _resourceAPIClient;

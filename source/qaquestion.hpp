@@ -40,7 +40,7 @@ public:
 private:
     QAQuestion(std::string question, std::vector<std::string> answers,
                std::vector<int> correctAnswers);
-    std::vector<Answer> _getCorrectAnswerPlayers();
+    std::vector<Answer> _getCorrectPlayerAnswers();
     void init();
     void _manageState();
     std::string _question;
@@ -51,7 +51,7 @@ private:
     bool _done = false;
     u32 _timePassed = 0;
     TextBox* _textQuestion = nullptr;
-    TextBox* _textAnswers = nullptr;
+    std::vector<TextBox*> _textAnswers;
     TextBox* _textTimeLeft = nullptr;
     float _bgAnimation = 0.0f;
     u32 _questionPoints = 100;

@@ -37,12 +37,38 @@ void TextBox::setText(std::string text) {
     _textContent.push_back(line);
 }
 
+void TextBox::appendLineWithoutAnimation(std::string text)  {
+    _textContent.push_back(text);
+    copyBufferToContent();
+}
+
 void TextBox::setColor(int color) {
     _color = color;
 }
 
 void TextBox::setAnimationSpeed(unsigned int speed) {
     _animationSpeed = speed;
+}
+
+void TextBox::setBelow(TextBox* above) {
+    _above = above;
+}
+
+u32 TextBox::getTop() {
+    return getBottom() - getHeight();
+}
+
+u32 TextBox::getBottom() {
+    int bottom = _marginTop;
+    if (_above != nullptr) {
+        bottom = _above->getBottom();
+    }
+    bottom += getHeight();
+    return bottom;
+}
+
+u32 TextBox::getHeight() {
+    return _fontSize * _textBuffer.size() * 1.25 + 2;
 }
 
 void TextBox::update(Clock &clock) {
@@ -86,16 +112,17 @@ void TextBox::update(Clock &clock) {
 
 void TextBox::copyBufferToContent() {
     _textBuffer = _textContent;
+    _animationSpeed = NO_ANIMATION;
 }
 
 void TextBox::render() {
     for (size_t line = 0; line < _textBuffer.size(); line++) {
         GRRLIB_PrintfTTF(_marginLeft + 2,
-                         _marginTop + line * _fontSize * 1.25 + 2,
+                         getTop() + line * _fontSize * 1.25 + 2,
                          _font, _textBuffer[line].c_str(),
                          _fontSize, RGBA(0, 0, 0, 255));
         GRRLIB_PrintfTTF(_marginLeft,
-                         _marginTop + line * _fontSize * 1.25,
+                         getTop() + line * _fontSize * 1.25,
                          _font, _textBuffer[line].c_str(),
                          _fontSize, _color);
     }
@@ -117,9 +144,14 @@ TextBox::Builder TextBox::builder() {
     return TextBox::Builder();
 }
 
-TextBox::TextBox(GRRLIB_Font *font, unsigned int fontSize, int color,
-                 unsigned int marginTop, unsigned int marginLeft,
-                 unsigned int marginRight, int animationSpeed) {
+TextBox::TextBox(GRRLIB_Font* font,
+                 unsigned int fontSize,
+                 int color,
+                 unsigned int marginTop,
+                 unsigned int marginLeft,
+                 unsigned int marginRight,
+                 int animationSpeed,
+                 TextBox* above) {
     _font = font;
     _fontSize = fontSize;
     _color = color;
@@ -127,6 +159,7 @@ TextBox::TextBox(GRRLIB_Font *font, unsigned int fontSize, int color,
     _marginLeft = marginLeft;
     _marginRight = marginRight;
     _animationSpeed = animationSpeed;
+    _above = above;
 }
 
 TextBox::Builder& TextBox::Builder::font(GRRLIB_Font *font) {
@@ -169,11 +202,16 @@ TextBox::Builder& TextBox::Builder::animationSpeed(int animationSpeed) {
     return *this;
 }
 
+TextBox::Builder& TextBox::Builder::below(TextBox* above) {
+    _above = above;
+    return *this;
+}
+
 TextBox* TextBox::Builder::build() {
     TextBox* box = new TextBox(_font, _fontSize,
                           _color, _marginTop,
                           _marginLeft, _marginRight,
-                          _animationSpeed);
+                          _animationSpeed, _above);
 
     box->setText(_text);
     return box;

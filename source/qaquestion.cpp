@@ -9,7 +9,7 @@ QAQuestion::QAQuestion(std::string question, std::vector<std::string> answers,
     _correctAnswers = correctAnswers;
 }
 
-std::vector<Answer> QAQuestion::_getCorrectAnswerPlayers() {
+std::vector<Answer> QAQuestion::_getCorrectPlayerAnswers() {
     std::string correctAnswer(_answers[_correctAnswers[0]]);
     std::vector<Answer> correctAnswers;
     for (Answer answer : _state->getAnswers()) {
@@ -28,21 +28,22 @@ void QAQuestion::init() {
         .marginTop(50)
         .animationSpeed(100)
         .build();
-    std::string answers;
-    for (size_t answerNr = 0; answerNr < _answers.size(); ++answerNr) {
-        answers += (char)(answerNr + 'A');
-        answers += ") ";
-        answers += _answers[answerNr];
-        answers += "\n";
+
+    for (std::string& answerStr : _answers) {
+        TextBox* answerBox = TextBox::builder()
+            .text(answerStr)
+            .color(RGBA(230, 230, 230, 255))
+            .font(_resources->get(Font::C64FONT))
+            .fontSize(25)
+            .marginTop(100 + 25 * _textQuestion->lineCount())
+            .animationSpeed(100)
+            .build();
+        if (_textAnswers.size() > 0) {
+            TextBox* aboveCurrent = _textAnswers[_textAnswers.size() - 1];
+            answerBox->setBelow(aboveCurrent);
+        }
+        _textAnswers.push_back(answerBox);
     }
-    _textAnswers = TextBox::builder()
-        .text(answers)
-        .color(RGBA(230, 230, 230, 255))
-        .font(_resources->get(Font::C64FONT))
-        .fontSize(25)
-        .marginTop(100 + 25 * _textQuestion->lineCount())
-        .animationSpeed(100)
-        .build();
 
     _textTimeLeft = TextBox::builder()
         .color(RGBA(255, 150, 150, 255))
@@ -69,54 +70,70 @@ void QAQuestion::_manageState() {
         _questionState = QAQuestionState::SHOW_ANSWERS;
 
         _client->loadAnswers();
-        std::vector<Answer> answers = _state->getAnswers();
+        std::vector<Answer> playerAnswers = _state->getAnswers();
         _client->endQuestion();
-        std::string playerAnswersText;
 
-        for (Answer& answer : answers) {
-            playerAnswersText += answer.getPlayer()->getName();
-            playerAnswersText += ": ";
-            playerAnswersText += answer.getAnswer();
-            playerAnswersText += "\n";
+        for (size_t answerCnt = 0; answerCnt < _answers.size(); answerCnt++) {
+            std::string answerWithPlayersText = _answers[answerCnt];
+
+            std::vector<std::string> answerPlayerNames;
+            for (Answer& answer : playerAnswers) {
+                if (answer.getAnswer() == _answers[answerCnt]) {
+                    answerPlayerNames.push_back(answer.getPlayer()->getName());
+                }
+            }
+            if (answerPlayerNames.size() > 0) {
+                answerWithPlayersText += " (";
+                for (size_t i = 0; i < answerPlayerNames.size(); i++) {
+                    answerWithPlayersText += answerPlayerNames[i];
+                    if (i != answerPlayerNames.size() - 1) {
+                        answerWithPlayersText += ", ";
+                    }
+                }
+                answerWithPlayersText += ")";
+            } else {
+                answerWithPlayersText += " -";
+            }
+
+            _textAnswers[answerCnt]->setText(answerWithPlayersText);
+            _textAnswers[answerCnt]->copyBufferToContent();
+            _textAnswers[answerCnt]->setColor(RGBA(150, 150, 255, 255));
         }
-        _textAnswers->setText(playerAnswersText);
         _textQuestion->setColor(RGBA(100, 100, 100, 255));
-        _textAnswers->setColor(RGBA(150, 150, 255, 255));
-        _textAnswers->setAnimationSpeed(50);
-
     } else if (_questionState == QAQuestionState::SHOW_ANSWERS && _timePassed > 7000) {
         _timePassed = 0;
         _questionState = QAQuestionState::SHOW_SOLUTION;
-
-        std::string correctAnswerStr = _answers[_correctAnswers[0]];
-        std::string correctAnswerDisplay("The correct answer is:\n");
-        correctAnswerDisplay += correctAnswerStr;
-        _textQuestion->setText(correctAnswerDisplay);
-        _textQuestion->setColor(RGBA(150, 255, 150, 255));
-        std::vector<Answer> correctAnswers = _getCorrectAnswerPlayers();
-        std::string playerPointAdd;
-        for (Answer& correctAnswer : correctAnswers) {
-            playerPointAdd += correctAnswer.getPlayer()->getName();
-            playerPointAdd += " +";
-            playerPointAdd += std::to_string(_questionPoints);
-            playerPointAdd += " pts\n";
+        for (size_t answerCnt = 0; answerCnt < _answers.size(); answerCnt++) {
+            std::string answer = _answers[answerCnt];
+            bool correct = _answers[_correctAnswers[0]] == answer;
+            if (correct) {
+                _textAnswers[answerCnt]->setColor(RGBA(155, 255, 150, 255));
+                std::string points;
+                points += "    +";
+                points += std::to_string(_questionPoints);
+                points += "pts.";
+                _textAnswers[answerCnt]->appendLineWithoutAnimation(points);
+            } else {
+                _textAnswers[answerCnt]->setColor(RGBA(255, 150, 150, 255));
+            }
+        }
+        for (Answer& correctAnswer : _getCorrectPlayerAnswers()) {
             correctAnswer.getPlayer()->addPoints(_questionPoints);
         }
-        _textAnswers->setText(playerPointAdd);
-        _textAnswers->setAnimationSpeed(25);
-        _textQuestion->setAnimationSpeed(25);
         _client->setPoints();
-    } else if (_questionState == QAQuestionState::SHOW_SOLUTION && _timePassed > 5000) {
+    } else if (_questionState == QAQuestionState::SHOW_SOLUTION
+               && _timePassed > 5000) {
         _done = true;
     }
+
 }
 
 QAQuestion::~QAQuestion() {
     if (_textQuestion != nullptr) {
         delete _textQuestion;
     }
-    if (_textAnswers != nullptr) {
-        delete _textAnswers;
+    for (TextBox* answer : _textAnswers) {
+        delete answer;
     }
     if (_textTimeLeft != nullptr) {
         delete _textTimeLeft;
@@ -133,7 +150,9 @@ void QAQuestion::update(Clock &clock) {
     _bgAnimation += 0.02;
 
     _textQuestion->update(clock);
-    _textAnswers->update(clock);
+    for (TextBox* answer : _textAnswers) {
+        answer->update(clock);
+    }
     _textTimeLeft->update(clock);
 }
 
@@ -143,7 +162,9 @@ void QAQuestion::render() {
                    _resources->get(Texture::QUIZ_BG), 0, 1, 1.6,
                    RGBA(255, 255, 255, 255));
     _textQuestion->render();
-    _textAnswers->render();
+    for (TextBox* answerBox : _textAnswers) {
+        answerBox->render();
+    }
     if (_questionState == QAQuestionState::INPUT) {
         _textTimeLeft->render();
     }

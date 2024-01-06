@@ -19,8 +19,13 @@ enum TextBoxAnimationState {
 class TextBox : public Renderable {
 public:
     void setText(std::string text);
+    void appendLineWithoutAnimation(std::string text);
     void setColor(int color);
     void setAnimationSpeed(unsigned int speed);
+    void setBelow(TextBox* above);
+    u32 getTop();
+    u32 getBottom();
+    u32 getHeight();
     void update(Clock& clock);
     void copyBufferToContent();
     void render();
@@ -39,6 +44,7 @@ public:
         Builder& marginLeft(int marginLeft);
         Builder& marginRight(int marginRight);
         Builder& animationSpeed(int animationSpeed);
+        Builder& below(TextBox* above);
         TextBox* build();
     private:
         GRRLIB_Font* _font;
@@ -49,13 +55,14 @@ public:
         unsigned int _marginLeft = 25;
         unsigned int _marginRight = 25;
         int _animationSpeed = NO_ANIMATION;
+        TextBox* _above = nullptr;
     };
     static Builder builder();
 
 private:
     TextBox(GRRLIB_Font* font, unsigned int fontSize, int color,
             unsigned int marginTop, unsigned int marginLeft,
-            unsigned int marginRight, int animationSpeed);
+            unsigned int marginRight, int animationSpeed, TextBox* above);
     std::vector<std::string> _textContent;
     std::vector<std::string> _textBuffer;
     GRRLIB_Font* _font = nullptr;
@@ -70,6 +77,7 @@ private:
     unsigned int _animationCursorCharCount = 0;
     unsigned int _animationCursorLine = 0;
     unsigned int _animationCursorLinePos = 0;
+    TextBox* _above = nullptr;
 };
 
 #endif // TEXTBOX_HPP

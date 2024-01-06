@@ -40,10 +40,6 @@ int main(int argc, char** argv) {
 
     Resources* resources = new Resources();
     resources->fetchNetworkResources();
-    /*std::string addr = DWQCP::discover();
-    while(true) {
-        ScreenDebug::printAndRender(addr);
-    }*/
 
     Quiz* quiz = QuizTemplate::getDefaultQuiz(resources);
 
@@ -75,6 +71,7 @@ int main(int argc, char** argv) {
     testMenu->runUntilDone(frameClock, resources);
     AudioPlayer::stop();
     ScreenDebug::destroy();
+
 
     delete testMenu;
     delete quiz;
