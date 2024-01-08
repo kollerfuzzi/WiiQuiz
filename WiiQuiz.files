@@ -15,8 +15,6 @@ source/clock.cpp
 source/clock.hpp
 source/confirm.cpp
 source/confirm.hpp
-source/dwqcp.cpp
-source/dwqcp.hpp
 source/magic_enum.hpp
 source/main.cpp
 source/menu.cpp

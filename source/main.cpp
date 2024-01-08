@@ -16,7 +16,6 @@
 #include "wiimote.hpp"
 #include "audioplayer.hpp"
 #include "bsod.hpp"
-#include "dwqcp.hpp"
 #include "menu.hpp"
 
 // backlog
