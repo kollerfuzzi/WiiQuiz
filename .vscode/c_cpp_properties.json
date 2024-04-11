@@ -11,6 +11,7 @@
                 "${DEVKITPPC}/powerpc-gekko/include/c++/4.2.4",
                 "${DEVKITPPC}/powerpc-gekko/include/c++/4.2.4/powerpc-gekko",
                 "${DEVKITPRO}/libogc/include/", // network stuff
+                "${DEVKITPRO}/libogc/include/ogc/",
                 "${DEVKITPPC}/powerpc-eabi/include/"
             ],
             "defines": [],
