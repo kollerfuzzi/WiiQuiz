@@ -1,7 +1,0 @@
-${DEVKITPRO}/libogc/include
-${DEVKITPRO}/portlibs/wii/include
-${DEVKITPPC}/lib/gcc/powerpc-gekko/4.2.4/include
-${DEVKITPPC}/powerpc-gekko/include
-${DEVKITPPC}/powerpc-gekko/include/c++/4.2.4
-${DEVKITPPC}/powerpc-gekko/include/c++/4.2.4/powerpc-gekko
-source

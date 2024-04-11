@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**", // workspace
+                "${DEVKITPRO}/libogc/include", // devkitpro / devkitppc
+                "${DEVKITPRO}/portlibs/wii/include",
+                "${DEVKITPPC}/lib/gcc/powerpc-gekko/4.2.4/include",
+                "${DEVKITPPC}/powerpc-gekko/include",
+                "${DEVKITPPC}/powerpc-gekko/include/c++/4.2.4",
+                "${DEVKITPPC}/powerpc-gekko/include/c++/4.2.4/powerpc-gekko",
+                "${DEVKITPRO}/libogc/include/", // network stuff
+                "${DEVKITPPC}/powerpc-eabi/include/"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++20",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}

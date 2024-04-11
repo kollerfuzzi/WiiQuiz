@@ -3,7 +3,8 @@ A quiz and minigame collection for Nintendo Wii :)
 
 
 ## Build Instructions
-* install devkitpro
-* install GRRLIB
+* install devkitpro: https://devkitpro.org/wiki/Getting_Started
+* install GRRLIB: https://github.com/GRRLIB/GRRLIB
 * make
-* optional: install an IDE (project contains config for QT Creator)
+
+info: 
