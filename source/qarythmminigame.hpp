@@ -140,6 +140,9 @@ private:
     int _maxPts = 200;
     bool _ending = false;
     int _endingTimePassed = 0;
+
+    void renderCube(const f32 &x, const f32 &y);
+    void updateNote(const Clock &clock, RythmNote &note, size_t &hits, size_t &misses) const;
 };
 
 #endif // QARYTHMMINIGAME_HPP

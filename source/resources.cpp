@@ -13,9 +13,9 @@ Resources::Resources() {
 }
 
 Resources::~Resources() {
-    _resourceAPIClient->request(APICommand::UNREGISTER_WII);
     clearAll();
     if (_resourceAPIClient != nullptr) {
+        _resourceAPIClient->request(APICommand::UNREGISTER_WII);
         delete _resourceAPIClient;
     }
     if (_resourceFileManager != nullptr) {
