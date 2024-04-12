@@ -12,9 +12,9 @@
 #include <sys/dir.h>
 #include <vector>
 #include "magic_enum.hpp"
+#include "json.hpp"
 
 enum APICommand {
-    HEY_DUKE,
     REGISTER_WII,
     UNREGISTER_WII,
     GET_SERVER_ADDR,
@@ -33,7 +33,9 @@ class APIClient {
 public:
     APIClient();
     ~APIClient();
+    nlohmann::json requestJson(APICommand command);
     std::vector<std::string> request(APICommand command);
+    nlohmann::json requestJson(APICommand, nlohmann::json json);
     std::vector<std::string> request(APICommand command, std::vector<std::string> payload);
 private:
     void _init();

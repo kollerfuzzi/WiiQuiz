@@ -19,9 +19,20 @@ void APIClient::_init() {
     while(net_init() == -EAGAIN);
 }
 
+nlohmann::json APIClient::requestJson(APICommand command) {
+    std::vector<std::string> response = request(command);
+    nlohmann::json json = nlohmann::json::parse(response[0]);
+    return json;
+}
+
 std::vector<std::string> APIClient::request(APICommand command) {
     std::vector<std::string> emptyPayload;
     return request(command, emptyPayload);
+}
+
+nlohmann::json APIClient::requestJson(APICommand, nlohmann::json json) {
+    BSOD::raise("not implemented");
+    return nullptr;
 }
 
 std::vector<std::string> APIClient::request(APICommand command, std::vector<std::string> payload) {

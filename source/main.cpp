@@ -17,7 +17,6 @@
 #include "audioplayer.hpp"
 #include "bsod.hpp"
 #include "menu.hpp"
-
 // backlog
 
 // rythm
@@ -49,7 +48,7 @@ int main(int argc, char** argv) {
 
     MenuItem* root = MenuItem::builder()
         .child(MenuItem::builder()
-                   .text("Start Quiz")
+                   .text("Start")
                    .child(MenuItem::builder()
                           .text("Quiz 1")
                           .renderable(quiz)
@@ -62,7 +61,7 @@ int main(int argc, char** argv) {
                           .build())
                    .build())
         .child(MenuItem::builder()
-                   .text("Something")
+                   .text("Quit")
                    .build())
         .build();
 

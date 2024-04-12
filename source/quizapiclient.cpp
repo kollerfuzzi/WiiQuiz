@@ -5,6 +5,7 @@
 #include "stringutils.hpp"
 #include "screendebug.hpp"
 #include "magic_enum.hpp"
+#include "json.hpp"
 
 QuizAPIClient::QuizAPIClient(QuizState* state) {
     _state = state;
@@ -29,7 +30,9 @@ void QuizAPIClient::loadPlayers() {
 }
 
 std::string QuizAPIClient::getServerAddress() {
-    return request(APICommand::GET_SERVER_ADDR)[0];
+    nlohmann::json serverAddrJson = requestJson(APICommand::GET_SERVER_ADDR);
+    std::string address = serverAddrJson["serverAddress"];
+    return address;
 }
 
 void QuizAPIClient::askQuestion(Question& question) {
