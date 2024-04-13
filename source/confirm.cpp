@@ -55,7 +55,7 @@ void Confirm::_init() {
     }
 
     _promptTextbox = TextBox::builder()
-        .font(_resources->get(Font::C64FONT))
+        .font(_resources->get(Font::DEFAULT_FONT))
         .color(RGBA(255, 255, 255, 255))
         .text(_prompt)
         .animationSpeed(NO_ANIMATION)

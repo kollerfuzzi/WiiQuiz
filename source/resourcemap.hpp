@@ -3,15 +3,13 @@
 
 #include <string>
 
-#include "zr_c64font.hpp"
-
 enum ResourceLocation {
     SERVER,
     BINARY
 };
 
 enum Font {
-    C64FONT
+    DEFAULT_FONT
 };
 
 enum Texture {

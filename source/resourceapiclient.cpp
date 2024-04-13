@@ -1,4 +1,5 @@
 #include "resourceapiclient.hpp"
+#include "json.hpp"
 
 ResourceAPIClient::ResourceAPIClient() {
 
@@ -8,10 +9,11 @@ ResourceAPIClient::~ResourceAPIClient() {
 
 }
 
-std::string ResourceAPIClient::fetchResourceVersion() {
-    std::vector<std::string> response =
-        request(APICommand::GET_RESOURCES_VERSION);
-    return response[0];
+s32 ResourceAPIClient::fetchResourceVersion() {
+    nlohmann::json response =
+        requestJson(APICommand::GET_RESOURCES_VERSION);
+    s32 resourceVersionNumber = response["resourceVersion"];
+    return resourceVersionNumber;
 }
 
 std::string ResourceAPIClient::fetchResource(std::string resourcePath) {

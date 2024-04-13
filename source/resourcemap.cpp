@@ -2,7 +2,7 @@
 
 
 FontDef FONT_DEFINITIONS[] = {
-    {Font::C64FONT, "fonts/c64font.ttf"}
+    {Font::DEFAULT_FONT, "fonts/NotoSansMono.ttf"}
 };
 
 TextureDef TEXTURE_DEFINITIONS[] = {

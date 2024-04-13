@@ -42,7 +42,7 @@ void QAChapter::_init() {
     _titleBox = TextBox::builder()
         .text(_title)
         .color(RGBA(255, 255, 255, 255))
-        .font(_resources->get(Font::C64FONT))
+        .font(_resources->get(Font::DEFAULT_FONT))
         .fontSize(40)
         .marginTop(150)
         .marginLeft(50)

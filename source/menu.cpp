@@ -88,7 +88,7 @@ void Menu::_updateSubMenus(Clock& clock) {
         if (menuItem->getTextBox() == nullptr) {
             menuItem->setTextBox(TextBox::builder()
                                      .text(menuItem->getText())
-                                     .font(_resources->get(Font::C64FONT))
+                                     .font(_resources->get(Font::DEFAULT_FONT))
                                      .fontSize(20)
                                      .marginLeft(ITEM_MARGIN_LEFT + 5)
                                      .marginTop(ITEM_MARGIN_TOP + i * ITEM_SPACING + 5)

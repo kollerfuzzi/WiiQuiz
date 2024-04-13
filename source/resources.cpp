@@ -1,12 +1,13 @@
 #include "resources.hpp"
 #include "screendebug.hpp"
 #include "grrlib.h"
+#include "zr_notosans.hpp"
 
 std::string loadingAnimation = "|/-\\";
 
 Resources::Resources() {
-    _initC64Font();
-    ScreenDebug::init(_fonts[Font::C64FONT].ttfFont);
+    _initDefaultFont();
+    ScreenDebug::init(_fonts[Font::DEFAULT_FONT].ttfFont);
     _resourceAPIClient = new ResourceAPIClient();
     _resourceAPIClient->request(APICommand::REGISTER_WII);
     _resourceFileManager = new ResourceFileManager();
@@ -75,24 +76,25 @@ void Resources::fetchNetworkResources() {
 
 bool Resources::_isUpdateAvailable() {
     std::string version("VERSION");
-    BinaryResource localVersion = _resourceFileManager->loadResource(version);
-    if (localVersion.data == nullptr) {
+    BinaryResource localVersionResource = _resourceFileManager->loadResource(version);
+    if (localVersionResource.data == nullptr) {
         return true;
     }
-    std::string localVersionStr(reinterpret_cast<char*>(localVersion.data));
-    std::string remoteVersion = _resourceAPIClient->fetchResourceVersion();
+    std::string localVersionStr(reinterpret_cast<char*>(localVersionResource.data));
+    s32 localVersion = stoi(localVersionStr);
+    s32 remoteVersion = _resourceAPIClient->fetchResourceVersion();
 
-    bool isUpdate = localVersionStr != remoteVersion;
+    bool isUpdate = localVersion != remoteVersion;
 
-    _resourceFileManager->freeResource(localVersion);
+    _resourceFileManager->freeResource(localVersionResource);
     return isUpdate;
 }
 
-void Resources::_initC64Font() {
-    unsigned char* fontBin = (unsigned char*) malloc(c64font_ttf_len);
-    memcpy(fontBin, c64font_ttf, c64font_ttf_len);
-    BinaryResource font = {fontBin, c64font_ttf_len};
-    _fonts[Font::C64FONT] = {
+void Resources::_initDefaultFont() {
+    unsigned char* fontBin = (unsigned char*) malloc(NotoSansMono_ttf_len);
+    memcpy(fontBin, NotoSansMono_ttf, NotoSansMono_ttf_len);
+    BinaryResource font = {fontBin, NotoSansMono_ttf_len};
+    _fonts[Font::DEFAULT_FONT] = {
         GRRLIB_LoadTTF(font.data, font.size),
         font
     };
@@ -126,9 +128,11 @@ void Resources::_fetchNetworkAudio() {
 }
 
 void Resources::_fetchNetworkVersion() {
-    std::string remoteVersion = _resourceAPIClient->fetchResourceVersion();
+    s32 remoteVersion = _resourceAPIClient->fetchResourceVersion();
+    std::string versionNumberStr;
+    versionNumberStr += remoteVersion;
     std::string version("VERSION");
-    _resourceFileManager->saveResourcePlain(version, remoteVersion);
+    _resourceFileManager->saveResourcePlain(version, versionNumberStr);
 }
 
 void Resources::_fetchAndStoreResource(std::string& name, std::string& path) {

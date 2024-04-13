@@ -27,7 +27,7 @@ private:
     std::map<Font, TTFFontWithResources> _fonts;
     std::map<Audio, BinaryResource> _audio;
     bool _isUpdateAvailable();
-    void _initC64Font();
+    void _initDefaultFont();
     void _fetchNetworkTextures();
     void _fetchNetworkFonts();
     void _fetchNetworkAudio();

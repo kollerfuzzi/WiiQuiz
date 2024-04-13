@@ -13,7 +13,7 @@ Quiz* QuizTemplate::getDefaultQuiz(Resources* resources) {
 
         .action(QAChapter::builder().title("Kapitel 1:\nRechnungswesen").build())
         .action(QAQuestion::builder()
-                    .question("Was ist der operative casflow?")
+                    .question("Was ist der operative cashflow?")
                     .correctAnswer("OCF")
                     .wrongAnswer("UCF")
                     .wrongAnswer("FCF")

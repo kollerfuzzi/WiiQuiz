@@ -23,7 +23,7 @@ std::vector<Answer> QAQuestion::_getCorrectPlayerAnswers() {
 void QAQuestion::init() {
     _textQuestion = TextBox::builder()
         .text(_question)
-        .font(_resources->get(Font::C64FONT))
+        .font(_resources->get(Font::DEFAULT_FONT))
         .fontSize(25)
         .marginTop(50)
         .animationSpeed(100)
@@ -33,7 +33,7 @@ void QAQuestion::init() {
         TextBox* answerBox = TextBox::builder()
             .text(answerStr)
             .color(RGBA(230, 230, 230, 255))
-            .font(_resources->get(Font::C64FONT))
+            .font(_resources->get(Font::DEFAULT_FONT))
             .fontSize(25)
             .marginTop(100 + 25 * _textQuestion->lineCount())
             .animationSpeed(100)
@@ -47,7 +47,7 @@ void QAQuestion::init() {
 
     _textTimeLeft = TextBox::builder()
         .color(RGBA(255, 150, 150, 255))
-        .font(_resources->get(Font::C64FONT))
+        .font(_resources->get(Font::DEFAULT_FONT))
         .fontSize(35)
         .marginTop(400)
         .build();

@@ -7,7 +7,7 @@ class ResourceAPIClient : public APIClient {
 public:
     ResourceAPIClient();
     ~ResourceAPIClient();
-    std::string fetchResourceVersion();
+    s32 fetchResourceVersion();
     std::string fetchResource(std::string resourcePath);
 };
 
