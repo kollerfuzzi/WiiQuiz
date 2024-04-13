@@ -16,14 +16,13 @@ QuizAPIClient::~QuizAPIClient() {
 }
 
 void QuizAPIClient::loadPlayers() {
-    std::vector<std::string> response = request(APICommand::GET_PLAYERS);
+    nlohmann::json playersJson = requestJson(APICommand::GET_PLAYERS);
     std::vector<Player*> players;
-    for (std::string& playerLn : response) {
-        std::vector<std::string> playerParts = StringUtils::split(playerLn, ';');
+    for (nlohmann::json playerJson : playersJson) {
         Player* player = Player::builder()
-                             .name(playerParts[0])
-                             .points(std::stoi(playerParts[1]))
-                             .build();
+                            .name(playerJson["name"])
+                            .points(playerJson["points"])
+                            .build();
         players.push_back(player);
     }
     _state->setPlayers(players);
@@ -36,15 +35,14 @@ std::string QuizAPIClient::getServerAddress() {
 }
 
 void QuizAPIClient::askQuestion(Question& question) {
-    std::vector<std::string> requestLines;
-    requestLines.push_back(question.getPrompt());
-    std::string type("TYPE:");
-    type += magic_enum::enum_name(question.getType());
-    requestLines.push_back(type);
-    for (std::string& answer : question.getAnswers()) {
-        requestLines.push_back(answer);
-    }
-    request(APICommand::ASK_QUESTION, requestLines);
+    nlohmann::json questionJson = {
+        {"prompt", question.getPrompt()},
+        {"type", magic_enum::enum_name(question.getType())},
+        {"answers", question.getAnswers()}
+    };
+
+    nlohmann::json status = requestJson(APICommand::ASK_QUESTION, questionJson);
+    assertStatusOk(status);
 }
 
 void QuizAPIClient::loadAnswers() {
@@ -63,7 +61,7 @@ void QuizAPIClient::loadAnswers() {
 }
 
 void QuizAPIClient::endQuestion() {
-    request(APICommand::END_QUESTION);
+    assertStatusOk(requestJson(APICommand::END_QUESTION));
 }
 
 void QuizAPIClient::setPoints() {

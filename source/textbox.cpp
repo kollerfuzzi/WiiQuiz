@@ -1,6 +1,8 @@
 #include "textbox.hpp"
+#include <codecvt>
 
 void TextBox::setText(std::string text) {
+    
     _textContent.clear();
     _textBuffer.clear();
     _animationTimePassed = 0;
@@ -9,17 +11,17 @@ void TextBox::setText(std::string text) {
     _animationCursorLinePos = 0;
     _animationState = TextBoxAnimationState::RUNNING;
 
-    std::string line;
-    for (auto &character : text) {
+    std::wstring line;
+    for (auto &character : _utf8ToUtf32(text)) {
         line += character;
         GRRLIB_2dMode();
-        bool lineOverflow = GRRLIB_WidthTTF(_font, line.c_str(), _fontSize)
+        bool lineOverflow = GRRLIB_WidthTTFW(_font, line.c_str(), _fontSize)
                                 + _marginLeft
                             > SCREEN_WIDTH - _marginRight;
         bool breakLine = character == '\n';
 
         if (lineOverflow || breakLine) {
-            std::string carry;
+            std::wstring carry;
             carry += character;
             line.pop_back();
             _textContent.push_back(line);
@@ -37,8 +39,8 @@ void TextBox::setText(std::string text) {
     _textContent.push_back(line);
 }
 
-void TextBox::appendLineWithoutAnimation(std::string text)  {
-    _textContent.push_back(text);
+void TextBox::appendLineWithoutAnimation(std::string text) {
+    _textContent.push_back(_utf8ToUtf32(text));
     copyBufferToContent();
 }
 
@@ -117,11 +119,11 @@ void TextBox::copyBufferToContent() {
 
 void TextBox::render() {
     for (size_t line = 0; line < _textBuffer.size(); line++) {
-        GRRLIB_PrintfTTF(_marginLeft + 2,
+        GRRLIB_PrintfTTFW(_marginLeft + 2,
                          getTop() + line * _fontSize * 1.25 + 2,
                          _font, _textBuffer[line].c_str(),
                          _fontSize, RGBA(0, 0, 0, 255));
-        GRRLIB_PrintfTTF(_marginLeft,
+        GRRLIB_PrintfTTFW(_marginLeft,
                          getTop() + line * _fontSize * 1.25,
                          _font, _textBuffer[line].c_str(),
                          _fontSize, _color);
@@ -160,6 +162,12 @@ TextBox::TextBox(GRRLIB_Font* font,
     _marginRight = marginRight;
     _animationSpeed = animationSpeed;
     _above = above;
+}
+
+std::wstring TextBox::_utf8ToUtf32(std::string str) {
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> utf32conv;
+    std::wstring utf32 = utf32conv.from_bytes(str);
+    return utf32;
 }
 
 TextBox::Builder& TextBox::Builder::font(GRRLIB_Font *font) {

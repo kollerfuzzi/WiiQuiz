@@ -63,8 +63,9 @@ private:
     TextBox(GRRLIB_Font* font, unsigned int fontSize, int color,
             unsigned int marginTop, unsigned int marginLeft,
             unsigned int marginRight, int animationSpeed, TextBox* above);
-    std::vector<std::string> _textContent;
-    std::vector<std::string> _textBuffer;
+    std::wstring _utf8ToUtf32(std::string str);
+    std::vector<std::wstring> _textContent;
+    std::vector<std::wstring> _textBuffer;
     GRRLIB_Font* _font = nullptr;
     int _fontSize;
     int _color;

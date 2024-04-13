@@ -21,8 +21,8 @@ void APIClient::_init() {
 
 nlohmann::json APIClient::requestJson(APICommand command) {
     std::vector<std::string> response = request(command);
-    nlohmann::json json = nlohmann::json::parse(response[0]);
-    return json;
+    nlohmann::json responseJson = nlohmann::json::parse(response[0]);
+    return responseJson;
 }
 
 std::vector<std::string> APIClient::request(APICommand command) {
@@ -30,9 +30,12 @@ std::vector<std::string> APIClient::request(APICommand command) {
     return request(command, emptyPayload);
 }
 
-nlohmann::json APIClient::requestJson(APICommand, nlohmann::json json) {
-    BSOD::raise("not implemented");
-    return nullptr;
+nlohmann::json APIClient::requestJson(APICommand command, nlohmann::json payloadJson) {
+    std::vector<std::string> payload;
+    payload.push_back(payloadJson.dump());
+    std::vector<std::string> response = request(command, payload);
+    nlohmann::json responseJson = nlohmann::json::parse(response[0]);
+    return responseJson;
 }
 
 std::vector<std::string> APIClient::request(APICommand command, std::vector<std::string> payload) {
@@ -64,6 +67,14 @@ s32 APIClient::_connect() {
 
 void APIClient::_disconnect(s32 socket){
     net_close(socket);
+}
+
+void APIClient::assertStatusOk(nlohmann::json status) {
+    if (status["status"] != "OK") {
+        std::string error("ASK_QUESTION returned ");
+        error += status["status"];
+        BSOD::raise(error);
+    }
 }
 
 void APIClient::_sendRequest(s32 socket, APICommand command, std::vector<std::string> payload) {

@@ -37,6 +37,7 @@ public:
     std::vector<std::string> request(APICommand command);
     nlohmann::json requestJson(APICommand, nlohmann::json json);
     std::vector<std::string> request(APICommand command, std::vector<std::string> payload);
+    void assertStatusOk(nlohmann::json status);
 private:
     void _init();
     s32 _connect();
