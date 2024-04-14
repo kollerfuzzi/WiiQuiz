@@ -22,6 +22,7 @@ void APIClient::_init() {
 nlohmann::json APIClient::requestJson(APICommand command) {
     std::vector<std::string> response = request(command);
     nlohmann::json responseJson = nlohmann::json::parse(response[0]);
+    _assertStatusOk(responseJson);
     return responseJson;
 }
 
@@ -35,6 +36,7 @@ nlohmann::json APIClient::requestJson(APICommand command, nlohmann::json payload
     payload.push_back(payloadJson.dump());
     std::vector<std::string> response = request(command, payload);
     nlohmann::json responseJson = nlohmann::json::parse(response[0]);
+    _assertStatusOk(responseJson);
     return responseJson;
 }
 
@@ -69,10 +71,10 @@ void APIClient::_disconnect(s32 socket){
     net_close(socket);
 }
 
-void APIClient::assertStatusOk(nlohmann::json status) {
-    if (status["status"] != "OK") {
+void APIClient::_assertStatusOk(nlohmann::json json) {
+    if (json.contains("status") && json["status"] != "OK") {
         std::string error("ASK_QUESTION returned ");
-        error += status["status"];
+        error += json["status"];
         BSOD::raise(error);
     }
 }

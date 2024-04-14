@@ -129,8 +129,7 @@ void Resources::_fetchNetworkAudio() {
 
 void Resources::_fetchNetworkVersion() {
     s32 remoteVersion = _resourceAPIClient->fetchResourceVersion();
-    std::string versionNumberStr;
-    versionNumberStr += remoteVersion;
+    std::string versionNumberStr = std::to_string(remoteVersion);
     std::string version("VERSION");
     _resourceFileManager->saveResourcePlain(version, versionNumberStr);
 }

@@ -3,7 +3,8 @@
 MenuItem::MenuItem(std::string text,
                    std::vector<MenuItem*> children,
                    MenuItem* parent,
-                   Renderable* renderable) {
+                   Renderable* renderable,
+                   bool quit) {
     _text = text;
     _children = children;
     for (MenuItem* child : _children) {
@@ -11,6 +12,7 @@ MenuItem::MenuItem(std::string text,
     }
     _parent = parent;
     _renderable = renderable;
+    _quit = quit;
 }
 
 MenuItem::~MenuItem() {
@@ -50,6 +52,10 @@ Renderable* MenuItem::getRenderable() {
     return _renderable;
 }
 
+bool MenuItem::isQuit() {
+    return _quit;
+}
+
 MenuItem::Builder MenuItem::builder() {
     return MenuItem::Builder();
 }
@@ -69,7 +75,6 @@ Menu::~Menu() {
 }
 
 void Menu::update(Clock& clock) {
-
     _updateSelection();
     if (WiiMote::buttonPressed(Remote::R1, Button::A)
             && _currentSelected != nullptr) {
@@ -135,7 +140,7 @@ void Menu::render() {
 }
 
 bool Menu::isDone() {
-    return false;
+    return _currentSubMenu->isQuit();
 }
 
 void Menu::_select(MenuItem* menuItem, Clock& clock) {
@@ -173,6 +178,11 @@ MenuItem::Builder& MenuItem::Builder::renderable(Renderable* renderable) {
     return *this;
 }
 
+MenuItem::Builder& MenuItem::Builder::quit(bool quit) {
+    _quit = true;
+    return *this;
+}
+
 MenuItem* MenuItem::Builder::build() {
-    return new MenuItem(_text, _children, _parent, _renderable);
+    return new MenuItem(_text, _children, _parent, _renderable, _quit);
 }

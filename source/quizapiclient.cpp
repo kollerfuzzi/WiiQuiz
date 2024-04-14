@@ -38,30 +38,32 @@ void QuizAPIClient::askQuestion(Question& question) {
     nlohmann::json questionJson = {
         {"prompt", question.getPrompt()},
         {"type", magic_enum::enum_name(question.getType())},
-        {"answers", question.getAnswers()}
+        {"answers", question.getAnswersStr()}
     };
 
-    nlohmann::json status = requestJson(APICommand::ASK_QUESTION, questionJson);
-    assertStatusOk(status);
+    requestJson(APICommand::ASK_QUESTION, questionJson);
 }
 
 void QuizAPIClient::loadAnswers() {
-    std::vector<std::string> lines = request(APICommand::GET_ANSWERS);
-    std::vector<Answer> answers;
-    for (std::string& line : lines) {
-        std::vector<std::string> answerParts = StringUtils::split(line, ';');
-        Player* player = _state->getPlayerByName(answerParts[0]);
-        Answer answer = Answer::builder()
-                .player(player)
-                .answer(answerParts[1])
-                .build();
-        answers.push_back(answer);
+    nlohmann::json answersJson = requestJson(APICommand::GET_ANSWERS);
+    std::vector<Answer> answerList;
+    for (auto entry = answersJson.begin(); entry != answersJson.end(); ++entry) {
+        std::string name = entry.key();
+        nlohmann::json answers = entry.value();
+        Player* player = _state->getPlayerByName(name);
+        Answer::Builder answerBuilder = Answer::builder()
+            .player(player)
+            .approved(answers["approved"]);
+        for (std::string answerStr : answers["answers"]) {
+            answerBuilder.answer(answerStr);
+        }
+        answerList.push_back(answerBuilder.build()); 
     }
-    _state->setAnswers(answers);
+    _state->setAnswers(answerList);
 }
 
 void QuizAPIClient::endQuestion() {
-    assertStatusOk(requestJson(APICommand::END_QUESTION));
+    requestJson(APICommand::END_QUESTION);
 }
 
 void QuizAPIClient::setPoints() {
@@ -73,5 +75,5 @@ void QuizAPIClient::setPoints() {
         };
         playerListJson.push_back(playerJson);
     }
-    assertStatusOk(requestJson(APICommand::SET_POINTS, playerListJson));
+    requestJson(APICommand::SET_POINTS, playerListJson);
 }

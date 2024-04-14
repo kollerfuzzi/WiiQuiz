@@ -37,11 +37,11 @@ public:
     std::vector<std::string> request(APICommand command);
     nlohmann::json requestJson(APICommand, nlohmann::json json);
     std::vector<std::string> request(APICommand command, std::vector<std::string> payload);
-    void assertStatusOk(nlohmann::json status);
 private:
     void _init();
     s32 _connect();
     void _disconnect(s32 socket);
+    void _assertStatusOk(nlohmann::json status);
     void _sendRequest(s32 socket, APICommand command, std::vector<std::string> payload);
     std::vector<std::string> _recvResponse(s32 socket);
     std::vector<std::string> _responseToLines(std::string response);
@@ -49,7 +49,7 @@ private:
     void _clearBuffer(char* buffer);
     u16 _bufferSize(std::string string);
     bool _isResponseEnd(std::string response);
-    std::string _address = "127.0.0.1";
+    std::string _address = "192.168.56.211";
 };
 
 #endif // APICLIENT_HPP

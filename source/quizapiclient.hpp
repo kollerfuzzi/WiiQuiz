@@ -7,6 +7,7 @@
 #include "question.hpp"
 #include "answer.hpp"
 
+class Question;
 class QuizState;
 
 class QuizAPIClient : public APIClient {

@@ -19,33 +19,28 @@ enum QAQuestionState {
 
 class QAQuestion : public QuizAction {
 public:
+    QAQuestion(Question question);
     ~QAQuestion();
     void update(Clock &clock);
     void render();
     bool isDone();
-    Question toQuestion();
+    Question getQuestion();
 
     class Builder {
     public:
-        Builder& question(std::string question);
-        Builder& correctAnswer(std::string answer);
-        Builder& wrongAnswer(std::string answer);
+        Builder& question(Question question);
         QAQuestion* build();
     private:
-        std::string _question;
-        std::vector<std::string> _answers;
-        std::vector<int> _correctAnswers;
+        Question _question;
     };
     static Builder builder();
 private:
-    QAQuestion(std::string question, std::vector<std::string> answers,
-               std::vector<int> correctAnswers);
-    std::vector<Answer> _getCorrectPlayerAnswers();
     void init();
     void _manageState();
-    std::string _question;
-    std::vector<std::string> _answers;
-    std::vector<int> _correctAnswers;
+    std::vector<Player*> _getPlayersWithAnswer(std::string answer);
+    std::vector<Player*> _getPlayersWithCorrectAnswers();
+    bool _hasPlayerAnswer(Player* player, std::string answer);
+    Question _question;
     QAQuestionState _questionState = QAQuestionState::INPUT;
     bool _initialized = false;
     bool _done = false;

@@ -1,9 +1,12 @@
 #include "question.hpp"
 
-Question::Question(std::string prompt, QuestionType type, std::vector<std::string> answers) {
+Question::Question(std::string prompt, QuestionType type, std::vector<std::pair<std::string, bool>> answers) {
     _prompt = prompt;
     _type = type;
     _answers = answers;
+}
+
+Question::Question() {
 }
 
 std::string Question::getPrompt() {
@@ -14,12 +17,30 @@ QuestionType Question::getType() {
     return _type;
 }
 
-std::vector<std::string> Question::getAnswers() {
+std::vector<std::pair<std::string, bool>> Question::getAnswers() {
     return _answers;
+}
+
+std::vector<std::string> Question::getAnswersStr() {
+    std::vector<std::string> answers;
+    for (std::pair<std::string, bool>& answer : _answers) {
+        answers.push_back(answer.first);
+    }
+    return answers; 
 }
 
 Question::Builder Question::builder() {
     return Question::Builder();
+}
+
+std::vector<std::string> Question::getCorrectAnswers() {
+    std::vector<std::string> correctAnswers;
+    for (std::pair<std::string, bool>& answer : _answers) {
+        if (answer.second) {
+            correctAnswers.push_back(answer.first);
+        }
+    }
+    return correctAnswers;
 }
 
 Question::Builder& Question::Builder::prompt(std::string prompt) {
@@ -32,8 +53,18 @@ Question::Builder& Question::Builder::type(QuestionType type) {
     return *this;
 }
 
-Question::Builder& Question::Builder::answers(std::vector<std::string> answers) {
-    _answers = answers;
+Question::Builder& Question::Builder::answer(std::string answer, bool correct) {
+    _answers.emplace_back(answer, correct);
+    return *this;
+}
+
+Question::Builder& Question::Builder::correctAnswer(std::string answer) {
+    _answers.emplace_back(answer, true);
+    return *this;
+}
+
+Question::Builder& Question::Builder::wrongAnswer(std::string answer) {
+    _answers.emplace_back(answer, false);
     return *this;
 }
 

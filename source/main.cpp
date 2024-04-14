@@ -17,18 +17,6 @@
 #include "audioplayer.hpp"
 #include "bsod.hpp"
 #include "menu.hpp"
-// backlog
-
-// rythm
-// stop audio after finish
-// for every player set points
-// info screen
-// use new dpad textures
-
-// main menu
-// lightpanel = die lichter kapseln
-
-// ideen: Fragen über die wii, team twiizers
 
 int main(int argc, char** argv) {
     GRRLIB_Init();
@@ -54,14 +42,12 @@ int main(int argc, char** argv) {
                           .renderable(quiz)
                           .build())
                    .child(MenuItem::builder()
-                          .text("The second")
-                          .build())
-                   .child(MenuItem::builder()
-                          .text("Third")
+                          .text("TODO dynamic loading of quizzes")
                           .build())
                    .build())
         .child(MenuItem::builder()
                    .text("Quit")
+                   .quit(true)
                    .build())
         .build();
 

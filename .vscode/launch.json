@@ -17,8 +17,20 @@
             "type": "node-terminal"
         },
         {
-            "name": "Dolphin",
+            "name": "Run Dolphin",
             "command": "dolphin-emu WiiQuiz.dol",
+            "request": "launch",
+            "type": "node-terminal"
+        },
+        {
+            "name": "Make & Run Wii",
+            "command": "make && WIILOAD=tcp:192.168.56.171 wiiload WiiQuiz.dol",
+            "request": "launch",
+            "type": "node-terminal"
+        },
+        {
+            "name": "Run Wii",
+            "command": "dolphin-emu WIILOAD=tcp:192.168.56.171 wiiload WiiQuiz.dol",
             "request": "launch",
             "type": "node-terminal"
         }

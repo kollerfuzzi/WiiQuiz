@@ -17,11 +17,11 @@ s32 ResourceAPIClient::fetchResourceVersion() {
 }
 
 void ResourceAPIClient::registerWii() {
-    assertStatusOk(requestJson(APICommand::REGISTER_WII));
+    requestJson(APICommand::REGISTER_WII);
 }
 
 void ResourceAPIClient::unregisterWii() {
-    assertStatusOk(requestJson(APICommand::UNREGISTER_WII));
+    requestJson(APICommand::UNREGISTER_WII);
 }
 
 std::string ResourceAPIClient::fetchResource(std::string resourcePath) {

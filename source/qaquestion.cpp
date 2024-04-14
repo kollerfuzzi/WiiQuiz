@@ -1,37 +1,24 @@
 #include "qaquestion.hpp"
+#include "bsod.hpp"
 
 #include <cmath>
 
-QAQuestion::QAQuestion(std::string question, std::vector<std::string> answers,
-                       std::vector<int> correctAnswers) {
+QAQuestion::QAQuestion(Question question) {
     _question = question;
-    _answers = answers;
-    _correctAnswers = correctAnswers;
-}
-
-std::vector<Answer> QAQuestion::_getCorrectPlayerAnswers() {
-    std::string correctAnswer(_answers[_correctAnswers[0]]);
-    std::vector<Answer> correctAnswers;
-    for (Answer answer : _state->getAnswers()) {
-        if (answer.getAnswer() == correctAnswer) {
-            correctAnswers.push_back(answer);
-        }
-    }
-    return correctAnswers;
 }
 
 void QAQuestion::init() {
     _textQuestion = TextBox::builder()
-        .text(_question)
+        .text(_question.getPrompt())
         .font(_resources->get(Font::DEFAULT_FONT))
         .fontSize(25)
         .marginTop(50)
         .animationSpeed(100)
         .build();
 
-    for (std::string& answerStr : _answers) {
+    for (std::pair<std::string, bool>& answer : _question.getAnswers()) {
         TextBox* answerBox = TextBox::builder()
-            .text(answerStr)
+            .text(answer.first)
             .color(RGBA(230, 230, 230, 255))
             .font(_resources->get(Font::DEFAULT_FONT))
             .fontSize(25)
@@ -52,8 +39,7 @@ void QAQuestion::init() {
         .marginTop(400)
         .build();
 
-    Question question = toQuestion();
-    _client->askQuestion(question);
+    _client->askQuestion(_question);
 
     _initialized = true;
 }
@@ -65,6 +51,7 @@ void QAQuestion::_manageState() {
         _textTimeLeft->copyBufferToContent();
     }
 
+
     if (_questionState == QAQuestionState::INPUT && _timePassed > _answerTime) {
         _timePassed = 0;
         _questionState = QAQuestionState::SHOW_ANSWERS;
@@ -73,20 +60,15 @@ void QAQuestion::_manageState() {
         std::vector<Answer> playerAnswers = _state->getAnswers();
         _client->endQuestion();
 
-        for (size_t answerCnt = 0; answerCnt < _answers.size(); answerCnt++) {
-            std::string answerWithPlayersText = _answers[answerCnt];
-
-            std::vector<std::string> answerPlayerNames;
-            for (Answer& answer : playerAnswers) {
-                if (answer.getAnswer() == _answers[answerCnt]) {
-                    answerPlayerNames.push_back(answer.getPlayer()->getName());
-                }
-            }
-            if (answerPlayerNames.size() > 0) {
+        for (size_t answerCnt = 0; answerCnt < _question.getAnswers().size(); answerCnt++) {
+            std::string answerWithPlayersText = _question.getAnswers()[answerCnt].first;
+            std::vector<Player*> playersWithAnswer = _getPlayersWithAnswer(
+                    _question.getAnswers()[answerCnt].first);
+            if (playersWithAnswer.size() > 0) {
                 answerWithPlayersText += " (";
-                for (size_t i = 0; i < answerPlayerNames.size(); i++) {
-                    answerWithPlayersText += answerPlayerNames[i];
-                    if (i != answerPlayerNames.size() - 1) {
+                for (size_t i = 0; i < playersWithAnswer.size(); i++) {
+                    answerWithPlayersText += playersWithAnswer[i]->getName();
+                    if (i != playersWithAnswer.size() - 1) {
                         answerWithPlayersText += ", ";
                     }
                 }
@@ -103,9 +85,9 @@ void QAQuestion::_manageState() {
     } else if (_questionState == QAQuestionState::SHOW_ANSWERS && _timePassed > 7000) {
         _timePassed = 0;
         _questionState = QAQuestionState::SHOW_SOLUTION;
-        for (size_t answerCnt = 0; answerCnt < _answers.size(); answerCnt++) {
-            std::string answer = _answers[answerCnt];
-            bool correct = _answers[_correctAnswers[0]] == answer;
+        for (size_t answerCnt = 0; answerCnt < _question.getAnswers().size(); answerCnt++) {
+            std::string answer = _question.getAnswers()[answerCnt].first;
+            bool correct = _question.getAnswers()[answerCnt].second;
             if (correct) {
                 _textAnswers[answerCnt]->setColor(RGBA(155, 255, 150, 255));
                 std::string points;
@@ -117,8 +99,9 @@ void QAQuestion::_manageState() {
                 _textAnswers[answerCnt]->setColor(RGBA(255, 150, 150, 255));
             }
         }
-        for (Answer& correctAnswer : _getCorrectPlayerAnswers()) {
-            correctAnswer.getPlayer()->addPoints(_questionPoints);
+        // todo fix
+        for (Player* player : _getPlayersWithCorrectAnswers()) {
+            player->addPoints(_questionPoints);
         }
         _client->setPoints();
     } else if (_questionState == QAQuestionState::SHOW_SOLUTION
@@ -170,38 +153,61 @@ void QAQuestion::render() {
     }
 }
 
+std::vector<Player*> QAQuestion::_getPlayersWithAnswer(std::string answer) {
+    std::vector<Player*> playersWithAnswer;
+    for (Answer& playerAnswers : _state->getAnswers()) {
+        for (std::string& playerAnswer : playerAnswers.getAnswers()) {
+            if (playerAnswer == answer) {
+                playersWithAnswer.push_back(playerAnswers.getPlayer());
+            }
+        }
+    }
+    return playersWithAnswer;
+}
+
+std::vector<Player*> QAQuestion::_getPlayersWithCorrectAnswers() {
+    std::vector<Player*> players = _state->getPlayers();
+    for (Answer& answer : _state->getAnswers()) {
+        if (answer.isApproved()) {
+            players.push_back(answer.getPlayer());
+            continue;
+        }
+        std::vector<std::string> answers = answer.getAnswers();
+        std::vector<std::string> correctAnswers = _question.getCorrectAnswers();
+        std::sort(answers.begin(), answers.end());
+        std::sort(correctAnswers.begin(), correctAnswers.end());
+        if (answers == correctAnswers) {
+            players.push_back(answer.getPlayer());
+        }
+    }
+    return players;
+}
+
+bool QAQuestion::_hasPlayerAnswer(Player *player, std::string answer) {
+    for (Answer& playerAnswers : _state->getAnswers()) {
+        if (playerAnswers.getPlayer()->getName() == player->getName()) {
+            for (std::string& playerAnswer : playerAnswers.getAnswers()) {
+                if (playerAnswer == answer) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 bool QAQuestion::isDone() {
     return _done;
 }
 
-Question QAQuestion::toQuestion() {
-    return Question::builder()
-        .prompt(_question)
-        .answers(_answers)
-        .type(QuestionType::SINGLE_CHOICE)
-        .build();
+Question QAQuestion::getQuestion() {
+    return _question;
 }
 
 QAQuestion::Builder QAQuestion::builder() {
     return QAQuestion::Builder();
 }
 
-QAQuestion::Builder& QAQuestion::Builder::question(std::string question) {
-    this->_question = question;
-    return *this;
-}
-
-QAQuestion::Builder& QAQuestion::Builder::correctAnswer(std::string answer) {
-    this->_answers.push_back(answer);
-    this->_correctAnswers.push_back(_answers.size() - 1);
-    return *this;
-}
-
-QAQuestion::Builder& QAQuestion::Builder::wrongAnswer(std::string answer) {
-    this->_answers.push_back(answer);
-    return *this;
-}
-
 QAQuestion* QAQuestion::Builder::build() {
-    return new QAQuestion(_question, _answers, _correctAnswers);
+    return new QAQuestion(_question);
 }

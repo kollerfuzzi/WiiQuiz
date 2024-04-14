@@ -8,44 +8,38 @@
 
 enum QuestionType {
     SINGLE_CHOICE,
+    MULTIPLE_CHOICE,
     ENTER_STRING
 };
 
 class Question {
 public:
-    Question(std::string prompt, QuestionType type, std::vector<std::string> answers);
+    Question(std::string prompt, QuestionType type, std::vector<std::pair<std::string, bool>> answers);
+    Question();
     std::string getPrompt();
     QuestionType getType();
-    std::vector<std::string> getAnswers();
+    std::vector<std::pair<std::string, bool>> getAnswers();
+    std::vector<std::string> getAnswersStr();
 
     class Builder {
     public:
         Builder& prompt(std::string prompt);
         Builder& type(QuestionType type);
-        Builder& answers(std::vector<std::string> answers);
+        Builder& answer(std::string answer, bool correct);
+        Builder& correctAnswer(std::string answer);
+        Builder& wrongAnswer(std::string answer);
         Question build();
     private:
         std::string _prompt;
         QuestionType _type;
-        std::vector<std::string> _answers;
+        std::vector<std::pair<std::string, bool>> _answers;
     };
     static Builder builder();
-
+    std::vector<std::string> getCorrectAnswers();
 private:
     std::string _prompt;
     QuestionType _type;
-    std::vector<std::string> _answers;
+    std::vector<std::pair<std::string, bool>> _answers;
 };
 
 #endif // QUESTION_HPP
-
-/*
-    public enum Type {
-        SINGLE_CHOICE,
-        ENTER_STRING
-    }
-
-    private String prompt;
-    private Type type;
-    private List<String> answers;
-*/

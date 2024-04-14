@@ -17,7 +17,7 @@
 class MenuItem  {
 public:
     MenuItem(std::string text, std::vector<MenuItem*> child, MenuItem* parent,
-             Renderable* renderable);
+             Renderable* renderable, bool quit);
     ~MenuItem();
 
     std::string getText();
@@ -27,6 +27,7 @@ public:
     void setTextBox(TextBox* textBox);
     TextBox* getTextBox();
     Renderable* getRenderable();
+    bool isQuit();
 
     class Builder {
     public:
@@ -34,12 +35,14 @@ public:
         Builder& child(MenuItem* child);
         Builder& parent(MenuItem* parent);
         Builder& renderable(Renderable* renderable);
+        Builder& quit(bool quit);
         MenuItem* build();
     private:
         std::string _text;
         std::vector<MenuItem*> _children;
         MenuItem* _parent = nullptr;
         Renderable* _renderable = nullptr;
+        bool _quit = false;
     };
     static Builder builder();
 
@@ -49,6 +52,7 @@ private:
     std::vector<MenuItem*> _children;
     MenuItem* _parent = nullptr;
     Renderable* _renderable = nullptr;
+    bool _quit;
 };
 
 class Menu : public Renderable {
@@ -68,6 +72,7 @@ private:
     MenuItem* _currentSelected = nullptr;
     Resources* _resources = nullptr;
     SwingingLights* _swingingLights = nullptr;
+    bool _isDone;
 };
 
 #endif // MENU_HPP
