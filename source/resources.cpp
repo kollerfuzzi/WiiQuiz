@@ -9,14 +9,14 @@ Resources::Resources() {
     _initDefaultFont();
     ScreenDebug::init(_fonts[Font::DEFAULT_FONT].ttfFont);
     _resourceAPIClient = new ResourceAPIClient();
-    _resourceAPIClient->request(APICommand::REGISTER_WII);
+    _resourceAPIClient->registerWii();
     _resourceFileManager = new ResourceFileManager();
 }
 
 Resources::~Resources() {
     clearAll();
     if (_resourceAPIClient != nullptr) {
-        _resourceAPIClient->request(APICommand::UNREGISTER_WII);
+        _resourceAPIClient->unregisterWii();
         delete _resourceAPIClient;
     }
     if (_resourceFileManager != nullptr) {

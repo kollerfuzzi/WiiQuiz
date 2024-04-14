@@ -16,6 +16,14 @@ s32 ResourceAPIClient::fetchResourceVersion() {
     return resourceVersionNumber;
 }
 
+void ResourceAPIClient::registerWii() {
+    assertStatusOk(requestJson(APICommand::REGISTER_WII));
+}
+
+void ResourceAPIClient::unregisterWii() {
+    assertStatusOk(requestJson(APICommand::UNREGISTER_WII));
+}
+
 std::string ResourceAPIClient::fetchResource(std::string resourcePath) {
     std::vector<std::string> payload;
     payload.push_back(resourcePath);

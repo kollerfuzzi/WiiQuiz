@@ -65,12 +65,13 @@ void QuizAPIClient::endQuestion() {
 }
 
 void QuizAPIClient::setPoints() {
-    std::vector<std::string> requestLines;
+    nlohmann::json playerListJson = nlohmann::json::array();
     for (Player* player : _state->getPlayers()) {
-        std::string playerWithPoints(player->getName());
-        playerWithPoints += ";";
-        playerWithPoints += std::to_string(player->getPoints());
-        requestLines.push_back(playerWithPoints);
+        nlohmann::json playerJson = {
+            {"name", player->getName()},
+            {"points", player->getPoints()}
+        };
+        playerListJson.push_back(playerJson);
     }
-    request(APICommand::SET_POINTS, requestLines);
+    assertStatusOk(requestJson(APICommand::SET_POINTS, playerListJson));
 }
