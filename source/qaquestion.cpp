@@ -108,7 +108,6 @@ void QAQuestion::_manageState() {
                && _timePassed > 5000) {
         _done = true;
     }
-
 }
 
 QAQuestion::~QAQuestion() {

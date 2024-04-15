@@ -30,9 +30,9 @@ std::vector<Player*>& QuizState::getPlayers() {
     return _players;
 }
 
-Player* QuizState::getPlayerByName(std::string name) {
+Player *QuizState::getPlayerById(std::string id) {
     for (Player* player : _players) {
-        if (player->getName() == name) {
+        if (player->getId() == id) {
             return player;
         }
     }

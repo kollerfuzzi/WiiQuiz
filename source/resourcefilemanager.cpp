@@ -1,4 +1,6 @@
 #include "resourcefilemanager.hpp"
+#include "json.hpp"
+#include "bsod.hpp"
 
 ResourceFileManager::ResourceFileManager() {
     init();
@@ -8,18 +10,6 @@ ResourceFileManager::ResourceFileManager() {
 void ResourceFileManager::init() {
     if (!fatInitDefault()) {
         throw -1;
-    }
-}
-
-void ResourceFileManager::saveTestFile() {
-    std::string fileName("ZWQ_TEST.BIN");
-    FILE* f = fopen(fileName.c_str(), "wb");
-    if (f == NULL) {
-        throw -1;
-    } else {
-        std::string content("hey");
-        fwrite(&content[0], 1, content.size(), f);
-        fclose(f);
     }
 }
 
@@ -44,6 +34,20 @@ void ResourceFileManager::saveResourcePlain(std::string &resourceName, std::stri
         fwrite(&contentPlain[0], 1, contentPlain.size(), f);
         fclose(f);
     }
+}
+
+std::string ResourceFileManager::loadIpAddressFromConfig() {
+    std::string ipAddress = "127.0.0.1";
+    std::string configFileName = "config.json";
+    BinaryResource configBin = loadResource(configFileName);
+    if (configBin.data == nullptr) {
+        return ipAddress;
+    }
+    std::string configStr = (char const*) configBin.data;
+    nlohmann::json configJson = nlohmann::json::parse(configStr);
+    ipAddress = configJson["ipAddress"];
+    freeResource(configBin);
+    return ipAddress;
 }
 
 BinaryResource ResourceFileManager::loadResource(std::string& resourceName) {
@@ -78,9 +82,11 @@ void ResourceFileManager::freeResource(const BinaryResource& resource) {
 }
 
 std::string ResourceFileManager::_resourceNameToFileName(std::string &resourceName) {
-    std::string fileName("ZWQ_");
+    std::string fileName("wiiquiz/");
     fileName += resourceName;
-    fileName += ".BIN";
+    if (resourceName.find(".") == std::string::npos) {
+        fileName += ".bin";
+    }
     return fileName;
 
 }

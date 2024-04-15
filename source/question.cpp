@@ -1,12 +1,18 @@
 #include "question.hpp"
+#include "uuid.hpp"
 
-Question::Question(std::string prompt, QuestionType type, std::vector<std::pair<std::string, bool>> answers) {
+Question::Question(std::string id, std::string prompt, QuestionType type, std::vector<std::pair<std::string, bool>> answers) {
+    _id = id;
     _prompt = prompt;
     _type = type;
     _answers = answers;
 }
 
 Question::Question() {
+}
+
+std::string Question::getId() {
+    return _id;
 }
 
 std::string Question::getPrompt() {
@@ -43,6 +49,15 @@ std::vector<std::string> Question::getCorrectAnswers() {
     return correctAnswers;
 }
 
+Question::Builder::Builder() {
+    _id = UUID::generate_uuid();
+}
+
+Question::Builder& Question::Builder::id(std::string id) {
+    _id = id;
+    return *this;
+}
+
 Question::Builder& Question::Builder::prompt(std::string prompt) {
     _prompt = prompt;
     return *this;
@@ -69,5 +84,5 @@ Question::Builder& Question::Builder::wrongAnswer(std::string answer) {
 }
 
 Question Question::Builder::build() {
-    return Question(_prompt, _type, _answers);
+    return Question(_id, _prompt, _type, _answers);
 }

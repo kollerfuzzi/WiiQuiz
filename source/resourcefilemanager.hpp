@@ -24,9 +24,9 @@ class ResourceFileManager {
 public:
     ResourceFileManager();
     void init();
-    void saveTestFile();
     void saveResource(std::string& resourceName, std::string& contentBase64);
     void saveResourcePlain(std::string& resourceName, std::string& contentPlain);
+    std::string loadIpAddressFromConfig();
     BinaryResource loadResource(std::string& resourceName);
     void freeResource(const BinaryResource& resource);
 private:

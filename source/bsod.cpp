@@ -7,7 +7,7 @@
 void BSOD::raise(std::string error, int code) {
     ScreenDebug::clear();
     ScreenDebug::setColor(RGBA(255, 255, 255, 255));
-    ScreenDebug::printLn("===WIIQUIZ===\n"
+    ScreenDebug::printLn("===QWIIZ===\n"
                          "An error has occured.\n\n"
                          "To continue: \n"
                          "Press <HOME> to return\n"

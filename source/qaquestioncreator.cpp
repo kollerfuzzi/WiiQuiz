@@ -9,8 +9,8 @@ QAQuestion* QAQuestionCreator::of(Question question) {
             return new QAQuestion(question);
         break;
 
-        case QuestionType::ENTER_STRING:
-            BSOD::raise("ENTER_STRING not supported yet");
+        case QuestionType::FREE_TEXT:
+            BSOD::raise("FREE_TEXT not supported yet");
         break;
 
         default:

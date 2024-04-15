@@ -37,6 +37,7 @@ public:
     std::vector<std::string> request(APICommand command);
     nlohmann::json requestJson(APICommand, nlohmann::json json);
     std::vector<std::string> request(APICommand command, std::vector<std::string> payload);
+    static std::string ipAddress;
 private:
     void _init();
     s32 _connect();
@@ -49,7 +50,6 @@ private:
     void _clearBuffer(char* buffer);
     u16 _bufferSize(std::string string);
     bool _isResponseEnd(std::string response);
-    std::string _address = "192.168.56.211";
 };
 
 #endif // APICLIENT_HPP

@@ -20,7 +20,7 @@ public:
     void sortPlayersByScore();
     void setPlayers(std::vector<Player*>& players);
     std::vector<Player*>& getPlayers();
-    Player* getPlayerByName(std::string name);
+    Player* getPlayerById(std::string id);
     void setActions(std::vector<QuizAction*>& actions);
     std::vector<QuizAction*>& getActons();
     void setAnswers(std::vector<Answer>& answers);

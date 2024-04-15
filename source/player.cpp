@@ -1,13 +1,18 @@
 #include "player.hpp"
+#include "uuid.hpp"
 
-
-Player::Player(std::string name, int32_t points) {
+Player::Player(std::string id, std::string name, int32_t points) {
+    _id = id;
     _name = name;
     _points = points;
 }
 
 Player::Builder Player::builder() {
     return Player::Builder();
+}
+
+std::string Player::getId() {
+    return _id;
 }
 
 std::string Player::getName() {
@@ -31,16 +36,26 @@ std::string Player::to_str() {
     return string_repr;
 }
 
-Player::Builder& Player::Builder::name(std::string name) {
+Player::Builder::Builder() {
+    _id = UUID::generate_uuid();
+}
+
+Player::Builder& Player::Builder::id(std::string id) {
+    _id = id;
+    return *this;
+}
+
+Player::Builder& Player::Builder::name(std::string name)
+{
     _name = name;
     return *this;
 }
 
-Player::Builder &Player::Builder::points(int32_t points) {
+Player::Builder& Player::Builder::points(int32_t points) {
     _points = points;
     return *this;
 }
 
 Player* Player::Builder::build() {
-    return new Player(_name, _points);
+    return new Player(_id, _name, _points);
 }

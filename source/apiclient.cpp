@@ -15,7 +15,10 @@ APIClient::~APIClient() {
 }
 
 void APIClient::_init() {
-    ScreenDebug::printAndRender("Initializing Network...");
+    std::string initPrompt = "Initializing Network\n";
+    initPrompt += "Connecting to ";
+    initPrompt += ipAddress;
+    ScreenDebug::printAndRender(initPrompt);
     while(net_init() == -EAGAIN);
 }
 
@@ -59,7 +62,7 @@ s32 APIClient::_connect() {
     }
     address.sin_family = AF_INET;
     address.sin_port = htons(3110);
-    address.sin_addr.s_addr = inet_addr(_address.c_str());
+    address.sin_addr.s_addr = inet_addr(ipAddress.c_str());
     s32 connection_status = net_connect(socket, (struct sockaddr *)&address, sizeof(address));
     if (connection_status < 0) {
         BSOD::raise("Socket connect failed", socket);

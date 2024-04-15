@@ -20,6 +20,7 @@ void QuizAPIClient::loadPlayers() {
     std::vector<Player*> players;
     for (nlohmann::json playerJson : playersJson) {
         Player* player = Player::builder()
+                            .id(playerJson["id"])
                             .name(playerJson["name"])
                             .points(playerJson["points"])
                             .build();
@@ -36,6 +37,7 @@ std::string QuizAPIClient::getServerAddress() {
 
 void QuizAPIClient::askQuestion(Question& question) {
     nlohmann::json questionJson = {
+        {"id", question.getId()},
         {"prompt", question.getPrompt()},
         {"type", magic_enum::enum_name(question.getType())},
         {"answers", question.getAnswersStr()}
@@ -50,7 +52,7 @@ void QuizAPIClient::loadAnswers() {
     for (auto entry = answersJson.begin(); entry != answersJson.end(); ++entry) {
         std::string name = entry.key();
         nlohmann::json answers = entry.value();
-        Player* player = _state->getPlayerByName(name);
+        Player* player = _state->getPlayerById(name);
         Answer::Builder answerBuilder = Answer::builder()
             .player(player)
             .approved(answers["approved"]);

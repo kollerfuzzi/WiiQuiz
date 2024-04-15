@@ -1,16 +1,21 @@
 #include "resources.hpp"
+#include <stdlib.h>
+#include <grrlib.h>
 #include "screendebug.hpp"
-#include "grrlib.h"
 #include "zr_notosans.hpp"
 
+
 std::string loadingAnimation = "|/-\\";
+extern std::string APIClient::ipAddress; 
 
 Resources::Resources() {
     _initDefaultFont();
     ScreenDebug::init(_fonts[Font::DEFAULT_FONT].ttfFont);
+    srand(time(NULL));
+    _resourceFileManager = new ResourceFileManager();
+    APIClient::ipAddress = _resourceFileManager->loadIpAddressFromConfig();
     _resourceAPIClient = new ResourceAPIClient();
     _resourceAPIClient->registerWii();
-    _resourceFileManager = new ResourceFileManager();
 }
 
 Resources::~Resources() {
@@ -65,7 +70,6 @@ void Resources::fetchNetworkResources() {
         return;
     }
 
-    _resourceFileManager->saveTestFile();
     _fetchNetworkAudio();
     _fetchNetworkTextures();
     _fetchNetworkFonts();

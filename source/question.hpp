@@ -9,13 +9,15 @@
 enum QuestionType {
     SINGLE_CHOICE,
     MULTIPLE_CHOICE,
-    ENTER_STRING
+    FREE_TEXT,
 };
 
 class Question {
 public:
-    Question(std::string prompt, QuestionType type, std::vector<std::pair<std::string, bool>> answers);
+    Question(std::string id, std::string prompt, QuestionType type, 
+             std::vector<std::pair<std::string, bool>> answers);
     Question();
+    std::string getId();
     std::string getPrompt();
     QuestionType getType();
     std::vector<std::pair<std::string, bool>> getAnswers();
@@ -23,6 +25,8 @@ public:
 
     class Builder {
     public:
+        Builder();
+        Builder& id(std::string id);
         Builder& prompt(std::string prompt);
         Builder& type(QuestionType type);
         Builder& answer(std::string answer, bool correct);
@@ -30,6 +34,7 @@ public:
         Builder& wrongAnswer(std::string answer);
         Question build();
     private:
+        std::string _id;
         std::string _prompt;
         QuestionType _type;
         std::vector<std::pair<std::string, bool>> _answers;
@@ -37,6 +42,7 @@ public:
     static Builder builder();
     std::vector<std::string> getCorrectAnswers();
 private:
+    std::string _id;
     std::string _prompt;
     QuestionType _type;
     std::vector<std::pair<std::string, bool>> _answers;
