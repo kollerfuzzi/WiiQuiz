@@ -16,7 +16,7 @@ struct Mjpeg {
 class MjpegIO {
 public:
     MjpegIO(ResourceFileManager* resourceFileManager);
-    void saveMjpeg(std::string& resourceName, std::string& b64Data);
+    void saveMjpeg(std::string& resourceName, BinaryResource b64Data);
     Mjpeg loadMjpeg(std::string& resourceName);
     void freeMjpeg(const Mjpeg& mjpeg);
 private: 

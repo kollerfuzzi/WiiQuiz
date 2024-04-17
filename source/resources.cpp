@@ -145,7 +145,11 @@ void Resources::_fetchNetworkVersion() {
     s32 remoteVersion = _resourceAPIClient->fetchResourceVersion();
     std::string versionNumberStr = std::to_string(remoteVersion);
     std::string version("VERSION");
-    _resourceFileManager->saveResourcePlain(version, versionNumberStr);
+    BinaryResource resource = {
+        (unsigned char*) versionNumberStr.c_str(), 
+        versionNumberStr.size()
+    };
+    _resourceFileManager->saveResourcePlain(version, resource);
 }
 
 void Resources::_fetchNetworkVideos() {
@@ -163,8 +167,9 @@ void Resources::_fetchAndStoreResource(std::string& name, std::string& path) {
     namePath += ": ";
     namePath += path;
     _renderDebugStr(namePath);
-    std::string resource = _resourceAPIClient->fetchResource(path);
+    BinaryResource resource = _resourceAPIClient->fetchResource(path);
     _resourceFileManager->saveResource(name, resource);
+    _resourceFileManager->freeResource(resource);
 }
 
 void Resources::_fetchAndStoreMjpegResource(std::string &name, std::string& path) {
@@ -173,10 +178,9 @@ void Resources::_fetchAndStoreMjpegResource(std::string &name, std::string& path
     namePath += ": ";
     namePath += path;
     _renderDebugStr(namePath);
-    std::string resource = _resourceAPIClient->fetchResource(path);
-    BSOD::raise("hey dukers");
+    BinaryResource resource = _resourceAPIClient->fetchResource(path);
     _mjpegIO->saveMjpeg(name, resource);
-    _resourceFileManager->saveResource(name, resource);
+    _resourceFileManager->freeResource(resource);
 }
 
 BinaryResource Resources::_loadResource(std::string& name) {

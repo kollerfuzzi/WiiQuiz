@@ -10,17 +10,18 @@ MjpegIO::MjpegIO(ResourceFileManager* resourceFileManager) {
     _resourceFileManager = resourceFileManager;
 }
 
-void MjpegIO::saveMjpeg(std::string& resourceName, std::string& b64Data) {
-    std::string data = base64_decode(b64Data);
-    int size = data.size();
-    const char* buffer = data.c_str();
+void MjpegIO::saveMjpeg(std::string& resourceName, BinaryResource b64Data) {
+    size_t size;
+    unsigned char* buffer = Base64::base64_decode(b64Data.data, b64Data.size, &size);
+    if (buffer == nullptr) {
+        BSOD::raise("mem allocation failed");
+    }
 
     int startImg = 0;
     int endImg = -1;
     int startSeqPos = 0;
     std::vector<int> soi_eoi; 
-    BSOD::raise("hello");
-    for (int pos = 0; pos < size; pos++) {
+    for (size_t pos = 0; pos < size; pos++) {
         if (buffer[pos] == START_FRAME[startSeqPos]) {
             startSeqPos++;
         } else {
@@ -40,7 +41,9 @@ void MjpegIO::saveMjpeg(std::string& resourceName, std::string& b64Data) {
             }
             soi_eoi.push_back(startImg); 
         }
+        BSOD::raise("dukers");
     }
+    BSOD::raise("duker");
     if (soi_eoi.size() % 2 != 0) {
         soi_eoi.pop_back();
     }
@@ -52,11 +55,20 @@ void MjpegIO::saveMjpeg(std::string& resourceName, std::string& b64Data) {
         };
         frames.push_back(frame);
     }
-    _resourceFileManager->saveResourcePlain(resourceName, data);
+
+    BinaryResource decoded = {
+        buffer,
+        size
+    };
+    _resourceFileManager->saveResourcePlain(resourceName, decoded);
     
     std::string frameMetaStr = frames.dump();
-    std::string metanName = _getMetaName(resourceName);
-    _resourceFileManager->saveResourcePlain(metanName, frameMetaStr);
+    BinaryResource frameMetaStrResource = {
+        (unsigned char*) frameMetaStr.c_str(),
+        frameMetaStr.size()
+    };
+    std::string metaName = _getMetaName(resourceName);
+    _resourceFileManager->saveResourcePlain(metaName, frameMetaStrResource);
 }
 
 Mjpeg MjpegIO::loadMjpeg(std::string& resourceName) {

@@ -13,25 +13,27 @@ void ResourceFileManager::init() {
     }
 }
 
-void ResourceFileManager::saveResource(std::string& resourceName, std::string& contentBase64) {
+void ResourceFileManager::saveResource(std::string& resourceName, BinaryResource contentBase64) {
     std::string fileName = _resourceNameToFileName(resourceName);
     FILE* f = fopen(fileName.c_str(), "wb");
     if (f == NULL) {
         throw -1;
     } else {
-        std::string base = base64_decode(contentBase64);
-        fwrite(&base[0], 1, base.size(), f);
+        size_t len;
+        unsigned char* decoded = Base64::base64_decode(contentBase64.data, contentBase64.size, &len);
+        fwrite(decoded, 1, len, f);
         fclose(f);
+        free(decoded);
     }
 }
 
-void ResourceFileManager::saveResourcePlain(std::string &resourceName, std::string& contentPlain){
+void ResourceFileManager::saveResourcePlain(std::string &resourceName, BinaryResource contentPlain){
     std::string fileName = _resourceNameToFileName(resourceName);
     FILE* f = fopen(fileName.c_str(), "wb");
     if (f == nullptr) {
         throw -1;
     } else {
-        fwrite(&contentPlain[0], 1, contentPlain.size(), f);
+        fwrite(contentPlain.data, 1, contentPlain.size, f);
         fclose(f);
     }
 }

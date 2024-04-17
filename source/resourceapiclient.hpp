@@ -2,6 +2,7 @@
 #define RESOURCEAPICLIENT_HPP
 
 #include "apiclient.hpp"
+#include "binaryresource.hpp"
 
 class ResourceAPIClient : public APIClient {
 public:
@@ -10,7 +11,8 @@ public:
     s32 fetchResourceVersion();
     void registerWii();
     void unregisterWii();
-    std::string fetchResource(std::string resourcePath);
+    std::string fetchResourceOld(std::string resourcePath);
+    BinaryResource fetchResource(std::string resourcePath);
 };
 
 #endif // RESOURCEAPICLIENT_HPP

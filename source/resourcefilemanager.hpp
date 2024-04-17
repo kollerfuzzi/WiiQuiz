@@ -6,26 +6,14 @@
 #include <vector>
 #include <string>
 #include "base64.hpp"
-
-struct BinaryResource {
-    unsigned char* data;
-    size_t size;
-    BinaryResource() {
-
-    }
-
-    BinaryResource(unsigned char* _data, size_t _size) {
-        data = _data;
-        size = _size;
-    }
-};
+#include "binaryresource.hpp"
 
 class ResourceFileManager {
 public:
     ResourceFileManager();
     void init();
-    void saveResource(std::string& resourceName, std::string& contentBase64);
-    void saveResourcePlain(std::string& resourceName, std::string& contentPlain);
+    void saveResource(std::string& resourceName, BinaryResource contentBase64);
+    void saveResourcePlain(std::string& resourceName, BinaryResource contentPlain);
     std::string loadIpAddressFromConfig();
     BinaryResource loadResource(std::string& resourceName);
     void freeResource(const BinaryResource& resource);

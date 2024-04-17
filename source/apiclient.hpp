@@ -38,7 +38,7 @@ public:
     nlohmann::json requestJson(APICommand, nlohmann::json json);
     std::vector<std::string> request(APICommand command, std::vector<std::string> payload);
     static std::string ipAddress;
-private:
+protected:
     void _init();
     s32 _connect();
     void _disconnect(s32 socket);
