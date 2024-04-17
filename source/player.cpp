@@ -1,5 +1,5 @@
 #include "player.hpp"
-#include "uuid.hpp"
+#include "tinyuuidv4.hpp"
 
 Player::Player(std::string id, std::string name, int32_t points) {
     _id = id;
@@ -37,7 +37,7 @@ std::string Player::to_str() {
 }
 
 Player::Builder::Builder() {
-    _id = UUID::generate_uuid();
+    _id = TinyUuidV4::generate();
 }
 
 Player::Builder& Player::Builder::id(std::string id) {

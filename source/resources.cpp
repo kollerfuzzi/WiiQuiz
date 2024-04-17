@@ -3,6 +3,7 @@
 #include <grrlib.h>
 #include "screendebug.hpp"
 #include "zr_notosans.hpp"
+#include "bsod.hpp"
 
 
 std::string loadingAnimation = "|/-\\";
@@ -16,6 +17,7 @@ Resources::Resources() {
     APIClient::ipAddress = _resourceFileManager->loadIpAddressFromConfig();
     _resourceAPIClient = new ResourceAPIClient();
     _resourceAPIClient->registerWii();
+    _mjpegIO = new MjpegIO(_resourceFileManager);
 }
 
 Resources::~Resources() {
@@ -26,6 +28,9 @@ Resources::~Resources() {
     }
     if (_resourceFileManager != nullptr) {
         delete _resourceFileManager;
+    }
+    if (_mjpegIO != nullptr) {
+        delete _mjpegIO;
     }
 }
 
@@ -63,6 +68,10 @@ void Resources::clearAll() {
     for (const auto& [key, value] : _audio) {
         _resourceFileManager->freeResource(value);
     }
+
+    for (const auto& [key, value] : _videos) {
+        _mjpegIO->freeMjpeg(value);
+    }
 }
 
 void Resources::fetchNetworkResources() {
@@ -73,6 +82,7 @@ void Resources::fetchNetworkResources() {
     _fetchNetworkAudio();
     _fetchNetworkTextures();
     _fetchNetworkFonts();
+    _fetchNetworkVideos();
     _fetchNetworkVersion();
 
     ScreenDebug::clear();
@@ -138,6 +148,15 @@ void Resources::_fetchNetworkVersion() {
     _resourceFileManager->saveResourcePlain(version, versionNumberStr);
 }
 
+void Resources::_fetchNetworkVideos() {
+    constexpr auto videos = magic_enum::enum_values<Video>();
+    for (Video video : videos) {
+        auto enumNameView = magic_enum::enum_name(video);
+        std::string enumName(enumNameView);
+        _fetchAndStoreMjpegResource(enumName, VIDEO_DEFINITIONS[video].remotePath);
+    }
+}
+
 void Resources::_fetchAndStoreResource(std::string& name, std::string& path) {
     std::string namePath;
     namePath += name;
@@ -145,6 +164,18 @@ void Resources::_fetchAndStoreResource(std::string& name, std::string& path) {
     namePath += path;
     _renderDebugStr(namePath);
     std::string resource = _resourceAPIClient->fetchResource(path);
+    _resourceFileManager->saveResource(name, resource);
+}
+
+void Resources::_fetchAndStoreMjpegResource(std::string &name, std::string& path) {
+    std::string namePath;
+    namePath += name;
+    namePath += ": ";
+    namePath += path;
+    _renderDebugStr(namePath);
+    std::string resource = _resourceAPIClient->fetchResource(path);
+    BSOD::raise("hey dukers");
+    _mjpegIO->saveMjpeg(name, resource);
     _resourceFileManager->saveResource(name, resource);
 }
 
@@ -176,6 +207,12 @@ void Resources::_loadAudio(Audio audio) {
     auto enumNameView = magic_enum::enum_name(audio);
     std::string enumName(enumNameView);
     _audio[audio] = _loadResource(enumName);
+}
+
+void Resources::_loadVideo(Video video) {
+    auto enumNameView = magic_enum::enum_name(video);
+    std::string enumName(enumNameView);
+    _videos[video] = _mjpegIO->loadMjpeg(enumName);
 }
 
 void Resources::_renderDebugStr(std::string text) {

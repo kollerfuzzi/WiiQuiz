@@ -35,3 +35,7 @@ AudioDef AUDIO_DEFINITIONS[] = {
     {Audio::BOLERO_OF_FIRE, "audio/bolero_of_fire.mp3"},
     {Audio::ROCKEFELLER_ST, "audio/rockefeller_street.mp3"}
 };
+
+VideoDef VIDEO_DEFINITIONS[] = {
+    {Video::Z_TRAILER, "videos/z_trailer.avi"}
+};

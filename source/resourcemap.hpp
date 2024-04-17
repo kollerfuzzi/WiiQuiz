@@ -42,6 +42,10 @@ enum Audio {
     ROCKEFELLER_ST
 };
 
+enum Video {
+    Z_TRAILER
+};
+
 
 struct FontDef {
     Font font;
@@ -63,5 +67,12 @@ struct AudioDef {
 };
 
 extern AudioDef AUDIO_DEFINITIONS[];
+
+struct VideoDef {
+    Video video;
+    std::string remotePath;
+};
+
+extern VideoDef VIDEO_DEFINITIONS[];
 
 #endif // RESOURCEMAP_HPP

@@ -1,5 +1,5 @@
 #include "question.hpp"
-#include "uuid.hpp"
+#include "tinyuuidv4.hpp"
 
 Question::Question(std::string id, std::string prompt, QuestionType type, std::vector<std::pair<std::string, bool>> answers) {
     _id = id;
@@ -50,7 +50,7 @@ std::vector<std::string> Question::getCorrectAnswers() {
 }
 
 Question::Builder::Builder() {
-    _id = UUID::generate_uuid();
+    _id = TinyUuidV4::generate();
 }
 
 Question::Builder& Question::Builder::id(std::string id) {

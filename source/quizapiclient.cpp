@@ -52,7 +52,7 @@ void QuizAPIClient::loadAnswers() {
     for (auto entry = answersJson.begin(); entry != answersJson.end(); ++entry) {
         std::string name = entry.key();
         nlohmann::json answers = entry.value();
-        Player* player = _state->getPlayerById(name);
+        Player* player = _state->getPlayerById(name); // todo fix request
         Answer::Builder answerBuilder = Answer::builder()
             .player(player)
             .approved(answers["approved"]);
