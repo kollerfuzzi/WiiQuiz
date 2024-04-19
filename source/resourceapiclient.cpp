@@ -73,9 +73,23 @@ BinaryChunk ApiInputStream::read(size_t maxLen) {
     unsigned char* content = (unsigned char*) Mem::alloc(readLen);
     size_t contentPos = 0;
     size_t maxReadLen = 16384;
+    std::string log("read len ");
+    log += std::to_string(readLen);
+    log += " remaining len ";
+    log += std::to_string(remainingLen);
+    log += " closeAfterRecv ";
+    log += std::to_string(closeAfterRecv);
+    log += " contentPos ";
+    log += std::to_string(contentPos);
+    log += " maxReadLen ";
+    log += std::to_string(maxReadLen);
+    //BSOD::raise(log);
     while (contentPos < readLen) {
-        if (contentPos + maxReadLen > remainingLen) {
-            maxReadLen = remainingLen;
+        if (contentPos + maxReadLen > readLen) {
+            // 50 + 20 > 60
+            // cp + mr > rl
+            // 50 + 10 = 60
+            maxReadLen = readLen - contentPos;
         }
         s32 msgLen = net_recv(_socket, content + contentPos, maxReadLen, 0);
         if (msgLen < 0) {
@@ -84,7 +98,7 @@ BinaryChunk ApiInputStream::read(size_t maxLen) {
         contentPos += msgLen;
         _streamPos += msgLen;
     }
-
+    
     if (closeAfterRecv) {
         close();
     }

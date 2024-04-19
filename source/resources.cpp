@@ -84,10 +84,10 @@ void Resources::fetchNetworkResources() {
         return;
     }
 
+    _fetchNetworkVideos();
     _fetchNetworkAudio();
     _fetchNetworkTextures();
     _fetchNetworkFonts();
-    _fetchNetworkVideos();
     _fetchNetworkVersion();
 
     ScreenDebug::clear();

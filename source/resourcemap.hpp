@@ -33,9 +33,9 @@ enum Texture {
 };
 
 enum Audio {
+    EVAN_MM,
     TEXT_LETTER,
     TEXT_DONE,
-    EVAN_MM,
     GETTING_READY,
     DISCOQUALLEN,
     BOLERO_OF_FIRE,

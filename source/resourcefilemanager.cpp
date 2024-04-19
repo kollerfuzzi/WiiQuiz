@@ -43,16 +43,16 @@ void ResourceFileManager::saveResourceStream(std::string &resourceName, InputStr
 }
 
 std::string ResourceFileManager::loadIpAddressFromConfig() {
-    std::string ipAddress = "127.0.0.1";
+    std::string ipAddress = "192.168.56.211";
     std::string configFileName = "config.json";
-    BinaryChunk configBin = loadResource(configFileName);
-    if (configBin.data == nullptr) {
-        return ipAddress;
-    }
-    std::string configStr = (char const*) configBin.data;
-    nlohmann::json configJson = nlohmann::json::parse(configStr);
-    ipAddress = configJson["ipAddress"];
-    freeResource(configBin);
+    //BinaryChunk configBin = loadResource(configFileName);
+    //if (configBin.data == nullptr) {
+    //    return ipAddress;
+    //}
+    //std::string configStr = (char const*) configBin.data;
+    //nlohmann::json configJson = nlohmann::json::parse(configStr);
+    //ipAddress = configJson["ipAddress"];
+    //freeResource(configBin);
     return ipAddress;
 }
 

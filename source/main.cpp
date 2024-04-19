@@ -54,7 +54,6 @@ int main(int argc, char** argv) {
                    .quit(true)
                    .build())
         .build();
-
     Menu* testMenu = new Menu(resources, root);
     testMenu->runUntilDone(frameClock, resources->get(Texture::CURSOR));
     AudioPlayer::stop();

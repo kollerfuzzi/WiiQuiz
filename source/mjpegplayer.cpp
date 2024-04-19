@@ -37,13 +37,6 @@ void MJpegPlayer::update(Clock &clock) {
     if (_videoStream->getStreamPos() < current.frameStart) {
         _videoStream->advance(current.frameStart - _videoStream->getStreamPos());
     }
-    /*std::string strposi = "strpos ";
-    strposi += std::to_string(_videoStream->getStreamPos());
-    strposi += " fs ";
-    strposi += std::to_string(current.frameStart);
-    strposi += " fe ";
-    strposi += std::to_string(current.frameEnd);
-    BSOD::raise(strposi); */
     resource = _videoStream->read(current.frameEnd - current.frameStart);    
 
     _currentFrameImg = GRRLIB_LoadTextureJPGEx(resource.data, resource.size);
