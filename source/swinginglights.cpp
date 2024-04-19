@@ -28,3 +28,7 @@ void SwingingLights::render() {
 bool SwingingLights::isDone() {
     return false;
 }
+
+void SwingingLights::reset() {
+    _lightx = 0.0f;
+}

@@ -97,6 +97,7 @@ public:
     void draw3dCube();
     void render();
     bool isDone();
+    void reset();
 
     class Builder {
     public:
@@ -116,6 +117,7 @@ public:
     static Builder builder();
 private:
     void _init();
+    void _cleanup();
     bool _initialized = false;
     bool _dataLoaded = false;
     std::string _rawData;
@@ -128,9 +130,8 @@ private:
     TextBox* _textBoxScore = nullptr;
 
     // cube
-    float _a=0;
-    int _cubeZ=0;
-    int _i;
+    float _a = 0;
+    int _cubeZ = 0;
     float _sinx=0;
     int _misinput = 0;
     int _misinputsTotal = 0;

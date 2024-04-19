@@ -1,8 +1,9 @@
 #include "textbox.hpp"
 #include <codecvt>
+#include <locale>
 
 void TextBox::setText(std::string text) {
-    
+    _sourceString = text;
     _textContent.clear();
     _textBuffer.clear();
     _animationTimePassed = 0;
@@ -132,6 +133,10 @@ void TextBox::render() {
 
 bool TextBox::isDone() {
     return false;
+}
+
+void TextBox::reset() {
+    setText(_sourceString);
 }
 
 TextBoxAnimationState TextBox::getAnimationState() {

@@ -4,7 +4,7 @@
 #include "screendebug.hpp"
 #include "zr_notosans.hpp"
 #include "bsod.hpp"
-
+#include "mem.hpp"
 
 std::string loadingAnimation = "|/-\\";
 extern std::string APIClient::ipAddress; 
@@ -48,11 +48,16 @@ GRRLIB_ttfFont* Resources::get(Font font) {
     return _fonts[font].ttfFont;
 }
 
-BinaryResource Resources::get(Audio audio){
+BinaryChunk Resources::get(Audio audio){
     if (!_audio.contains(audio)) {
         _loadAudio(audio);
     }
     return _audio[audio];
+}
+
+MJpegPlayer* Resources::get(Video video) {
+    MJpegPlayer* player = new MJpegPlayer(video, _resourceFileManager);
+    return player;
 }
 
 void Resources::clearAll() {
@@ -70,7 +75,7 @@ void Resources::clearAll() {
     }
 
     for (const auto& [key, value] : _videos) {
-        _mjpegIO->freeMjpeg(value);
+        // todo free
     }
 }
 
@@ -90,7 +95,7 @@ void Resources::fetchNetworkResources() {
 
 bool Resources::_isUpdateAvailable() {
     std::string version("VERSION");
-    BinaryResource localVersionResource = _resourceFileManager->loadResource(version);
+    BinaryChunk localVersionResource = _resourceFileManager->loadResource(version);
     if (localVersionResource.data == nullptr) {
         return true;
     }
@@ -105,9 +110,9 @@ bool Resources::_isUpdateAvailable() {
 }
 
 void Resources::_initDefaultFont() {
-    unsigned char* fontBin = (unsigned char*) malloc(NotoSansMono_ttf_len);
+    unsigned char* fontBin = (unsigned char*) Mem::alloc(NotoSansMono_ttf_len);
     memcpy(fontBin, NotoSansMono_ttf, NotoSansMono_ttf_len);
-    BinaryResource font = {fontBin, NotoSansMono_ttf_len};
+    BinaryChunk font = {fontBin, NotoSansMono_ttf_len};
     _fonts[Font::DEFAULT_FONT] = {
         GRRLIB_LoadTTF(font.data, font.size),
         font
@@ -145,11 +150,11 @@ void Resources::_fetchNetworkVersion() {
     s32 remoteVersion = _resourceAPIClient->fetchResourceVersion();
     std::string versionNumberStr = std::to_string(remoteVersion);
     std::string version("VERSION");
-    BinaryResource resource = {
+    BinaryChunk resource = {
         (unsigned char*) versionNumberStr.c_str(), 
         versionNumberStr.size()
     };
-    _resourceFileManager->saveResourcePlain(version, resource);
+    _resourceFileManager->saveResource(version, resource);
 }
 
 void Resources::_fetchNetworkVideos() {
@@ -167,9 +172,8 @@ void Resources::_fetchAndStoreResource(std::string& name, std::string& path) {
     namePath += ": ";
     namePath += path;
     _renderDebugStr(namePath);
-    BinaryResource resource = _resourceAPIClient->fetchResource(path);
-    _resourceFileManager->saveResource(name, resource);
-    _resourceFileManager->freeResource(resource);
+    ApiInputStream* stream = _resourceAPIClient->fetchResource(path);
+    _resourceFileManager->saveResourceStream(name, stream);
 }
 
 void Resources::_fetchAndStoreMjpegResource(std::string &name, std::string& path) {
@@ -178,19 +182,18 @@ void Resources::_fetchAndStoreMjpegResource(std::string &name, std::string& path
     namePath += ": ";
     namePath += path;
     _renderDebugStr(namePath);
-    BinaryResource resource = _resourceAPIClient->fetchResource(path);
-    _mjpegIO->saveMjpeg(name, resource);
-    _resourceFileManager->freeResource(resource);
+    ApiInputStream* stream = _resourceAPIClient->fetchResource(path);
+    _mjpegIO->saveMjpegStream(name, stream);
 }
 
-BinaryResource Resources::_loadResource(std::string& name) {
+BinaryChunk Resources::_loadResource(std::string& name) {
     return _resourceFileManager->loadResource(name);
 }
 
 void Resources::_loadTexture(Texture texture) {
     auto enumNameView = magic_enum::enum_name(texture);
     std::string enumName(enumNameView);
-    BinaryResource resource = _loadResource(enumName);
+    BinaryChunk resource = _loadResource(enumName);
     _textures[texture] = GRRLIB_LoadTexturePNG(
         resource.data
     );
@@ -200,7 +203,7 @@ void Resources::_loadTexture(Texture texture) {
 void Resources::_loadFont(Font font) {
     auto enumNameView = magic_enum::enum_name(font);
     std::string enumName(enumNameView);
-    BinaryResource resource = _loadResource(enumName);
+    BinaryChunk resource = _loadResource(enumName);
     _fonts[font] = {
         GRRLIB_LoadTTF(resource.data, resource.size),
         resource
@@ -216,7 +219,7 @@ void Resources::_loadAudio(Audio audio) {
 void Resources::_loadVideo(Video video) {
     auto enumNameView = magic_enum::enum_name(video);
     std::string enumName(enumNameView);
-    _videos[video] = _mjpegIO->loadMjpeg(enumName);
+    _videos[video] = _mjpegIO->loadMjpegMeta(enumName);
 }
 
 void Resources::_renderDebugStr(std::string text) {

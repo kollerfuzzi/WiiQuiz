@@ -6,18 +6,7 @@ QAStart::QAStart() {
 }
 
 QAStart::~QAStart() {
-    if (_welcomeText != nullptr) {
-        delete _welcomeText;
-    }
-    if (_playerText != nullptr) {
-        delete _playerText;
-    }
-    if (_startConfirm != nullptr) {
-        delete _startConfirm;
-    }
-    if (_swingingLights != nullptr) {
-        delete _swingingLights;
-    }
+    _cleanup();
 }
 
 void QAStart::init() {
@@ -100,8 +89,34 @@ bool QAStart::isDone() {
     return _started;
 }
 
+void QAStart::reset() {
+    _cleanup();
+}
+
 QAStart::Builder QAStart::builder() {
     return QAStart::Builder();
+}
+
+void QAStart::_cleanup() {
+    if (_welcomeText != nullptr) {
+        delete _welcomeText;
+        _welcomeText = nullptr;
+    }
+    if (_playerText != nullptr) {
+        delete _playerText;
+        _playerText = nullptr;
+    }
+    if (_startConfirm != nullptr) {
+        delete _startConfirm;
+        _startConfirm = nullptr;
+    }
+    if (_swingingLights != nullptr) {
+        delete _swingingLights;
+        _swingingLights = nullptr;
+    }
+    _initialized = false;
+    _started = false;
+    _loadTimer = 0;
 }
 
 QAStart *QAStart::Builder::build() {

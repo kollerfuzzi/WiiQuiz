@@ -17,6 +17,7 @@ public:
     void update(Clock& clock);
     void render();
     bool isDone();
+    void reset();
     QuizState* getState();
 
     class Builder {

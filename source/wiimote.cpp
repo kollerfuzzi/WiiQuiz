@@ -47,10 +47,9 @@ Pointer WiiMote::getPointerPosition(Remote remote) {
     return ptrData;
 }
 
-void WiiMote::drawPointer(Resources* resources, Remote remote) {
+void WiiMote::drawPointer(GRRLIB_texImg* ptrImg, Remote remote) {
     Pointer ptr = WiiMote::getPointerPosition(remote);
     if (ptr.onScreen) {
-        GRRLIB_texImg* ptrImg = resources->get(Texture::CURSOR);
         GRRLIB_DrawImg(ptr.xPos, ptr.yPos, ptrImg, 0, 1, 1, RGBA(0xff, 0xff, 0xff, 0xff));
     }
 }

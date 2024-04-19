@@ -7,21 +7,10 @@ QAScoreboard::QAScoreboard() {
 }
 
 QAScoreboard::~QAScoreboard(){
-    if (_title != nullptr) {
-        delete _title;
-    }
-    if (_playerText != nullptr) {
-        delete _playerText;
-    }
-    if (_points != nullptr) {
-        delete _points;
-    }
-    if (_confirm != nullptr) {
-        delete _confirm;
-    }
+    _cleanup();
 }
 
-void QAScoreboard::init() {
+void QAScoreboard::_init() {
     _state->sortPlayersByScore();
     std::vector<Player*> players = _state->getPlayers();
 
@@ -73,7 +62,7 @@ void QAScoreboard::init() {
 
 void QAScoreboard::update(Clock &clock) {
     if (!_initialized) {
-        init();
+        _init();
     }
     _playerText->update(clock);
     _points->update(clock);
@@ -97,8 +86,35 @@ bool QAScoreboard::isDone() {
     return _isDone;
 }
 
+void QAScoreboard::reset() {
+    _cleanup();
+}
+
 QAScoreboard::Builder QAScoreboard::builder() {
     return QAScoreboard::Builder();
+}
+
+void QAScoreboard::_cleanup() {
+    if (_title != nullptr) {
+        delete _title;
+        _title = nullptr;
+    }
+    if (_playerText != nullptr) {
+        delete _playerText;
+        _playerText = nullptr;
+    }
+    if (_points != nullptr) {
+        delete _points;
+        _points = nullptr;
+    }
+    if (_confirm != nullptr) {
+        delete _confirm;
+        _confirm = nullptr;
+    }
+
+    _initialized = false;
+    _isDone = false;
+    _bgAnimation = 0.0f;
 }
 
 QAScoreboard *QAScoreboard::Builder::build() {

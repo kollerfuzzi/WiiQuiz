@@ -1,9 +1,5 @@
 #include "quizaction.hpp"
 
-QuizAction::~QuizAction() {
-
-}
-
 void QuizAction::setResources(Resources* resources) {
     _resources = resources;
 }

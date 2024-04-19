@@ -17,6 +17,7 @@
 #include "audioplayer.hpp"
 #include "bsod.hpp"
 #include "menu.hpp"
+#include "mjpegplayer.hpp"
 
 int main(int argc, char** argv) {
     GRRLIB_Init();
@@ -34,6 +35,8 @@ int main(int argc, char** argv) {
 
     AudioPlayer::init();
 
+    MJpegPlayer* player = resources->get(Video::Z_TRAILER);
+
     MenuItem* root = MenuItem::builder()
         .child(MenuItem::builder()
                    .text("Start")
@@ -42,7 +45,8 @@ int main(int argc, char** argv) {
                           .renderable(quiz)
                           .build())
                    .child(MenuItem::builder()
-                          .text("TODO dynamic loading of quizzes")
+                          .text("Video")
+                          .renderable(player)
                           .build())
                    .build())
         .child(MenuItem::builder()
@@ -52,11 +56,11 @@ int main(int argc, char** argv) {
         .build();
 
     Menu* testMenu = new Menu(resources, root);
-    testMenu->runUntilDone(frameClock, resources);
+    testMenu->runUntilDone(frameClock, resources->get(Texture::CURSOR));
     AudioPlayer::stop();
     ScreenDebug::destroy();
 
-
+    delete player;
     delete testMenu;
     delete quiz;
     delete resources;

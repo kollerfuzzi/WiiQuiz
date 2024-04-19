@@ -2,7 +2,7 @@
 
 Renderable::Renderable() {}
 
-void Renderable::runUntilDone(Clock& frameClock, Resources* resources) {
+void Renderable::runUntilDone(Clock& frameClock, GRRLIB_texImg* ptrImg) {
     while (!isDone()) {
         frameClock.tick();
         WiiMote::update();
@@ -15,11 +15,12 @@ void Renderable::runUntilDone(Clock& frameClock, Resources* resources) {
         update(frameClock);
         render();
 
-        WiiMote::drawPointer(resources, Remote::R1);
+        WiiMote::drawPointer(ptrImg, Remote::R1);
 
         ScreenDebug::render();
         GRRLIB_Render();
     }
+    reset();
 }
 
 Renderable::~Renderable() {

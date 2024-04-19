@@ -4,7 +4,6 @@
 #include <wiiuse/wpad.h>
 #include <vector>
 #include <algorithm>
-#include "resources.hpp"
 #include "grrlib.h"
 
 enum Remote {
@@ -41,7 +40,7 @@ namespace WiiMote {
     std::vector<Button> buttonsPressed(Remote remote);
     bool buttonReleased(Remote remote, Button button);
     Pointer getPointerPosition(Remote remote);
-    void drawPointer(Resources* resources, Remote remote);
+    void drawPointer(GRRLIB_texImg* ptrImg, Remote remote);
 }
 
 #endif // WIIMOTE_HPP

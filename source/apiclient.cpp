@@ -3,6 +3,7 @@
 #include "screendebug.hpp"
 #include "stringutils.hpp"
 #include "bsod.hpp"
+#include "mem.hpp"
 
 #define TCP_PORT 311
 
@@ -119,7 +120,7 @@ std::vector<std::string> APIClient::_responseToLines(std::string response) {
 }
 
 char* APIClient::_recvBuffered(s32 socket, u16 bufferSize) {
-    char* buffer = (char*) malloc(bufferSize);
+    char* buffer = (char*) Mem::alloc(bufferSize);
     memset(buffer, 0, bufferSize);
     s32 msgLen = net_recv(socket, buffer, bufferSize - 1, 0);
     if (msgLen < 0) {
@@ -129,7 +130,7 @@ char* APIClient::_recvBuffered(s32 socket, u16 bufferSize) {
 }
 
 void APIClient::_clearBuffer(char* buffer) {
-    free(buffer);
+    Mem::mfree(buffer);
 }
 
 u16 APIClient::_bufferSize(std::string string) {

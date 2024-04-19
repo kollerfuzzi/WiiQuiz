@@ -5,12 +5,7 @@ QAChapter::QAChapter(std::string title) {
 }
 
 QAChapter::~QAChapter() {
-    if (_titleBox != nullptr) {
-        delete _titleBox;
-    }
-    if (_confirm != nullptr) {
-        delete _confirm;
-    }
+    _cleanup();
 }
 
 void QAChapter::update(Clock &clock) {
@@ -28,6 +23,10 @@ void QAChapter::render() {
 
 bool QAChapter::isDone() {
     return WiiMote::buttonPressed(Remote::R1, Button::A);
+}
+
+void QAChapter::reset() {
+    _cleanup();
 }
 
 QAChapter::Builder QAChapter::builder() {
@@ -56,6 +55,18 @@ void QAChapter::_init() {
         .build();
 
     _initialized = true;
+}
+
+void QAChapter::_cleanup() {
+    if (_titleBox != nullptr) {
+        delete _titleBox;
+    }
+    if (_confirm != nullptr) {
+        delete _confirm;
+    }
+    _initialized = false;
+    _titleBox = nullptr;
+    _confirm = nullptr;
 }
 
 QAChapter::Builder& QAChapter::Builder::title(std::string title) {

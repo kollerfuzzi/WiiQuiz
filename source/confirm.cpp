@@ -45,6 +45,13 @@ bool Confirm::isDone() {
     return false;
 }
 
+void Confirm::reset() {
+    if (_promptTextbox != nullptr) {
+        delete _promptTextbox;
+        _initialized = false;
+    }
+}
+
 Confirm::Builder Confirm::builder() {
     return Confirm::Builder();
 }

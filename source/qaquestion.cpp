@@ -195,8 +195,29 @@ bool QAQuestion::_hasPlayerAnswer(Player *player, std::string answer) {
     return false;
 }
 
+void QAQuestion::_cleanup()
+{
+    if (_textQuestion != nullptr) {
+        delete _textQuestion;
+        _textQuestion = nullptr;
+    }
+    for (TextBox* answer : _textAnswers) {
+        delete answer;
+    }
+    _textAnswers.clear();
+    if (_textTimeLeft != nullptr) {
+        delete _textTimeLeft;
+        _textTimeLeft = nullptr;
+    }
+    _initialized = false;
+}
+
 bool QAQuestion::isDone() {
     return _done;
+}
+
+void QAQuestion::reset()
+{
 }
 
 Question QAQuestion::getQuestion() {

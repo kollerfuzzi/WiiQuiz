@@ -143,11 +143,15 @@ bool Menu::isDone() {
     return _currentSubMenu->isQuit();
 }
 
+void Menu::reset() {
+    _currentSubMenu = _root;
+}
+
 void Menu::_select(MenuItem* menuItem, Clock& clock) {
     if (menuItem->getRenderable() == nullptr) {
         _currentSubMenu = menuItem;
     } else {
-        menuItem->getRenderable()->runUntilDone(clock, _resources);
+        menuItem->getRenderable()->runUntilDone(clock, _resources->get(Texture::CURSOR));
     }
 }
 

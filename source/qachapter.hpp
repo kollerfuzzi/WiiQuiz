@@ -14,6 +14,7 @@ public:
     void update(Clock &clock);
     void render();
     bool isDone();
+    void reset();
     class Builder {
     public:
         Builder& title(std::string title);
@@ -24,6 +25,7 @@ public:
     static Builder builder();
 private:
     void _init();
+    void _cleanup();
     bool _initialized = false;
     std::string _title;
     TextBox* _titleBox = nullptr;

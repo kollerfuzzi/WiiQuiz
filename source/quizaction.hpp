@@ -12,12 +12,8 @@
 class QuizState;
 class QuizAPIClient;
 
-class QuizAction {
+class QuizAction : public Renderable {
 public:
-    virtual ~QuizAction() = 0;
-    virtual void update(Clock& clock) = 0;
-    virtual void render() = 0;
-    virtual bool isDone() = 0;
     void setResources(Resources* resources);
     void setState(QuizState* state);
     void setClient(QuizAPIClient* state);

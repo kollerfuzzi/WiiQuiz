@@ -13,6 +13,7 @@ public:
     void update(Clock &clock);
     void render();
     bool isDone();
+    void reset();
 
     class Builder {
     public:
@@ -21,7 +22,8 @@ public:
     };
     static Builder builder();
 private:
-    void init();
+    void _init();
+    void _cleanup();
     TextBox* _title = nullptr;
     TextBox* _playerText = nullptr;
     TextBox* _points = nullptr;

@@ -8,10 +8,11 @@
 #include "magic_enum.hpp"
 #include "resourcefilemanager.hpp"
 #include "mjpegio.hpp"
+#include "mjpegplayer.hpp"
 
 struct TTFFontWithResources {
     GRRLIB_ttfFont* ttfFont;
-    BinaryResource resource;
+    BinaryChunk resource;
 };
 
 class Resources {
@@ -20,13 +21,14 @@ public:
     ~Resources();
     GRRLIB_texImg* get(Texture texture);
     GRRLIB_ttfFont* get(Font font);
-    BinaryResource get(Audio audio);
+    BinaryChunk get(Audio audio);
+    MJpegPlayer* get(Video video);
     void clearAll();
     void fetchNetworkResources();
 private:
     std::map<Texture, GRRLIB_texImg*> _textures;
     std::map<Font, TTFFontWithResources> _fonts;
-    std::map<Audio, BinaryResource> _audio;
+    std::map<Audio, BinaryChunk> _audio;
     std::map<Video, Mjpeg> _videos;
     bool _isUpdateAvailable();
     void _initDefaultFont();
@@ -37,7 +39,7 @@ private:
     void _fetchNetworkVideos();
     void _fetchAndStoreResource(std::string& name, std::string& path);
     void _fetchAndStoreMjpegResource(std::string& name, std::string& path);
-    BinaryResource _loadResource(std::string& name);
+    BinaryChunk _loadResource(std::string& name);
     void _loadTexture(Texture texture);
     void _loadFont(Font font);
     void _loadAudio(Audio font);

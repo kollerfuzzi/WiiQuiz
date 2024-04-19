@@ -29,6 +29,13 @@ bool Quiz::isDone() {
     return _isDone;
 }
 
+void Quiz::reset() {
+    _state->setCurrentAction(0);
+    for (QuizAction* action : _state->getActons()) {
+        action->reset();
+    }
+}
+
 QuizState *Quiz::getState() {
     return _state;
 }

@@ -16,6 +16,7 @@ public:
     bool isConfirmed();
     void setEnabled(bool enabled);
     bool isDone();
+    void reset();
 
     class Builder {
     public:

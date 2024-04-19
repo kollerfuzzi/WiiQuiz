@@ -1,7 +1,8 @@
 #include "mjpegio.hpp"
-#include "base64.hpp"
 #include "json.hpp"
 #include "bsod.hpp"
+#include "mem.hpp"
+#include "stddef.h"
 
 unsigned char START_FRAME[] = {0xff, 0xd8, 0x4a, 0x46, 0x49, 0x46};
 unsigned char END_FRAME[] = {0xff, 0xd9};
@@ -10,19 +11,25 @@ MjpegIO::MjpegIO(ResourceFileManager* resourceFileManager) {
     _resourceFileManager = resourceFileManager;
 }
 
-void MjpegIO::saveMjpeg(std::string& resourceName, BinaryResource b64Data) {
-    size_t size;
-    unsigned char* buffer = Base64::base64_decode(b64Data.data, b64Data.size, &size);
-    if (buffer == nullptr) {
-        BSOD::raise("mem allocation failed");
-    }
-
+void MjpegIO::saveMjpegStream(std::string& resourceName, InputStream* stream) {
+    // todo fix non streaming;
+    size_t fileSize = stream->getMaxSize();
+    unsigned char* data = (unsigned char*) Mem::alloc(fileSize);
+    
+    size_t datapos = 0;
+    do {
+        BinaryChunk resource = stream->read(16384);
+        memcpy(data + datapos, resource.data, resource.size);
+        datapos += resource.size;
+        Mem::mfree(resource.data);
+    } while(!stream->isEOF());
+    
     int startImg = 0;
     int endImg = -1;
     int startSeqPos = 0;
     std::vector<int> soi_eoi; 
-    for (size_t pos = 0; pos < size; pos++) {
-        if (buffer[pos] == START_FRAME[startSeqPos]) {
+    for (size_t pos = 0; pos < fileSize; pos++) {
+        if (data[pos] == START_FRAME[startSeqPos]) {
             startSeqPos++;
         } else {
             startSeqPos = 0;
@@ -41,9 +48,7 @@ void MjpegIO::saveMjpeg(std::string& resourceName, BinaryResource b64Data) {
             }
             soi_eoi.push_back(startImg); 
         }
-        BSOD::raise("dukers");
     }
-    BSOD::raise("duker");
     if (soi_eoi.size() % 2 != 0) {
         soi_eoi.pop_back();
     }
@@ -56,47 +61,36 @@ void MjpegIO::saveMjpeg(std::string& resourceName, BinaryResource b64Data) {
         frames.push_back(frame);
     }
 
-    BinaryResource decoded = {
-        buffer,
-        size
-    };
-    _resourceFileManager->saveResourcePlain(resourceName, decoded);
+    BinaryChunk file(data, fileSize);
+    _resourceFileManager->saveResource(resourceName, file);
+    Mem::mfree(data);
     
     std::string frameMetaStr = frames.dump();
-    BinaryResource frameMetaStrResource = {
+    BinaryChunk frameMetaStrResource = {
         (unsigned char*) frameMetaStr.c_str(),
         frameMetaStr.size()
     };
     std::string metaName = _getMetaName(resourceName);
-    _resourceFileManager->saveResourcePlain(metaName, frameMetaStrResource);
+    _resourceFileManager->saveResource(metaName, frameMetaStrResource);
 }
 
-Mjpeg MjpegIO::loadMjpeg(std::string& resourceName) {
-    BinaryResource mjpegData = _resourceFileManager->loadResource(resourceName);
-    // TODO FREE
-
+Mjpeg MjpegIO::loadMjpegMeta(std::string& resourceName) {
     std::string metaName = _getMetaName(resourceName);
-    BinaryResource meta = _resourceFileManager->loadResource(metaName);
-    nlohmann::json metaJson = nlohmann::json::parse(meta.data);
+    BinaryChunk meta = _resourceFileManager->loadResource(metaName);
+    std::string metaString((char const*)(meta.data), meta.size) ;
+    nlohmann::json metaJson = nlohmann::json::parse(metaString);
     _resourceFileManager->freeResource(meta);
 
-    unsigned char* data = mjpegData.data;
-    
-    Mjpeg mjpeg;
-    mjpeg.videoData = data;
+    std::vector<Frame> frames;
 
     for (nlohmann::json metaFrame : metaJson) {
         size_t startOffset = metaFrame["S"];
         size_t endOffset = metaFrame["E"];
-        size_t len = endOffset - startOffset;
-        Frame frame = {data + startOffset, len};
-        mjpeg.frames.push_back(frame);
+        Frame frame = {startOffset, endOffset};
+        frames.push_back(frame);
     }
-    return mjpeg;
-}
-
-void MjpegIO::freeMjpeg(const Mjpeg& mjpeg) {
-    free(mjpeg.videoData);
+    
+    return Mjpeg(frames);
 }
 
 std::string MjpegIO::_getMetaName(std::string &resourceName) {

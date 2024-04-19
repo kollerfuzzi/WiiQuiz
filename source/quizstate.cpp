@@ -56,6 +56,10 @@ std::vector<Answer>& QuizState::getAnswers() {
     return _answers;
 }
 
+void QuizState::setCurrentAction(size_t currentAction) {
+    _currentAction = currentAction;
+}
+
 QuizAction* QuizState::getCurrentAction() {
     return _actions[_currentAction];
 }

@@ -2,6 +2,7 @@
 #include "json.hpp"
 #include "bsod.hpp"
 #include "stringutils.hpp"
+#include "mem.hpp"
 
 ResourceAPIClient::ResourceAPIClient() {
 
@@ -26,22 +27,13 @@ void ResourceAPIClient::unregisterWii() {
     requestJson(APICommand::UNREGISTER_WII);
 }
 
-std::string ResourceAPIClient::fetchResourceOld(std::string resourcePath) {
-    std::vector<std::string> payload;
-    payload.push_back(resourcePath);
-    std::vector<std::string> response =
-        request(APICommand::GET_RESOURCE, payload);
-    return response[0];
-}
-
-BinaryResource ResourceAPIClient::fetchResource(std::string resourcePath) {
+ApiInputStream* ResourceAPIClient::fetchResource(std::string resourcePath) {
     std::vector<std::string> payload;
     payload.push_back(resourcePath);
 
     s32 socket = _connect();
 
     _sendRequest(socket, APICommand::GET_RESOURCE, payload);
-
     std::string contentLen;
     char bufferChar = 0;
     do {
@@ -53,29 +45,57 @@ BinaryResource ResourceAPIClient::fetchResource(std::string resourcePath) {
     } while (bufferChar != '\n');
     std::vector<std::string> contentLenVector = StringUtils::split(contentLen, ':');
     s32 contentLenInt = std::stoi(contentLenVector[1]);
-    unsigned char* content = (unsigned char*) malloc(contentLenInt);
-    unsigned char* currentPos = content;
-    unsigned char* endPos = content + contentLenInt;
-    bool lastFrame = false;
-    do {
-        s32 readLen = endPos - currentPos;
-        if (readLen > 32768) {
-            readLen = 32768;
-        } else {
-            lastFrame = true;
+
+    return new ApiInputStream(socket, contentLenInt);
+}
+
+ApiInputStream::ApiInputStream(s32 socket, size_t contentLen) {
+    _socket = socket;
+    _contentLen = contentLen;
+    _maxSize = contentLen;
+}
+
+ApiInputStream::~ApiInputStream() {
+    close();
+}
+
+BinaryChunk ApiInputStream::read(size_t maxLen) {
+    if (!_open) {
+        BSOD::raise("read attempt from closed socket");
+    }
+    size_t readLen = maxLen;
+    size_t remainingLen = _contentLen - _streamPos;
+    bool closeAfterRecv = false;
+    if (readLen >= remainingLen) {
+        readLen = remainingLen;
+        closeAfterRecv = true;
+    }
+    unsigned char* content = (unsigned char*) Mem::alloc(readLen);
+    size_t contentPos = 0;
+    size_t maxReadLen = 16384;
+    while (contentPos < readLen) {
+        if (contentPos + maxReadLen > remainingLen) {
+            maxReadLen = remainingLen;
         }
-        s32 msgLen = net_recv(socket, currentPos, readLen, 0);
+        s32 msgLen = net_recv(_socket, content + contentPos, maxReadLen, 0);
         if (msgLen < 0) {
             BSOD::raise("Socket recv failed (content)", msgLen);
         }
-        currentPos += readLen;
-    } while (!lastFrame);
-    //s32 msgLen = net_recv(socket, content, contentLenInt, 0);
-    //if (msgLen < 0) {
-    //    BSOD::raise("Socket recv failed (content)", msgLen);
-    //}
+        contentPos += msgLen;
+        _streamPos += msgLen;
+    }
 
-    _disconnect(socket);
-    BinaryResource resource = {content, contentLenInt};
+    if (closeAfterRecv) {
+        close();
+    }
+
+    BinaryChunk resource(content, readLen);
     return resource;
+}
+
+void ApiInputStream::close() {
+    if (_open) {
+        net_close(_socket);
+        _open = false;
+    }
 }

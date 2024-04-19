@@ -242,6 +242,10 @@ bool QARythmMinigame::isDone() {
     return _endingTimePassed > 5000;
 }
 
+void QARythmMinigame::reset() {
+    _cleanup();
+}
+
 QARythmMinigame::Builder QARythmMinigame::builder() {
     return QARythmMinigame::Builder();
 }
@@ -321,6 +325,38 @@ void QARythmMinigame::_init() {
     init3dCube();
 
     _dataLoaded = true;
+}
+
+void QARythmMinigame::_cleanup() {
+    _initialized = false;
+    _dataLoaded = false;
+    _timePassed = 0;
+    _notes.clear();
+    if (_textBoxHits != nullptr) {
+        delete _textBoxHits;
+        _textBoxHits = nullptr;
+    }
+    if (_textBoxMiss != nullptr) {
+        delete _textBoxMiss;
+        _textBoxMiss = nullptr;
+    }
+    if (_textBoxScore != nullptr) {
+        delete _textBoxScore;
+        _textBoxScore = nullptr;
+    }
+    // cube
+    _a = 0;
+    _cubeZ = 0;
+    _sinx = 0;
+    _misinput = 0;
+    _misinputsTotal = 0;
+    _hitinput = 0;
+    _shiftx = 0;
+    
+    _delayMs = 0;
+    _maxPts = 200;
+    _ending = false;
+    _endingTimePassed = 0;
 }
 
 QARythmMinigame::Builder& QARythmMinigame::Builder::img(Texture img) {

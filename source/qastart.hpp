@@ -16,7 +16,7 @@ public:
     void update(Clock &clock);
     void render();
     bool isDone();
-
+    void reset();
     class Builder {
     public:
         QAStart* build();
@@ -24,6 +24,7 @@ public:
     };
     static Builder builder();
 private:
+    void _cleanup();
     bool _initialized = false;
     bool _started = false;
     int32_t _loadTimer = 0;

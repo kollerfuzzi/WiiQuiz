@@ -9,6 +9,7 @@ public:
     void update(Clock &clock);
     void render();
     bool isDone();
+    void reset();
 private:
     f32 _lightx = 0.0f;
 };

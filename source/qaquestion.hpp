@@ -24,6 +24,7 @@ public:
     void update(Clock &clock);
     void render();
     bool isDone();
+    void reset();
     Question getQuestion();
 
     class Builder {
@@ -40,6 +41,7 @@ private:
     std::vector<Player*> _getPlayersWithAnswer(std::string answer);
     std::vector<Player*> _getPlayersWithCorrectAnswers();
     bool _hasPlayerAnswer(Player* player, std::string answer);
+    void _cleanup();
     Question _question;
     QAQuestionState _questionState = QAQuestionState::INPUT;
     bool _initialized = false;

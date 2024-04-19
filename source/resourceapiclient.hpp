@@ -2,7 +2,18 @@
 #define RESOURCEAPICLIENT_HPP
 
 #include "apiclient.hpp"
-#include "binaryresource.hpp"
+#include "io_stream.hpp"
+
+class ApiInputStream : public InputStream {
+public:
+    ApiInputStream(s32 socket, size_t contentLen);
+    ~ApiInputStream();
+    BinaryChunk read(size_t maxLen);
+    void close();
+private:
+    s32 _socket = 0;
+    size_t _contentLen = 0;
+};
 
 class ResourceAPIClient : public APIClient {
 public:
@@ -11,8 +22,7 @@ public:
     s32 fetchResourceVersion();
     void registerWii();
     void unregisterWii();
-    std::string fetchResourceOld(std::string resourcePath);
-    BinaryResource fetchResource(std::string resourcePath);
+    ApiInputStream* fetchResource(std::string resourcePath);
 };
 
 #endif // RESOURCEAPICLIENT_HPP

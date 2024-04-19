@@ -30,6 +30,7 @@ public:
     void copyBufferToContent();
     void render();
     bool isDone();
+    void reset();
     TextBoxAnimationState getAnimationState();
     size_t lineCount();
 
@@ -64,6 +65,7 @@ private:
             unsigned int marginTop, unsigned int marginLeft,
             unsigned int marginRight, int animationSpeed, TextBox* above);
     std::wstring _utf8ToUtf32(std::string str);
+    std::string _sourceString;
     std::vector<std::wstring> _textContent;
     std::vector<std::wstring> _textBuffer;
     GRRLIB_Font* _font = nullptr;

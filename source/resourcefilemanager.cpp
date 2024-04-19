@@ -1,47 +1,51 @@
 #include "resourcefilemanager.hpp"
 #include "json.hpp"
 #include "bsod.hpp"
+#include "mem.hpp"
 
 ResourceFileManager::ResourceFileManager() {
     init();
 }
 
-
 void ResourceFileManager::init() {
     if (!fatInitDefault()) {
-        throw -1;
+        BSOD::raise("FAT init failed");
     }
 }
 
-void ResourceFileManager::saveResource(std::string& resourceName, BinaryResource contentBase64) {
+void ResourceFileManager::saveResource(std::string& resourceName, BinaryChunk content) {
     std::string fileName = _resourceNameToFileName(resourceName);
     FILE* f = fopen(fileName.c_str(), "wb");
     if (f == NULL) {
-        throw -1;
-    } else {
-        size_t len;
-        unsigned char* decoded = Base64::base64_decode(contentBase64.data, contentBase64.size, &len);
-        fwrite(decoded, 1, len, f);
-        fclose(f);
-        free(decoded);
+        std::string err("File read failed ");
+        err += fileName;
+        BSOD::raise(err);
     }
+    fwrite(content.data, 1, content.size, f);
+    fclose(f);
 }
 
-void ResourceFileManager::saveResourcePlain(std::string &resourceName, BinaryResource contentPlain){
+void ResourceFileManager::saveResourceStream(std::string &resourceName, InputStream* stream) {
     std::string fileName = _resourceNameToFileName(resourceName);
     FILE* f = fopen(fileName.c_str(), "wb");
     if (f == nullptr) {
-        throw -1;
-    } else {
-        fwrite(contentPlain.data, 1, contentPlain.size, f);
-        fclose(f);
+        std::string err("File read failed ");
+        err += fileName;
+        BSOD::raise(err);
     }
+    do {
+        BinaryChunk part = stream->read(16384);
+        fwrite(part.data, 1, part.size, f);
+        Mem::mfree(part.data);
+    } while (!stream->isEOF());
+    delete stream;
+    fclose(f);
 }
 
 std::string ResourceFileManager::loadIpAddressFromConfig() {
     std::string ipAddress = "127.0.0.1";
     std::string configFileName = "config.json";
-    BinaryResource configBin = loadResource(configFileName);
+    BinaryChunk configBin = loadResource(configFileName);
     if (configBin.data == nullptr) {
         return ipAddress;
     }
@@ -52,12 +56,12 @@ std::string ResourceFileManager::loadIpAddressFromConfig() {
     return ipAddress;
 }
 
-BinaryResource ResourceFileManager::loadResource(std::string& resourceName) {
+BinaryChunk ResourceFileManager::loadResource(std::string& resourceName) {
     std::string fileName = _resourceNameToFileName(resourceName);
     FILE* f = fopen(fileName.c_str(), "rb");
 
     if (f == nullptr) {
-        return BinaryResource { nullptr, 0 };
+        return BinaryChunk { nullptr, 0 };
     } else {
         std::vector<unsigned char> content;
         unsigned char buffer[128];
@@ -72,15 +76,41 @@ BinaryResource ResourceFileManager::loadResource(std::string& resourceName) {
             }
         }
 
-        unsigned char* bytes = (unsigned char*)malloc(content.size());
+        unsigned char* bytes = (unsigned char*)Mem::alloc(content.size());
         std::copy(content.begin(), content.end(), bytes);
         fclose(f);
-        return BinaryResource(bytes, content.size());
+        return BinaryChunk(bytes, content.size());
     }
 }
 
-void ResourceFileManager::freeResource(const BinaryResource& resource) {
-    free(resource.data);
+nlohmann::json ResourceFileManager::loadResourceJson(std::string &resourceName) {
+    BinaryChunk configBin = loadResource(resourceName);
+    if (configBin.data == nullptr) {
+        BSOD::raise("json file not found");
+    }
+    std::string configStr = (char const*) configBin.data;
+    nlohmann::json configJson = nlohmann::json::parse(configStr);
+    Mem::mfree(configBin.data);
+    return configJson;
+}
+
+InputStream *ResourceFileManager::loadResourceStream(std::string &resourceName) {
+    std::string fileName = _resourceNameToFileName(resourceName);
+    FILE* f = fopen(fileName.c_str(), "rb");
+    
+    if (f == nullptr) {
+        BSOD::raise("resource stream could not be loaded");
+    }
+
+    fseek(f, 0, SEEK_END);
+    size_t size = ftell(f);
+    rewind(f);
+
+    return new FileInputStream(f, size); 
+}
+
+void ResourceFileManager::freeResource(const BinaryChunk& resource) {
+    Mem::mfree(resource.data);
 }
 
 std::string ResourceFileManager::_resourceNameToFileName(std::string &resourceName) {
@@ -91,4 +121,53 @@ std::string ResourceFileManager::_resourceNameToFileName(std::string &resourceNa
     }
     return fileName;
 
+}
+
+FileInputStream::FileInputStream(FILE* file, size_t fileSize) {
+    _file = file;
+    _maxSize = fileSize;
+}
+
+FileInputStream::~FileInputStream() {
+    close();
+}
+
+BinaryChunk FileInputStream::read(size_t maxLen) {
+    unsigned char* buffer = (unsigned char*) Mem::alloc(maxLen);
+
+    // read til max len or eof
+    size_t bufferPos = 0;
+    size_t attemptReadSize = 16384;
+    while (bufferPos < maxLen) {
+        if (bufferPos + attemptReadSize >= maxLen) {
+            attemptReadSize = maxLen - bufferPos;
+        }
+        size_t bytesRead = fread(buffer + bufferPos, 1, attemptReadSize, _file);
+        bufferPos += bytesRead;
+    
+        if (bytesRead <= 0) {
+            fclose(_file);
+            _open = false;
+        }
+    }
+
+    if (bufferPos < maxLen / 2 && bufferPos > 0) {
+        BSOD::raise("bytesRead < maxLen");
+        unsigned char* memSaveBuffer = (unsigned char*) Mem::alloc(bufferPos);
+        memcpy(memSaveBuffer, buffer, bufferPos);
+        Mem::mfree(buffer);
+        buffer = memSaveBuffer;
+    }
+    _streamPos += bufferPos;
+    return BinaryChunk(buffer, bufferPos);
+}
+
+size_t FileInputStream::getMaxSize() {
+    return _maxSize;
+}
+
+void FileInputStream::close() {
+    if (_open) {
+        fclose(_file);
+    }
 }

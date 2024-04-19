@@ -62,6 +62,7 @@ public:
     void update(Clock& clock);
     void render();
     bool isDone();
+    void reset();
 private:
     void _updateSubMenus(Clock& clock);
     void _updateSelection();
