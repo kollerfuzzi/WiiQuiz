@@ -13,6 +13,7 @@
 #include <vector>
 #include "magic_enum.hpp"
 #include "json.hpp"
+#include "io_stream.hpp"
 
 enum APICommand {
     REGISTER_WII,
@@ -27,25 +28,35 @@ enum APICommand {
     SET_POINTS
 };
 
-#define MSG_END "\n\n"
+class ApiInputStream : public InputStream {
+public:
+    ApiInputStream(s32 socket, size_t contentLen);
+    ~ApiInputStream();
+    BinaryChunk read(size_t maxLen);
+    void close();
+private:
+    s32 _socket = 0;
+    size_t _contentLen = 0;
+};
+
 
 class APIClient {
 public:
     APIClient();
     ~APIClient();
     nlohmann::json requestJson(APICommand command);
-    std::vector<std::string> request(APICommand command);
-    nlohmann::json requestJson(APICommand, nlohmann::json json);
-    std::vector<std::string> request(APICommand command, std::vector<std::string> payload);
+    std::string request(APICommand command);
+    nlohmann::json requestJson(APICommand, nlohmann::json& json);
+    std::string request(APICommand command, std::string& payload);
     static std::string ipAddress;
 protected:
     void _init();
     s32 _connect();
     void _disconnect(s32 socket);
     void _assertStatusOk(nlohmann::json status);
-    void _sendRequest(s32 socket, APICommand command, std::vector<std::string> payload);
-    std::vector<std::string> _recvResponse(s32 socket);
-    std::vector<std::string> _responseToLines(std::string response);
+    void _sendRequest(s32 socket, APICommand command, std::string& payload);
+    std::string _recvResponse(s32 socket);
+    InputStream* _getResponseStream(s32 socket);
     char* _recvBuffered(s32 socket, u16 bufferSize);
     void _clearBuffer(char* buffer);
     u16 _bufferSize(std::string string);

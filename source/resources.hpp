@@ -29,7 +29,6 @@ private:
     std::map<Texture, GRRLIB_texImg*> _textures;
     std::map<Font, TTFFontWithResources> _fonts;
     std::map<Audio, BinaryChunk> _audio;
-    std::map<Video, Mjpeg> _videos;
     bool _isUpdateAvailable();
     void _initDefaultFont();
     void _fetchNetworkTextures();
@@ -43,7 +42,6 @@ private:
     void _loadTexture(Texture texture);
     void _loadFont(Font font);
     void _loadAudio(Audio font);
-    void _loadVideo(Video video);
     void _renderDebugStr(std::string text);
     ResourceAPIClient* _resourceAPIClient = nullptr;
     ResourceFileManager* _resourceFileManager = nullptr;

@@ -24,31 +24,30 @@ void APIClient::_init() {
 }
 
 nlohmann::json APIClient::requestJson(APICommand command) {
-    std::vector<std::string> response = request(command);
-    nlohmann::json responseJson = nlohmann::json::parse(response[0]);
+    std::string response = request(command);
+    nlohmann::json responseJson = nlohmann::json::parse(response);
     _assertStatusOk(responseJson);
     return responseJson;
 }
 
-std::vector<std::string> APIClient::request(APICommand command) {
-    std::vector<std::string> emptyPayload;
+std::string APIClient::request(APICommand command) {
+    std::string emptyPayload;
     return request(command, emptyPayload);
 }
 
-nlohmann::json APIClient::requestJson(APICommand command, nlohmann::json payloadJson) {
-    std::vector<std::string> payload;
-    payload.push_back(payloadJson.dump());
-    std::vector<std::string> response = request(command, payload);
-    nlohmann::json responseJson = nlohmann::json::parse(response[0]);
+nlohmann::json APIClient::requestJson(APICommand command, nlohmann::json& payloadJson) {
+    std::string payload = payloadJson.dump();
+    std::string response = request(command, payload);
+    nlohmann::json responseJson = nlohmann::json::parse(response);
     _assertStatusOk(responseJson);
     return responseJson;
 }
 
-std::vector<std::string> APIClient::request(APICommand command, std::vector<std::string> payload) {
+std::string APIClient::request(APICommand command, std::string& payload) {
     s32 socket = _connect();
 
     _sendRequest(socket, command, payload);
-    std::vector<std::string> response =
+    std::string response =
        _recvResponse(socket);
 
     _disconnect(socket);
@@ -83,67 +82,93 @@ void APIClient::_assertStatusOk(nlohmann::json json) {
     }
 }
 
-void APIClient::_sendRequest(s32 socket, APICommand command, std::vector<std::string> payload) {
+void APIClient::_sendRequest(s32 socket, APICommand command, std::string& payload) {
     auto commandStrView = magic_enum::enum_name(command);
-    std::string commandStr(commandStrView);
-    commandStr += "\n";
-    for (std::string line : payload) {
-        commandStr += line;
-        commandStr += "\n";
-    }
-    commandStr += "\n";
-    s32 status = net_send(socket, commandStr.c_str(), commandStr.size(), 0);
+    std::string requestStr(commandStrView);
+    requestStr += "\n";
+    requestStr += "LEN:";
+    requestStr += std::to_string(strlen(payload.c_str()));
+    requestStr += "\n";
+    requestStr += payload;
+    s32 status = net_send(socket, requestStr.c_str(), requestStr.size(), 0);
     if (status < 0) {
         BSOD::raise("Socket send failed", status);
     }
 }
 
-std::vector<std::string> APIClient::_recvResponse(s32 socket) {
+std::string APIClient::_recvResponse(s32 socket) {
     std::string response;
+    InputStream* istream = _getResponseStream(socket); 
+    while (!istream->isEOF()) {
+        BinaryChunk chunk = istream->read(4096);
+        response.append((const char*) chunk.data, chunk.size);
+    }
+    return response;
+}
+
+InputStream* APIClient::_getResponseStream(s32 socket) {
+    std::string contentLen;
+    char bufferChar = 0;
     do {
-        char* buffer = _recvBuffered(socket, _bufferSize(response));
-        response += buffer;
-        _clearBuffer(buffer);
-    } while (!_isResponseEnd(response));
-    return _responseToLines(response);
-}
-
-std::vector<std::string> APIClient::_responseToLines(std::string response) {
-    std::vector<std::string> lines = StringUtils::split(response, '\n');
-    std::vector<std::string> nonEmptyLines;
-    for (std::string line : lines) {
-        if (line.size() != 0) {
-            nonEmptyLines.push_back(line);
+        s32 msgLen = net_recv(socket, &bufferChar, 1, 0);
+        if (msgLen < 0) {
+            BSOD::raise("Socket recv failed (content length)", msgLen);
         }
+        contentLen += bufferChar;
+    } while (bufferChar != '\n');
+    std::vector<std::string> contentLenVector = StringUtils::split(contentLen, ':');
+    s32 contentLenInt = std::stoi(contentLenVector[1]);
+
+    return new ApiInputStream(socket, contentLenInt);
+}
+
+ApiInputStream::ApiInputStream(s32 socket, size_t contentLen) {
+    _socket = socket;
+    _contentLen = contentLen;
+    _maxSize = contentLen;
+}
+
+ApiInputStream::~ApiInputStream() {
+    close();
+}
+
+BinaryChunk ApiInputStream::read(size_t maxLen) {
+    if (!_open) {
+        BSOD::raise("read attempt from closed socket");
     }
-    return nonEmptyLines;
-}
-
-char* APIClient::_recvBuffered(s32 socket, u16 bufferSize) {
-    char* buffer = (char*) Mem::alloc(bufferSize);
-    memset(buffer, 0, bufferSize);
-    s32 msgLen = net_recv(socket, buffer, bufferSize - 1, 0);
-    if (msgLen < 0) {
-        BSOD::raise("Socket recv failed", msgLen);
+    size_t readLen = maxLen;
+    size_t remainingLen = _contentLen - _streamPos;
+    bool closeAfterRecv = false;
+    if (readLen >= remainingLen) {
+        readLen = remainingLen;
+        closeAfterRecv = true;
     }
-    return buffer;
-}
-
-void APIClient::_clearBuffer(char* buffer) {
-    Mem::mfree(buffer);
-}
-
-u16 APIClient::_bufferSize(std::string string) {
-    if (string.size() > 4096) {
-        return 32768;
+    unsigned char* content = (unsigned char*) Mem::alloc(readLen);
+    size_t contentPos = 0;
+    size_t maxReadLen = 16384;
+    while (contentPos < readLen) {
+        if (contentPos + maxReadLen > readLen) {
+            maxReadLen = readLen - contentPos;
+        }
+        s32 msgLen = net_recv(_socket, content + contentPos, maxReadLen, 0);
+        if (msgLen < 0) {
+            BSOD::raise("Socket recv failed (content)", msgLen);
+        }
+        contentPos += msgLen;
+        _streamPos += msgLen;
     }
-    return 1024;
+    
+    if (closeAfterRecv) {
+        close();
+    }
+
+    BinaryChunk resource(content, readLen);
+    return resource;
 }
 
-bool APIClient::_isResponseEnd(std::string response) {
-    return response.size() >= 2
-        && response.substr(response.size() - 2, 2) == MSG_END;
+void ApiInputStream::close() {
+    if (_open) {
+        net_close(_socket);
+        _open = false;
+    }
 }
-
-
-

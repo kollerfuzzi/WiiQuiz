@@ -56,8 +56,7 @@ BinaryChunk Resources::get(Audio audio){
 }
 
 MJpegPlayer* Resources::get(Video video) {
-    MJpegPlayer* player = new MJpegPlayer(video, _resourceFileManager);
-    return player;
+    return new MJpegPlayer(video, _resourceFileManager);
 }
 
 void Resources::clearAll() {
@@ -72,10 +71,6 @@ void Resources::clearAll() {
 
     for (const auto& [key, value] : _audio) {
         _resourceFileManager->freeResource(value);
-    }
-
-    for (const auto& [key, value] : _videos) {
-        // todo free
     }
 }
 
@@ -172,7 +167,7 @@ void Resources::_fetchAndStoreResource(std::string& name, std::string& path) {
     namePath += ": ";
     namePath += path;
     _renderDebugStr(namePath);
-    ApiInputStream* stream = _resourceAPIClient->fetchResource(path);
+    InputStream* stream = _resourceAPIClient->fetchResource(path);
     _resourceFileManager->saveResourceStream(name, stream);
 }
 
@@ -182,7 +177,7 @@ void Resources::_fetchAndStoreMjpegResource(std::string &name, std::string& path
     namePath += ": ";
     namePath += path;
     _renderDebugStr(namePath);
-    ApiInputStream* stream = _resourceAPIClient->fetchResource(path);
+    InputStream* stream = _resourceAPIClient->fetchResource(path);
     _mjpegIO->saveMjpegStream(name, stream);
 }
 
@@ -214,12 +209,6 @@ void Resources::_loadAudio(Audio audio) {
     auto enumNameView = magic_enum::enum_name(audio);
     std::string enumName(enumNameView);
     _audio[audio] = _loadResource(enumName);
-}
-
-void Resources::_loadVideo(Video video) {
-    auto enumNameView = magic_enum::enum_name(video);
-    std::string enumName(enumNameView);
-    _videos[video] = _mjpegIO->loadMjpegMeta(enumName);
 }
 
 void Resources::_renderDebugStr(std::string text) {
