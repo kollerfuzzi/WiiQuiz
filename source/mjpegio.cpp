@@ -12,24 +12,24 @@ MjpegIO::MjpegIO(ResourceFileManager* resourceFileManager) {
 }
 
 void MjpegIO::saveMjpegStream(std::string& resourceName, InputStream* stream) {
-    // todo fix non streaming;
-    size_t fileSize = stream->getMaxSize();
-    unsigned char* data = (unsigned char*) Mem::alloc(fileSize);
-    
-    size_t datapos = 0;
-    do {
-        BinaryChunk resource = stream->read(16384);
-        memcpy(data + datapos, resource.data, resource.size);
-        datapos += resource.size;
-        Mem::mfree(resource.data);
-    } while(!stream->isEOF());
+    int fileSize = stream->getMaxSize();
+    _resourceFileManager->saveResourceStream(resourceName, stream);
+    stream = _resourceFileManager->loadResourceStream(resourceName);
+
+    BinaryChunk data = BinaryChunk((unsigned char*) Mem::alloc(16384), 16384);
     
     int startImg = 0;
     int endImg = -1;
     int startSeqPos = 0;
-    std::vector<int> soi_eoi; 
-    for (size_t pos = 0; pos < fileSize; pos++) {
-        if (data[pos] == START_FRAME[startSeqPos]) {
+    int dataOffset = 0;
+    std::vector<int> soi_eoi;
+    stream->read(data);
+    for (int pos = 0; pos < fileSize; pos++) {
+        if (pos > 16384 + dataOffset) {
+            stream->read(data); // todo does ignore actual size
+            dataOffset += 16384;
+        }
+        if (data.data[pos - dataOffset] == START_FRAME[startSeqPos]) {
             startSeqPos++;
         } else {
             startSeqPos = 0;
@@ -49,6 +49,7 @@ void MjpegIO::saveMjpegStream(std::string& resourceName, InputStream* stream) {
             soi_eoi.push_back(startImg); 
         }
     }
+    delete stream;
     if (soi_eoi.size() % 2 != 0) {
         soi_eoi.pop_back();
     }
@@ -61,10 +62,6 @@ void MjpegIO::saveMjpegStream(std::string& resourceName, InputStream* stream) {
         frames.push_back(frame);
     }
 
-    BinaryChunk file(data, fileSize);
-    _resourceFileManager->saveResource(resourceName, file);
-    Mem::mfree(data);
-    
     std::string frameMetaStr = frames.dump();
     BinaryChunk frameMetaStrResource = {
         (unsigned char*) frameMetaStr.c_str(),

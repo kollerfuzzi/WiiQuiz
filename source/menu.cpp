@@ -151,7 +151,6 @@ void Menu::_select(MenuItem* menuItem, Clock& clock) {
     if (menuItem->getRenderable() == nullptr) {
         _currentSubMenu = menuItem;
     } else {
-        AudioPlayer::play(Audio::ROCKEFELLER_ST, _resources);
         menuItem->getRenderable()->runUntilDone(clock, _resources->get(Texture::CURSOR));
     }
 }

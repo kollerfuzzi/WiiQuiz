@@ -45,8 +45,7 @@ Player::Builder& Player::Builder::id(std::string id) {
     return *this;
 }
 
-Player::Builder& Player::Builder::name(std::string name)
-{
+Player::Builder& Player::Builder::name(std::string name) {
     _name = name;
     return *this;
 }

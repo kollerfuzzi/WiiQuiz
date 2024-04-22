@@ -32,7 +32,7 @@ class ApiInputStream : public InputStream {
 public:
     ApiInputStream(s32 socket, size_t contentLen);
     ~ApiInputStream();
-    BinaryChunk read(size_t maxLen);
+    size_t read(BinaryChunk chunk);
     void close();
 private:
     s32 _socket = 0;

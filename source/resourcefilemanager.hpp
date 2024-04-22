@@ -12,7 +12,7 @@ class FileInputStream : public InputStream {
 public:
     FileInputStream(FILE* file, size_t fileSize);
     ~FileInputStream();
-    BinaryChunk read(size_t maxLen);
+    size_t read(BinaryChunk buffer);
     size_t getMaxSize();
     void close();
 protected:

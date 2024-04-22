@@ -33,9 +33,11 @@ AudioDef AUDIO_DEFINITIONS[] = {
     {Audio::GETTING_READY, "audio/getting_ready.mp3"},
     {Audio::DISCOQUALLEN, "audio/discoquallen.mp3"},
     {Audio::BOLERO_OF_FIRE, "audio/bolero_of_fire.mp3"},
-    {Audio::ROCKEFELLER_ST, "audio/rockefeller_street.mp3"}
+    {Audio::ROCKEFELLER_ST, "audio/rockefeller_street.mp3"},
+    {Audio::TP_TRAILER_AUDIO, "videos/tp_trailer.mp3"}
 };
 
 VideoDef VIDEO_DEFINITIONS[] = {
-    {Video::Z_TRAILER, "videos/z_trailer.avi"}
+    {Video::Z_TRAILER, "videos/z_trailer.avi"},
+    {Video::TP_TRAILER, "videos/tp_trailer.avi"}
 };

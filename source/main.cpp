@@ -30,12 +30,11 @@ int main(int argc, char** argv) {
 
     Quiz* quiz = QuizTemplate::getDefaultQuiz(resources);
 
-
     Clock frameClock;
 
     AudioPlayer::init();
 
-    MJpegPlayer* player = resources->get(Video::Z_TRAILER);
+    MJpegPlayer* player = resources->get(Video::TP_TRAILER, Audio::TP_TRAILER_AUDIO);
 
     MenuItem* root = MenuItem::builder()
         .child(MenuItem::builder()

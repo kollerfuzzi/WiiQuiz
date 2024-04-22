@@ -33,11 +33,12 @@ void ResourceFileManager::saveResourceStream(std::string &resourceName, InputStr
         err += fileName;
         BSOD::raise(err);
     }
+    BinaryChunk part((unsigned char*) Mem::alloc(16384), 16384);
     do {
-        BinaryChunk part = stream->read(16384);
-        fwrite(part.data, 1, part.size, f);
-        Mem::mfree(part.data);
+        size_t size = stream->read(part);
+        fwrite(part.data, 1, size, f);
     } while (!stream->isEOF());
+    Mem::mfree(part.data);
     delete stream;
     fclose(f);
 }
@@ -132,34 +133,27 @@ FileInputStream::~FileInputStream() {
     close();
 }
 
-BinaryChunk FileInputStream::read(size_t maxLen) {
-    unsigned char* buffer = (unsigned char*) Mem::alloc(maxLen);
-
-    // read til max len or eof
+size_t FileInputStream::read(BinaryChunk chunk) {
+    if (!_open) {
+        BSOD::raise("read attempt from closed file");
+    }
     size_t bufferPos = 0;
     size_t attemptReadSize = 16384;
-    while (bufferPos < maxLen) {
-        if (bufferPos + attemptReadSize >= maxLen) {
-            attemptReadSize = maxLen - bufferPos;
+    while (bufferPos < chunk.size) {
+        if (bufferPos + attemptReadSize >= chunk.size) {
+            attemptReadSize = chunk.size - bufferPos;
         }
-        size_t bytesRead = fread(buffer + bufferPos, 1, attemptReadSize, _file);
+        size_t bytesRead = fread(chunk.data + bufferPos, 1, attemptReadSize, _file);
         bufferPos += bytesRead;
     
         if (bytesRead <= 0) {
-            fclose(_file);
-            _open = false;
+            close();
+            break;
         }
     }
 
-    if (bufferPos < maxLen / 2 && bufferPos > 0) {
-        BSOD::raise("bytesRead < maxLen");
-        unsigned char* memSaveBuffer = (unsigned char*) Mem::alloc(bufferPos);
-        memcpy(memSaveBuffer, buffer, bufferPos);
-        Mem::mfree(buffer);
-        buffer = memSaveBuffer;
-    }
     _streamPos += bufferPos;
-    return BinaryChunk(buffer, bufferPos);
+    return bufferPos;
 }
 
 size_t FileInputStream::getMaxSize() {

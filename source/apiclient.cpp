@@ -98,11 +98,13 @@ void APIClient::_sendRequest(s32 socket, APICommand command, std::string& payloa
 
 std::string APIClient::_recvResponse(s32 socket) {
     std::string response;
-    InputStream* istream = _getResponseStream(socket); 
+    InputStream* istream = _getResponseStream(socket);
+    BinaryChunk buffer = BinaryChunk((unsigned char*) Mem::alloc(4096), 4096); 
     while (!istream->isEOF()) {
-        BinaryChunk chunk = istream->read(4096);
-        response.append((const char*) chunk.data, chunk.size);
+        size_t dataSize = istream->read(buffer);
+        response.append((const char*) buffer.data, dataSize);
     }
+    Mem::mfree(buffer.data);
     return response;
 }
 
@@ -132,18 +134,18 @@ ApiInputStream::~ApiInputStream() {
     close();
 }
 
-BinaryChunk ApiInputStream::read(size_t maxLen) {
+size_t ApiInputStream::read(BinaryChunk chunk) {
     if (!_open) {
         BSOD::raise("read attempt from closed socket");
     }
-    size_t readLen = maxLen;
+    size_t readLen = chunk.size;
     size_t remainingLen = _contentLen - _streamPos;
     bool closeAfterRecv = false;
     if (readLen >= remainingLen) {
         readLen = remainingLen;
         closeAfterRecv = true;
     }
-    unsigned char* content = (unsigned char*) Mem::alloc(readLen);
+    unsigned char* content = chunk.data;
     size_t contentPos = 0;
     size_t maxReadLen = 16384;
     while (contentPos < readLen) {
@@ -162,8 +164,7 @@ BinaryChunk ApiInputStream::read(size_t maxLen) {
         close();
     }
 
-    BinaryChunk resource(content, readLen);
-    return resource;
+    return readLen;
 }
 
 void ApiInputStream::close() {

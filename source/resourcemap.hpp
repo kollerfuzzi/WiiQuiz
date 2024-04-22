@@ -39,11 +39,13 @@ enum Audio {
     GETTING_READY,
     DISCOQUALLEN,
     BOLERO_OF_FIRE,
-    ROCKEFELLER_ST
+    ROCKEFELLER_ST,
+    TP_TRAILER_AUDIO
 };
 
 enum Video {
-    Z_TRAILER
+    Z_TRAILER,
+    TP_TRAILER
 };
 
 

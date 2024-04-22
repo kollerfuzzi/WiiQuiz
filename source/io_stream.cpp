@@ -8,9 +8,9 @@ InputStream::~InputStream() {
 
 }
 
-void InputStream::advance(size_t maxLen) {
-    BinaryChunk chunk = read(maxLen);
-    Mem::mfree(chunk.data);
+void InputStream::advance(BinaryChunk buffer, size_t maxLen) {
+    BinaryChunk chunk(buffer.data, maxLen);
+    read(chunk);
 }
 
 size_t InputStream::getStreamPos() {

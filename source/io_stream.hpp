@@ -2,6 +2,7 @@
 #define IO_STREAM_HPP
 
 #include <string>
+#include <cstring>
 
 struct BinaryChunk {
     unsigned char* data;
@@ -21,8 +22,8 @@ class InputStream {
 public:
     InputStream();
     virtual ~InputStream() = 0;
-    virtual BinaryChunk read(size_t maxLen) = 0;
-    void advance(size_t maxLen);
+    virtual size_t read(BinaryChunk buffer) = 0;
+    void advance(BinaryChunk buffer, size_t maxLen);
     size_t getStreamPos();
     size_t getMaxSize();
     virtual void close() = 0;

@@ -23,6 +23,7 @@ public:
     GRRLIB_ttfFont* get(Font font);
     BinaryChunk get(Audio audio);
     MJpegPlayer* get(Video video);
+    MJpegPlayer* get(Video video, Audio audio);
     void clearAll();
     void fetchNetworkResources();
 private:

@@ -59,6 +59,10 @@ MJpegPlayer* Resources::get(Video video) {
     return new MJpegPlayer(video, _resourceFileManager);
 }
 
+MJpegPlayer* Resources::get(Video video, Audio audio){
+    return new MJpegPlayer(video, audio, _resourceFileManager);
+}
+
 void Resources::clearAll() {
     for (const auto& [key, value] : _textures) {
         GRRLIB_FreeTexture(value);
@@ -106,7 +110,7 @@ bool Resources::_isUpdateAvailable() {
 
 void Resources::_initDefaultFont() {
     unsigned char* fontBin = (unsigned char*) Mem::alloc(NotoSansMono_ttf_len);
-    memcpy(fontBin, NotoSansMono_ttf, NotoSansMono_ttf_len);
+    std::memcpy(fontBin, NotoSansMono_ttf, NotoSansMono_ttf_len);
     BinaryChunk font = {fontBin, NotoSansMono_ttf_len};
     _fonts[Font::DEFAULT_FONT] = {
         GRRLIB_LoadTTF(font.data, font.size),
