@@ -117,4 +117,5 @@ void MJpegPlayer::_cleanup() {
         _audioData = BinaryChunk(nullptr, 0);
     }*/
     _isInitialized = false;
+    _isDone = false;
 }

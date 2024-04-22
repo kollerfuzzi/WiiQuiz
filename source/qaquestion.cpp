@@ -195,8 +195,7 @@ bool QAQuestion::_hasPlayerAnswer(Player *player, std::string answer) {
     return false;
 }
 
-void QAQuestion::_cleanup()
-{
+void QAQuestion::_cleanup() {
     if (_textQuestion != nullptr) {
         delete _textQuestion;
         _textQuestion = nullptr;
@@ -210,14 +209,15 @@ void QAQuestion::_cleanup()
         _textTimeLeft = nullptr;
     }
     _initialized = false;
+    _done = false;
 }
 
 bool QAQuestion::isDone() {
     return _done;
 }
 
-void QAQuestion::reset()
-{
+void QAQuestion::reset() {
+    _cleanup();
 }
 
 Question QAQuestion::getQuestion() {

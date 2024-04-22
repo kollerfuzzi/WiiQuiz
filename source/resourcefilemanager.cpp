@@ -63,25 +63,25 @@ BinaryChunk ResourceFileManager::loadResource(std::string& resourceName) {
 
     if (f == nullptr) {
         return BinaryChunk { nullptr, 0 };
-    } else {
-        std::vector<unsigned char> content;
-        unsigned char buffer[128];
-
-        while(true) {
-            size_t bytes_read = fread(buffer, 1, sizeof(buffer), f);
-            if (bytes_read <= 0) {
-                break;
-            }
-            for (size_t i = 0; i < bytes_read; ++i) {
-                content.push_back(buffer[i]);
-            }
-        }
-
-        unsigned char* bytes = (unsigned char*)Mem::alloc(content.size());
-        std::copy(content.begin(), content.end(), bytes);
-        fclose(f);
-        return BinaryChunk(bytes, content.size());
     }
+    
+    std::vector<unsigned char> content;
+    unsigned char buffer[128];
+
+    while(true) {
+        size_t bytes_read = fread(buffer, 1, sizeof(buffer), f);
+        if (bytes_read <= 0) {
+            break;
+        }
+        for (size_t i = 0; i < bytes_read; ++i) {
+            content.push_back(buffer[i]);
+        }
+    }
+
+    unsigned char* bytes = (unsigned char*)Mem::alloc(content.size());
+    std::copy(content.begin(), content.end(), bytes);
+    fclose(f);
+    return BinaryChunk(bytes, content.size());
 }
 
 nlohmann::json ResourceFileManager::loadResourceJson(std::string &resourceName) {
