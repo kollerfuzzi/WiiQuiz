@@ -22,8 +22,8 @@ private:
     void _loadMjpegStream();
     void _loadAudio();
     void _cleanup();
-    ResourceFileManager* _fileManager;
-    InputStream* _videoStream;
+    ResourceFileManager* _fileManager = nullptr;
+    InputStream* _videoStream = nullptr;
     BinaryChunk _currentFrameBuffer;
     GRRLIB_texImg* _currentFrameImg = nullptr;
     Video _video;

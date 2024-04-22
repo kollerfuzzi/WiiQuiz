@@ -17,6 +17,8 @@ MJpegPlayer::MJpegPlayer(Video video, Audio audio, ResourceFileManager *fileMana
     _fileManager = fileManager;
     _audio = audio;
     _playAudio = true;
+    _currentFrameBuffer = BinaryChunk(nullptr, 0);
+    _audioData = BinaryChunk(nullptr, 0);
 }
 
 MJpegPlayer::~MJpegPlayer(){
@@ -110,9 +112,9 @@ void MJpegPlayer::_cleanup() {
         Mem::mfree(_currentFrameBuffer.data);
         _currentFrameBuffer = BinaryChunk(nullptr, 0);
     }
-    if (_audioData.data != nullptr) {
+    /*if (_audioData.data != nullptr) {
         Mem::mfree(_audioData.data);
         _audioData = BinaryChunk(nullptr, 0);
-    }
+    }*/
     _isInitialized = false;
 }
