@@ -12,7 +12,7 @@
         },
         {
             "name": "Make & Run Dolphin",
-            "command": "make && dolphin-emu WiiQuiz.dol",
+            "command": "make && env QT_QPA_PLATFORM=xcb dolphin-emu WiiQuiz.dol",
             "request": "launch",
             "type": "node-terminal"
         },
@@ -30,7 +30,7 @@
         },
         {
             "name": "Run Wii",
-            "command": "dolphin-emu WIILOAD=tcp:172.16.42.10 wiiload WiiQuiz.dol",
+            "command": "env QT_QPA_PLATFORM=xcb dolphin-emu WiiQuiz.dol",
             "request": "launch",
             "type": "node-terminal"
         }

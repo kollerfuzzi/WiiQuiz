@@ -40,7 +40,12 @@ void TextBox::setText(std::string text) {
     _textContent.push_back(line);
 }
 
-void TextBox::appendLineWithoutAnimation(std::string text) {
+void TextBox::setAndDisplayText(std::string text) {
+    setText(text);
+    copyBufferToContent();
+}
+
+void TextBox::appendAndDisplayLine(std::string text) {
     _textContent.push_back(_utf8ToUtf32(text));
     copyBufferToContent();
 }

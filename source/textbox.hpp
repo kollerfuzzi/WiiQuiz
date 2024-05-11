@@ -19,7 +19,8 @@ enum TextBoxAnimationState {
 class TextBox : public Renderable {
 public:
     void setText(std::string text);
-    void appendLineWithoutAnimation(std::string text);
+    void setAndDisplayText(std::string text);
+    void appendAndDisplayLine(std::string text);
     void setColor(int color);
     void setAnimationSpeed(unsigned int speed);
     void setBelow(TextBox* above);

@@ -5,7 +5,7 @@ Player* Answer::getPlayer() {
 }
 
 std::vector<std::string> Answer::getAnswers() {
-    return std::vector<std::string>();
+    return _answers;
 }
 
 bool Answer::isApproved() {

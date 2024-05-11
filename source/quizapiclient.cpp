@@ -50,9 +50,9 @@ void QuizAPIClient::loadAnswers() {
     nlohmann::json answersJson = requestJson(APICommand::GET_ANSWERS);
     std::vector<Answer> answerList;
     for (auto entry = answersJson.begin(); entry != answersJson.end(); ++entry) {
-        std::string name = entry.key();
+        std::string playerId = entry.key();
         nlohmann::json answers = entry.value();
-        Player* player = _state->getPlayerById(name); // todo fix request
+        Player* player = _state->getPlayerById(playerId);
         Answer::Builder answerBuilder = Answer::builder()
             .player(player)
             .approved(answers["approved"]);

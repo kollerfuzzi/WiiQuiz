@@ -10,11 +10,21 @@
 #include "textbox.hpp"
 #include "question.hpp"
 #include "answer.hpp"
+#include "confirm.hpp"
 
 enum QAQuestionState {
-    INPUT,
-    SHOW_ANSWERS,
-    SHOW_SOLUTION
+    NOT_STARTED = 0,
+    INPUT = 1,
+    SHOW_ANSWERS = 2,
+    SHOW_SOLUTION = 3,
+    WAIT_FOR_CONTINUE = 4
+};
+
+class QAQuestion;
+
+struct QAQuestionStateDef {
+    s32 time;
+    void (QAQuestion::*transition)();
 };
 
 class QAQuestion : public QuizAction {
@@ -35,24 +45,31 @@ public:
         Question _question;
     };
     static Builder builder();
-private:
+protected:
     void init();
     void _manageState();
+    void _goToState(QAQuestionState state, void (QAQuestion::*transition)());
+    void _startInputState();
+    void _startShowAnswersState();
+    void _startShowSolutionState();
+    void _startContinueState();
     std::vector<Player*> _getPlayersWithAnswer(std::string answer);
     std::vector<Player*> _getPlayersWithCorrectAnswers();
     bool _hasPlayerAnswer(Player* player, std::string answer);
     void _cleanup();
+    std::map<QAQuestionState, QAQuestionStateDef> _timePerState;
     Question _question;
-    QAQuestionState _questionState = QAQuestionState::INPUT;
+    QAQuestionState _questionState = QAQuestionState::NOT_STARTED;
     bool _initialized = false;
     bool _done = false;
-    u32 _timePassed = 0;
+    s32 _timePassed = 0;
     TextBox* _textQuestion = nullptr;
     std::vector<TextBox*> _textAnswers;
     TextBox* _textTimeLeft = nullptr;
+    Confirm* _continueConfirm = nullptr;
     float _bgAnimation = 0.0f;
     u32 _questionPoints = 100;
-    u32 _answerTime = 10000;
+    s32 _answerTime = 10000;
 };
 
 #endif // QAQUESTION_HPP

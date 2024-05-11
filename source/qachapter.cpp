@@ -22,7 +22,9 @@ void QAChapter::render() {
 }
 
 bool QAChapter::isDone() {
-    return WiiMote::buttonPressed(Remote::R1, Button::A);
+    if (_confirm != nullptr) {
+        return _confirm->isConfirmed();
+    }
 }
 
 void QAChapter::reset() {
