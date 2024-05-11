@@ -45,6 +45,12 @@ void TextBox::setAndDisplayText(std::string text) {
     copyBufferToContent();
 }
 
+void TextBox::appendAndDisplay(std::string text) {
+    _sourceString += text;
+    setText(_sourceString);
+    copyBufferToContent();
+}
+
 void TextBox::appendAndDisplayLine(std::string text) {
     _textContent.push_back(_utf8ToUtf32(text));
     copyBufferToContent();

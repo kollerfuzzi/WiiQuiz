@@ -10,7 +10,7 @@ QAQuestion* QAQuestionCreator::of(Question question) {
         break;
 
         case QuestionType::FREE_TEXT:
-            BSOD::raise("FREE_TEXT not supported yet");
+            return new QAQuestionFreeText(question);
         break;
 
         default:

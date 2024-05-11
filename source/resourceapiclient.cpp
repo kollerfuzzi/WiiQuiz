@@ -14,7 +14,7 @@ ResourceAPIClient::~ResourceAPIClient() {
 
 s32 ResourceAPIClient::fetchResourceVersion() {
     nlohmann::json response =
-        requestJson(APICommand::GET_RESOURCES_VERSION);
+        requestJson(APICommand::GET_RESOURCESVERSION);
     s32 resourceVersionNumber = response["resourceVersion"];
     return resourceVersionNumber;
 }

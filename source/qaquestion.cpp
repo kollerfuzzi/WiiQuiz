@@ -35,14 +35,29 @@ void QAQuestion::_goToState(QAQuestionState state, void (QAQuestion::*transition
 }
 
 void QAQuestion::_startInputState() {
+    _createQuestionAndTimeLeftText();
+    _createAnswersText();
+    _client->askQuestion(_question);
+}
+
+void QAQuestion::_createQuestionAndTimeLeftText() {
     _textQuestion = TextBox::builder()
         .text(_question.getPrompt())
         .font(_resources->get(Font::DEFAULT_FONT))
         .fontSize(25)
         .marginTop(50)
-        .animationSpeed(100)
+        .animationSpeed(50)
         .build();
+    
+    _textTimeLeft = TextBox::builder()
+        .color(RGBA(255, 150, 150, 255))
+        .font(_resources->get(Font::DEFAULT_FONT))
+        .fontSize(35)
+        .marginTop(400)
+        .build();
+}
 
+void QAQuestion::_createAnswersText() {
     for (std::pair<std::string, bool>& answer : _question.getAnswers()) {
         TextBox* answerBox = TextBox::builder()
             .text(answer.first)
@@ -58,21 +73,11 @@ void QAQuestion::_startInputState() {
         }
         _textAnswers.push_back(answerBox);
     }
-
-    _textTimeLeft = TextBox::builder()
-        .color(RGBA(255, 150, 150, 255))
-        .font(_resources->get(Font::DEFAULT_FONT))
-        .fontSize(35)
-        .marginTop(400)
-        .build();
-
-    _client->askQuestion(_question);
 }
 
 void QAQuestion::_startShowAnswersState() {
-    _client->loadAnswers();
+    _client->endQuestionLoadAnswers();
     std::vector<Answer> playerAnswers = _state->getAnswers();
-    _client->endQuestion();
 
     for (size_t answerCnt = 0; answerCnt < _question.getAnswers().size(); answerCnt++) {
         std::string answerWithPlayersText = _question.getAnswers()[answerCnt].first;
@@ -104,13 +109,8 @@ void QAQuestion::_startShowSolutionState() {
         if (correct) {
             _textAnswers[answerCnt]->setColor(RGBA(155, 255, 150, 255));
             std::string points;
-            points += "    +";
-            points += std::to_string(_questionPoints);
-            if (_question.getType() == QuestionType::MULTIPLE_CHOICE) {
-                points += "pts (if all correct).";
-            } else {
-                points += "pts.";
-            }
+            points += "   ";
+            points += _getPointsString();
             _textAnswers[answerCnt]->appendAndDisplayLine(points);
         } else {
             _textAnswers[answerCnt]->setColor(RGBA(255, 150, 150, 255));
@@ -120,6 +120,18 @@ void QAQuestion::_startShowSolutionState() {
         player->addPoints(_questionPoints);
     }
     _client->setPoints();
+}
+
+std::string QAQuestion::_getPointsString() {
+    std::string points;
+    points += " +";
+    points += std::to_string(_questionPoints);
+    if (_question.getType() == QuestionType::MULTIPLE_CHOICE) {
+        points += "pts (if all correct).";
+    } else {
+        points += "pts.";
+    }
+    return points;
 }
 
 void QAQuestion::_startContinueState() {
@@ -150,7 +162,9 @@ void QAQuestion::update(Clock &clock) {
     _timePassed += clock.timeElapsedMillisInt();
     _bgAnimation += 0.02;
 
-    _textQuestion->update(clock);
+    if (_textQuestion != nullptr) {
+        _textQuestion->update(clock);
+    }
     for (TextBox* answer : _textAnswers) {
         answer->update(clock);
     }
@@ -197,11 +211,7 @@ std::vector<Player*> QAQuestion::_getPlayersWithCorrectAnswers() {
             players.push_back(answer.getPlayer());
             continue;
         }
-        std::vector<std::string> answers = answer.getAnswers();
-        std::vector<std::string> correctAnswers = _question.getCorrectAnswers();
-        std::sort(answers.begin(), answers.end());
-        std::sort(correctAnswers.begin(), correctAnswers.end());
-        if (answers == correctAnswers) {
+        if (_question.areAnswersCorrect(answer.getAnswers())) {
             players.push_back(answer.getPlayer());
         }
     }

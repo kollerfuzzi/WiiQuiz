@@ -46,13 +46,16 @@ public:
     };
     static Builder builder();
 protected:
-    void init();
+    virtual void init();
     void _manageState();
     void _goToState(QAQuestionState state, void (QAQuestion::*transition)());
-    void _startInputState();
-    void _startShowAnswersState();
-    void _startShowSolutionState();
-    void _startContinueState();
+    virtual void _startInputState();
+    void _createQuestionAndTimeLeftText();
+    void _createAnswersText();
+    virtual void _startShowAnswersState();
+    virtual void _startShowSolutionState();
+    std::string _getPointsString();
+    virtual void _startContinueState();
     std::vector<Player*> _getPlayersWithAnswer(std::string answer);
     std::vector<Player*> _getPlayersWithCorrectAnswers();
     bool _hasPlayerAnswer(Player* player, std::string answer);

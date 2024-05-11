@@ -19,6 +19,7 @@ Answer::Builder Answer::builder() {
 Answer::Answer(Player* player, std::vector<std::string> answers, bool approved) {
     _player = player;
     _answers = answers;
+    _approved = approved;
 }
 
 Answer::Builder& Answer::Builder::player(Player* player) {

@@ -41,6 +41,7 @@ public:
     };
     static Builder builder();
     std::vector<std::string> getCorrectAnswers();
+    bool areAnswersCorrect(std::vector<std::string> answers);
 private:
     std::string _id;
     std::string _prompt;

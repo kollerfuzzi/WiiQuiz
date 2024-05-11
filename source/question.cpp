@@ -49,6 +49,13 @@ std::vector<std::string> Question::getCorrectAnswers() {
     return correctAnswers;
 }
 
+bool Question::areAnswersCorrect(std::vector<std::string> answers) {
+    std::vector<std::string> correctAnswers = getCorrectAnswers();
+    std::sort(answers.begin(), answers.end());
+    std::sort(correctAnswers.begin(), correctAnswers.end());
+    return answers == correctAnswers;
+}
+
 Question::Builder::Builder() {
     _id = TinyUuidV4::generate();
 }

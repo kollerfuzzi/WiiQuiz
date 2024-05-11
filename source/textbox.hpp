@@ -20,6 +20,7 @@ class TextBox : public Renderable {
 public:
     void setText(std::string text);
     void setAndDisplayText(std::string text);
+    void appendAndDisplay(std::string text);
     void appendAndDisplayLine(std::string text);
     void setColor(int color);
     void setAnimationSpeed(unsigned int speed);

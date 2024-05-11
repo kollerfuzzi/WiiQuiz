@@ -30,7 +30,7 @@ void QuizAPIClient::loadPlayers() {
 }
 
 std::string QuizAPIClient::getServerAddress() {
-    nlohmann::json serverAddrJson = requestJson(APICommand::GET_SERVER_ADDR);
+    nlohmann::json serverAddrJson = requestJson(APICommand::GET_SERVERADDR);
     std::string address = serverAddrJson["serverAddress"];
     return address;
 }
@@ -68,11 +68,16 @@ void QuizAPIClient::endQuestion() {
     requestJson(APICommand::END_QUESTION);
 }
 
+void QuizAPIClient::endQuestionLoadAnswers() {
+    endQuestion();
+    loadAnswers();
+}
+
 void QuizAPIClient::setPoints() {
     nlohmann::json playerListJson = nlohmann::json::array();
     for (Player* player : _state->getPlayers()) {
         nlohmann::json playerJson = {
-            {"name", player->getName()},
+            {"id", player->getId()},
             {"points", player->getPoints()}
         };
         playerListJson.push_back(playerJson);

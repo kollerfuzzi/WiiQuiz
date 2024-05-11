@@ -3,6 +3,7 @@
 
 #include "qaquestion.hpp"
 #include "question.hpp"
+#include "qaquestionfreetext.hpp"
 
 namespace QAQuestionCreator {
     QAQuestion* of(Question question);

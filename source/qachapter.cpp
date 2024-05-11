@@ -25,6 +25,7 @@ bool QAChapter::isDone() {
     if (_confirm != nullptr) {
         return _confirm->isConfirmed();
     }
+    return false;
 }
 
 void QAChapter::reset() {

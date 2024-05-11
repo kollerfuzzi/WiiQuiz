@@ -19,6 +19,7 @@ public:
     void askQuestion(Question& question);
     void loadAnswers();
     void endQuestion();
+    void endQuestionLoadAnswers();
     void setPoints();
 private:
     QuizState* _state = nullptr;
