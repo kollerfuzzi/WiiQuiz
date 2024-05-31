@@ -8,7 +8,7 @@ void BSOD::raise(std::string error, int code) {
     ScreenDebug::clear();
     ScreenDebug::setColor(RGBA(255, 255, 255, 255));
     ScreenDebug::printLn("===QWIIZ===\n"
-                         "An error has occured.To continue: \n"
+                         "An error has occured. To continue: \n"
                          "Press <HOME> to return to the Homebrew Channel\n\n"
                          "Error: ");
     ScreenDebug::printLn(error);

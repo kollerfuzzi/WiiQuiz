@@ -18,15 +18,18 @@ public:
     void render();
     bool isDone();
     void reset();
+    std::string getName();
     QuizState* getState();
 
     class Builder {
     public:
+        Builder& name(std::string name);
         Builder& resources(Resources* resources);
         Builder& action(QuizAction* action);
         Builder& player(Player* player);
         Quiz* build();
     private:
+        std::string _name;
         std::vector<QuizAction*> _actions;
         std::vector<Player*> _players;
         Resources* _resources;
@@ -34,8 +37,8 @@ public:
     static Builder builder();
     std::set<std::string> getResourcePaths() override;
 private:
-    Quiz(QuizState* state, QuizAPIClient* client);
-
+    Quiz(std::string name, QuizState* state, QuizAPIClient* client);
+    std::string _name;
     QuizState* _state = nullptr;
     Resources* _resources = nullptr;
     QuizAPIClient* _client = nullptr;

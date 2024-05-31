@@ -18,6 +18,7 @@
 #include "bsod.hpp"
 #include "menu.hpp"
 #include "mjpegplayer.hpp"
+#include "quizloaderapiclient.hpp"
 
 int main(int argc, char** argv) {
     GRRLIB_Init();
@@ -28,28 +29,41 @@ int main(int argc, char** argv) {
     Resources* resources = new Resources();
     resources->fetchStaticResources();
 
-    Quiz* quiz = QuizTemplate::getDefaultQuiz(resources);
-    resources->fetchResourcesByPaths(quiz->getResourcePaths());
+    Quiz* templateQuiz = QuizTemplate::getDefaultQuiz(resources);
+    resources->fetchResourcesByPaths(templateQuiz->getResourcePaths());
     resources->fetchResourcesByPaths({"videos/tp_trailer.avi", "videos/tp_trailer.mp3"});
-    
+
+    QuizLoaderApiClient quizLoaderApiClient;
+    std::vector<Quiz*> quizzes = quizLoaderApiClient.loadQuizzes(resources);
+    for (Quiz* quiz : quizzes) {
+        resources->fetchResourcesByPaths(quiz->getResourcePaths());
+    }
+
     Clock frameClock;
 
     AudioPlayer::init();
 
     MJpegPlayer* player = resources->getVideo("videos/tp_trailer.avi", "videos/tp_trailer.mp3");
 
-    MenuItem* root = MenuItem::builder()
-        .child(MenuItem::builder()
+    MenuItem::Builder quizzesMenuItemBuidler = MenuItem::builder()
                    .text("Start")
                    .child(MenuItem::builder()
-                          .text("Quiz 1")
-                          .renderable(quiz)
+                          .text(templateQuiz->getName())
+                          .renderable(templateQuiz)
                           .build())
                    .child(MenuItem::builder()
                           .text("Video")
                           .renderable(player)
-                          .build())
-                   .build())
+                          .build());
+    for (Quiz* loadedQuiz : quizzes) {
+        quizzesMenuItemBuidler.child(MenuItem::builder()
+            .text(loadedQuiz->getName())
+            .renderable(loadedQuiz)
+            .build());
+    }
+
+    MenuItem* root = MenuItem::builder()
+        .child(quizzesMenuItemBuidler.build())
         .child(MenuItem::builder()
                    .text("Quit")
                    .quit(true)
@@ -62,7 +76,10 @@ int main(int argc, char** argv) {
 
     delete player;
     delete testMenu;
-    delete quiz;
+    delete templateQuiz;
+    for (Quiz* loadedQuiz : quizzes) {
+        delete loadedQuiz;
+    }
     delete resources;
 
     GRRLIB_Exit();

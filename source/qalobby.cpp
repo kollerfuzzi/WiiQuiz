@@ -1,15 +1,15 @@
-#include "qastart.hpp"
+#include "qalobby.hpp"
 
 
-QAStart::QAStart() {
+QALobby::QALobby() {
 
 }
 
-QAStart::~QAStart() {
+QALobby::~QALobby() {
     _cleanup();
 }
 
-void QAStart::init() {
+void QALobby::init() {
     if (_initialized) {
         return;
     }
@@ -50,7 +50,7 @@ void QAStart::init() {
     _initialized = true;
 }
 
-void QAStart::update(Clock &clock) {
+void QALobby::update(Clock &clock) {
     init();
 
     if (_loadTimer <= 0) {
@@ -78,26 +78,26 @@ void QAStart::update(Clock &clock) {
     _swingingLights->update(clock);
 }
 
-void QAStart::render() {
+void QALobby::render() {
     _swingingLights->render();
     _welcomeText->render();
     _playerText->render();
     _startConfirm->render();
 }
 
-bool QAStart::isDone() {
+bool QALobby::isDone() {
     return _started;
 }
 
-void QAStart::reset() {
+void QALobby::reset() {
     _cleanup();
 }
 
-QAStart::Builder QAStart::builder() {
-    return QAStart::Builder();
+QALobby::Builder QALobby::builder() {
+    return QALobby::Builder();
 }
 
-void QAStart::_cleanup() {
+void QALobby::_cleanup() {
     if (_welcomeText != nullptr) {
         delete _welcomeText;
         _welcomeText = nullptr;
@@ -119,6 +119,6 @@ void QAStart::_cleanup() {
     _loadTimer = 0;
 }
 
-QAStart *QAStart::Builder::build() {
-    return new QAStart();
+QALobby *QALobby::Builder::build() {
+    return new QALobby();
 }

@@ -36,6 +36,10 @@ void Quiz::reset() {
     }
 }
 
+std::string Quiz::getName() {
+    return _name;
+}
+
 QuizState *Quiz::getState() {
     return _state;
 }
@@ -53,10 +57,16 @@ std::set<std::string> Quiz::getResourcePaths() {
     return resourcePaths;
 }
 
-Quiz::Quiz(QuizState* state, QuizAPIClient *client) {
+Quiz::Quiz(std::string name, QuizState* state, QuizAPIClient *client) {
+    _name = name;
     _resources = state->getResources();
     _state = state;
     _client = client;
+}
+
+Quiz::Builder& Quiz::Builder::name(std::string name) {
+    _name = name;
+    return *this;
 }
 
 Quiz::Builder& Quiz::Builder::resources(Resources* resources) {
@@ -85,5 +95,5 @@ Quiz* Quiz::Builder::build() {
         action->setResources(_resources);
     }
 
-    return new Quiz(state, client);
+    return new Quiz(_name, state, client);
 }

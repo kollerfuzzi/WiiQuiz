@@ -1,5 +1,5 @@
-#ifndef QASTART_HPP
-#define QASTART_HPP
+#ifndef QALOBBY_HPP
+#define QALOBBY_HPP
 
 #include "quizaction.hpp"
 #include "wiiuse/wpad.h"
@@ -8,10 +8,10 @@
 #include "audioplayer.hpp"
 #include "swinginglights.hpp"
 
-class QAStart : public QuizAction {
+class QALobby : public QuizAction {
 public:
-    QAStart();
-    ~QAStart();
+    QALobby();
+    ~QALobby();
     void init();
     void update(Clock &clock);
     void render();
@@ -19,7 +19,7 @@ public:
     void reset();
     class Builder {
     public:
-        QAStart* build();
+        QALobby* build();
     private:
     };
     static Builder builder();
@@ -34,4 +34,4 @@ private:
     SwingingLights* _swingingLights = nullptr;
 };
 
-#endif // QASTART_HPP
+#endif // QALOBBY_HPP
