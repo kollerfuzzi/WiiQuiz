@@ -1,11 +1,10 @@
 #include "resourcemap.hpp"
 
-
-FontDef FONT_DEFINITIONS[] = {
+std::map<Font, std::string> FONT_PATHS = {
     {Font::DEFAULT_FONT, "fonts/NotoSansMono.ttf"}
 };
 
-TextureDef TEXTURE_DEFINITIONS[] = {
+std::map<Texture, std::string> TEXTURE_PATHS = {
     {Texture::CURSOR, "textures/cursor.png"},
     {Texture::MENU_BUTTON, "textures/button.png"},
     {Texture::START_BG, "textures/start.png"},
@@ -20,24 +19,15 @@ TextureDef TEXTURE_DEFINITIONS[] = {
     {Texture::BTN_ONE, "textures/buttons/one.png"},
     {Texture::BTN_TWO, "textures/buttons/two.png"},
     {Texture::RYTHM_BAR, "textures/rythm_bar.png"},
-    {Texture::QUALLE, "textures/qualle.png"},
-    {Texture::LINK_BOLERO, "textures/link_bolero.png"},
-    {Texture::ANIME, "textures/anime.png"}
 };
 
-
-AudioDef AUDIO_DEFINITIONS[] = {
+std::map<Audio, std::string> AUDIO_PATHS = {
     {Audio::TEXT_LETTER, "audio/text_letter.mp3"},
     {Audio::TEXT_DONE, "audio/text_done.mp3"},
     {Audio::EVAN_MM, "audio/evan_mm.mp3"},
     {Audio::GETTING_READY, "audio/getting_ready.mp3"},
-    {Audio::DISCOQUALLEN, "audio/discoquallen.mp3"},
-    {Audio::BOLERO_OF_FIRE, "audio/bolero_of_fire.mp3"},
-    {Audio::ROCKEFELLER_ST, "audio/rockefeller_street.mp3"},
-    {Audio::TP_TRAILER_AUDIO, "videos/tp_trailer.mp3"}
 };
 
-VideoDef VIDEO_DEFINITIONS[] = {
-    {Video::Z_TRAILER, "videos/z_trailer.avi"},
-    {Video::TP_TRAILER, "videos/tp_trailer.avi"}
+std::map<Video, std::string> VIDEO_PATHS = {
+
 };

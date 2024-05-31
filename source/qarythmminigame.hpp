@@ -90,7 +90,7 @@ public:
 
 class QARythmMinigame : public QuizAction {
 public:
-    QARythmMinigame(Audio audio, Texture img, std::string data, int delayMs, int maxPts);
+    QARythmMinigame(std::string audioPath, std::string imgPath, std::string data, int delayMs, int maxPts);
     ~QARythmMinigame();
     void update(Clock& clock);
     void init3dCube();
@@ -98,18 +98,18 @@ public:
     void render();
     bool isDone();
     void reset();
-
+    std::set<std::string> getResourcePaths() override;
     class Builder {
     public:
-        Builder& img(Texture img);
-        Builder& audio(Audio audio);
+        Builder& img(std::string imgPath);
+        Builder& audio(std::string audioPath);
         Builder& data(std::string data);
         Builder& delayMs(int ms);
         Builder& maxPts(int maxPts);
         QARythmMinigame* build();
     private:
-        Texture _img;
-        Audio _audio;
+        std::string _imgPath;
+        std::string _audioPath;
         std::string _data;
         int _delayMs;
         int _maxPts = 200;
@@ -121,8 +121,8 @@ private:
     bool _initialized = false;
     bool _dataLoaded = false;
     std::string _rawData;
-    Texture _cubeImg;
-    Audio _audio;
+    std::string _cubeImgPath;
+    std::string _audioPath;
     u32 _timePassed = 0;
     std::vector<RythmNote> _notes;
     TextBox* _textBoxHits = nullptr;

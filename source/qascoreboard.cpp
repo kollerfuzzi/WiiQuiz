@@ -30,7 +30,7 @@ void QAScoreboard::_init() {
     _title = TextBox::builder()
         .text("LEADERBOARD")
         .color(RGBA(150, 150, 255, 255))
-        .font(_resources->get(Font::DEFAULT_FONT))
+        .font(_resources->getFont(Font::DEFAULT_FONT))
         .fontSize(40)
         .marginTop(40)
         .animationSpeed(50)
@@ -39,7 +39,7 @@ void QAScoreboard::_init() {
     _playerText = TextBox::builder()
         .text(playerScores)
         .color(RGBA(255, 255, 255, 255))
-        .font(_resources->get(Font::DEFAULT_FONT))
+        .font(_resources->getFont(Font::DEFAULT_FONT))
         .fontSize(20)
         .marginTop(160)
         .animationSpeed(50)
@@ -47,7 +47,7 @@ void QAScoreboard::_init() {
     _points = TextBox::builder()
         .text(points)
         .color(RGBA(255, 255, 255, 255))
-        .font(_resources->get(Font::DEFAULT_FONT))
+        .font(_resources->getFont(Font::DEFAULT_FONT))
         .fontSize(20)
         .marginTop(160)
         .marginLeft(400)
@@ -74,7 +74,7 @@ void QAScoreboard::update(Clock &clock) {
 
 void QAScoreboard::render() {
     GRRLIB_DrawImg((int)(-200 + tan(sin(_bgAnimation)/16) * 200),
-                   0, _resources->get(Texture::SCOREBOARD_BG), 0, 1, 1.5,
+                   0, _resources->getTexture(Texture::SCOREBOARD_BG), 0, 1, 1.5,
                    RGBA(255, 255, 255, 255));
     _playerText->render();
     _points->render();

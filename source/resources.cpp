@@ -5,13 +5,14 @@
 #include "zr_notosans.hpp"
 #include "bsod.hpp"
 #include "mem.hpp"
+#include "xxhashstr.hpp"
 
 std::string loadingAnimation = "|/-\\";
 extern std::string APIClient::ipAddress; 
 
 Resources::Resources() {
     _initDefaultFont();
-    ScreenDebug::init(_fonts[Font::DEFAULT_FONT].ttfFont);
+    ScreenDebug::init(_fonts[hash(pathOf(Font::DEFAULT_FONT))].ttfFont);
     srand(time(NULL));
     _resourceFileManager = new ResourceFileManager();
     APIClient::ipAddress = _resourceFileManager->loadIpAddressFromConfig();
@@ -34,33 +35,76 @@ Resources::~Resources() {
     }
 }
 
-GRRLIB_texImg* Resources::get(Texture texture) {
-    if (!_textures.contains(texture)) {
-        _loadTexture(texture);
+std::string Resources::pathOf(Texture texture) {
+    return TEXTURE_PATHS[texture];
+}
+
+std::string Resources::pathOf(Font font) {
+    return FONT_PATHS[font];
+}
+
+std::string Resources::pathOf(Audio audio) {
+    return AUDIO_PATHS[audio];
+}
+
+std::string Resources::pathOf(Video video) {
+    return VIDEO_PATHS[video];
+}
+
+std::string Resources::hash(std::string str) {
+    return XXHashStr::hashStr(str);
+}
+
+GRRLIB_texImg* Resources::getTexture(Texture texture) {
+    return getTexture(TEXTURE_PATHS[texture]);
+}
+
+GRRLIB_texImg *Resources::getTexture(std::string texturePath) {
+    std::string textureHash = hash(texturePath);
+    if (!_textures.contains(textureHash)) {
+        _loadTexture(textureHash);
     }
-    return _textures[texture];
+    return _textures[textureHash];
 }
 
-GRRLIB_ttfFont* Resources::get(Font font) {
-    if (!_fonts.contains(font)) {
-        _loadFont(font);
+GRRLIB_ttfFont* Resources::getFont(Font font) {
+    return getFont(FONT_PATHS[font]);
+}
+
+GRRLIB_ttfFont *Resources::getFont(std::string fontPath) {
+    std::string fontHash = hash(fontPath);
+    if (!_fonts.contains(fontHash)) {
+        _loadFont(fontHash);
     }
-    return _fonts[font].ttfFont;
+    return _fonts[fontHash].ttfFont;
 }
 
-BinaryChunk Resources::get(Audio audio){
-    if (!_audio.contains(audio)) {
-        _loadAudio(audio);
+BinaryChunk Resources::getAudio(Audio audio){
+    return getAudio(AUDIO_PATHS[audio]);
+}
+
+BinaryChunk Resources::getAudio(std::string audioPath) {
+    std::string audioHash = hash(audioPath);
+    if (!_audio.contains(audioHash)) {
+        _loadAudio(audioHash);
     }
-    return _audio[audio];
+    return _audio[audioHash];
 }
 
-MJpegPlayer* Resources::get(Video video) {
-    return new MJpegPlayer(video, _resourceFileManager);
+MJpegPlayer* Resources::getVideo(Video video) {
+    return new MJpegPlayer(hash(pathOf(video)), _resourceFileManager);
 }
 
-MJpegPlayer* Resources::get(Video video, Audio audio){
-    return new MJpegPlayer(video, audio, _resourceFileManager);
+MJpegPlayer *Resources::getVideo(std::string videoPath) {
+    return new MJpegPlayer(hash(videoPath), _resourceFileManager);
+}
+
+MJpegPlayer* Resources::getVideo(Video video, Audio audio){
+    return new MJpegPlayer(hash(pathOf(video)), hash(pathOf(audio)), _resourceFileManager);
+}
+
+MJpegPlayer *Resources::getVideo(std::string videoPath, std::string audioPath) {
+    return new MJpegPlayer(hash(videoPath), hash(audioPath), _resourceFileManager);
 }
 
 void Resources::clearAll() {
@@ -78,141 +122,132 @@ void Resources::clearAll() {
     }
 }
 
-void Resources::fetchNetworkResources() {
-    if (!_isUpdateAvailable()) {
-        return;
-    }
-
+void Resources::fetchStaticResources() {
     _fetchNetworkVideos();
     _fetchNetworkAudio();
     _fetchNetworkTextures();
     _fetchNetworkFonts();
-    _fetchNetworkVersion();
 
     ScreenDebug::clear();
 }
 
-bool Resources::_isUpdateAvailable() {
-    std::string version("VERSION");
-    BinaryChunk localVersionResource = _resourceFileManager->loadResource(version);
-    if (localVersionResource.data == nullptr) {
-        return true;
+void Resources::fetchResourcesByPaths(std::set<std::string> resourcePaths) {
+    for (std::string resourcePath : resourcePaths) {
+        _fetchResourceByPath(resourcePath);
     }
-    std::string localVersionStr(reinterpret_cast<char*>(localVersionResource.data));
-    s32 localVersion = stoi(localVersionStr);
-    s32 remoteVersion = _resourceAPIClient->fetchResourceVersion();
+    ScreenDebug::clear();
+}
 
-    bool isUpdate = localVersion != remoteVersion;
+bool Resources::_updateFileHash(std::string filePath) {
+    std::string fileMetaResourceName("FILE_META");
+    nlohmann::json fileMeta = _resourceFileManager->loadResourceJson(fileMetaResourceName);
+    std::string remoteResourceHash = _resourceAPIClient->fetchResourceHash(filePath);
 
-    _resourceFileManager->freeResource(localVersionResource);
-    return isUpdate;
+    bool hashUpdate = false;
+
+    if (fileMeta.contains(filePath)) {
+        std::string localResourceHash = fileMeta[filePath];
+        hashUpdate = localResourceHash != remoteResourceHash;
+    } else {
+        hashUpdate = true;
+    }
+
+    if (hashUpdate) {
+        fileMeta[filePath] = remoteResourceHash;
+        _resourceFileManager->saveResourceJson(fileMetaResourceName, fileMeta);
+    }
+
+    return hashUpdate;
 }
 
 void Resources::_initDefaultFont() {
     unsigned char* fontBin = (unsigned char*) Mem::alloc(NotoSansMono_ttf_len);
     std::memcpy(fontBin, NotoSansMono_ttf, NotoSansMono_ttf_len);
     BinaryChunk font = {fontBin, NotoSansMono_ttf_len};
-    _fonts[Font::DEFAULT_FONT] = {
+    _fonts[hash(pathOf(Font::DEFAULT_FONT))] = {
         GRRLIB_LoadTTF(font.data, font.size),
         font
     };
 }
 
 void Resources::_fetchNetworkTextures() {
-    constexpr auto textures = magic_enum::enum_values<Texture>();
-    for (Texture tex : textures) {
-        auto enumNameView = magic_enum::enum_name(tex);
-        std::string enumName(enumNameView);
-        _fetchAndStoreResource(enumName, TEXTURE_DEFINITIONS[tex].remotePath);
+    for (auto & [texture, path] : TEXTURE_PATHS) {
+        _fetchResourceByPath(path);
     }
 }
 
 void Resources::_fetchNetworkFonts() {
-    constexpr auto fonts = magic_enum::enum_values<Font>();
-    for (Font font : fonts) {
-        auto enumNameView = magic_enum::enum_name(font);
-        std::string enumName(enumNameView);
-        _fetchAndStoreResource(enumName, FONT_DEFINITIONS[font].remotePath);
+    for (auto & [font, path] : FONT_PATHS) {
+        _fetchResourceByPath(path);
     }
 }
 
 void Resources::_fetchNetworkAudio() {
-    constexpr auto audios = magic_enum::enum_values<Audio>();
-    for (Audio audio : audios) {
-        auto enumNameView = magic_enum::enum_name(audio);
-        std::string enumName(enumNameView);
-        _fetchAndStoreResource(enumName, AUDIO_DEFINITIONS[audio].remotePath);
+    for (auto & [audio, path] : AUDIO_PATHS) {
+        _fetchResourceByPath(path);
     }
-}
-
-void Resources::_fetchNetworkVersion() {
-    s32 remoteVersion = _resourceAPIClient->fetchResourceVersion();
-    std::string versionNumberStr = std::to_string(remoteVersion);
-    std::string version("VERSION");
-    BinaryChunk resource = {
-        (unsigned char*) versionNumberStr.c_str(), 
-        versionNumberStr.size()
-    };
-    _resourceFileManager->saveResource(version, resource);
 }
 
 void Resources::_fetchNetworkVideos() {
-    constexpr auto videos = magic_enum::enum_values<Video>();
-    for (Video video : videos) {
-        auto enumNameView = magic_enum::enum_name(video);
-        std::string enumName(enumNameView);
-        _fetchAndStoreMjpegResource(enumName, VIDEO_DEFINITIONS[video].remotePath);
+    for (auto & [video, path] : VIDEO_PATHS) {
+        _fetchResourceByPath(path);
     }
 }
 
-void Resources::_fetchAndStoreResource(std::string& name, std::string& path) {
-    std::string namePath;
-    namePath += name;
-    namePath += ": ";
-    namePath += path;
-    _renderDebugStr(namePath);
-    InputStream* stream = _resourceAPIClient->fetchResource(path);
-    _resourceFileManager->saveResourceStream(name, stream);
+void Resources::_fetchResourceByPath(std::string& path) {
+    if (path.ends_with(".avi")) {
+        _fetchAndStoreMjpegResource(path);
+    } else {
+        _fetchAndStoreResource(path);
+    }
 }
 
-void Resources::_fetchAndStoreMjpegResource(std::string &name, std::string& path) {
-    std::string namePath;
-    namePath += name;
-    namePath += ": ";
-    namePath += path;
-    _renderDebugStr(namePath);
-    InputStream* stream = _resourceAPIClient->fetchResource(path);
-    _mjpegIO->saveMjpegStream(name, stream);
+void Resources::_fetchAndStoreResource(std::string& path) {
+    std::string pathHash = hash(path);
+    std::string debugStr = path;
+    debugStr += ": ";
+    debugStr += pathHash;
+    _renderDebugStr(debugStr);
+    if (_updateFileHash(path)) {
+        InputStream* stream = _resourceAPIClient->fetchResource(path);
+        _resourceFileManager->saveResourceStream(pathHash, stream);
+    }
 }
 
-BinaryChunk Resources::_loadResource(std::string& name) {
-    return _resourceFileManager->loadResource(name);
+void Resources::_fetchAndStoreMjpegResource(std::string& path) {
+    std::string pathHash = hash(path);
+    std::string debugStr = path;
+    debugStr += ": ";
+    debugStr += pathHash;
+    _renderDebugStr(debugStr);
+    if (_updateFileHash(path)) {
+        InputStream* stream = _resourceAPIClient->fetchResource(path);
+        _mjpegIO->saveMjpegStream(pathHash, stream);
+    }
 }
 
-void Resources::_loadTexture(Texture texture) {
-    auto enumNameView = magic_enum::enum_name(texture);
-    std::string enumName(enumNameView);
-    BinaryChunk resource = _loadResource(enumName);
-    _textures[texture] = GRRLIB_LoadTexturePNG(
+BinaryChunk Resources::_loadResource(std::string& hash) {
+    return _resourceFileManager->loadResource(hash);
+}
+
+void Resources::_loadTexture(std::string& hash) {
+    BinaryChunk resource = _loadResource(hash);
+    _textures[hash] = GRRLIB_LoadTexturePNG(
         resource.data
     );
     _resourceFileManager->freeResource(resource);
 }
 
-void Resources::_loadFont(Font font) {
-    auto enumNameView = magic_enum::enum_name(font);
-    std::string enumName(enumNameView);
-    BinaryChunk resource = _loadResource(enumName);
-    _fonts[font] = {
+void Resources::_loadFont(std::string& hash) {
+    BinaryChunk resource = _loadResource(hash);
+    _fonts[hash] = {
         GRRLIB_LoadTTF(resource.data, resource.size),
         resource
     };
 }
 
-void Resources::_loadAudio(Audio audio) {
-    auto enumNameView = magic_enum::enum_name(audio);
-    std::string enumName(enumNameView);
-    _audio[audio] = _loadResource(enumName);
+void Resources::_loadAudio(std::string& hash) {
+    _audio[hash] = _loadResource(hash);
 }
 
 void Resources::_renderDebugStr(std::string text) {

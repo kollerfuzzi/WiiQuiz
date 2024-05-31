@@ -9,6 +9,7 @@
 namespace AudioPlayer {
     void init();
     void play(Audio audio, Resources* resources);
+    void play(std::string audioPath, Resources* resources);
     bool isPlaying();
     void stop();
 }

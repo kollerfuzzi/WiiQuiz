@@ -32,7 +32,7 @@ public:
         Resources* _resources;
     };
     static Builder builder();
-
+    std::set<std::string> getResourcePaths() override;
 private:
     Quiz(QuizState* state, QuizAPIClient* client);
 

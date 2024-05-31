@@ -23,6 +23,10 @@ void Renderable::runUntilDone(Clock& frameClock, GRRLIB_texImg* ptrImg) {
     reset();
 }
 
+std::set<std::string> Renderable::getResourcePaths() {
+    return std::set<std::string>();
+}
+
 Renderable::~Renderable() {
 
 }

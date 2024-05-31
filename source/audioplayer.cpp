@@ -6,9 +6,13 @@ void AudioPlayer::init() {
 }
 
 void AudioPlayer::play(Audio audio, Resources* resources) {
+    AudioPlayer::play(Resources::pathOf(audio), resources);
+}
+
+void AudioPlayer::play(std::string audioPath, Resources *resources) {
     if (!MP3Player_IsPlaying()) {
-        MP3Player_PlayBuffer(resources->get(audio).data,
-                             resources->get(audio).size,
+        MP3Player_PlayBuffer(resources->getAudio(audioPath).data,
+                             resources->getAudio(audioPath).size,
                              NULL);
     }
 }

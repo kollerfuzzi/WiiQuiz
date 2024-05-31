@@ -26,15 +26,17 @@ int main(int argc, char** argv) {
     WiiMote::init();
 
     Resources* resources = new Resources();
-    resources->fetchNetworkResources();
+    resources->fetchStaticResources();
 
     Quiz* quiz = QuizTemplate::getDefaultQuiz(resources);
-
+    resources->fetchResourcesByPaths(quiz->getResourcePaths());
+    resources->fetchResourcesByPaths({"videos/tp_trailer.avi", "videos/tp_trailer.mp3"});
+    
     Clock frameClock;
 
     AudioPlayer::init();
 
-    MJpegPlayer* player = resources->get(Video::TP_TRAILER, Audio::TP_TRAILER_AUDIO);
+    MJpegPlayer* player = resources->getVideo("videos/tp_trailer.avi", "videos/tp_trailer.mp3");
 
     MenuItem* root = MenuItem::builder()
         .child(MenuItem::builder()
@@ -54,7 +56,7 @@ int main(int argc, char** argv) {
                    .build())
         .build();
     Menu* testMenu = new Menu(resources, root);
-    testMenu->runUntilDone(frameClock, resources->get(Texture::CURSOR));
+    testMenu->runUntilDone(frameClock, resources->getTexture(Texture::CURSOR));
     AudioPlayer::stop();
     ScreenDebug::destroy();
 

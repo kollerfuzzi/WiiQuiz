@@ -93,7 +93,7 @@ void Menu::_updateSubMenus(Clock& clock) {
         if (menuItem->getTextBox() == nullptr) {
             menuItem->setTextBox(TextBox::builder()
                                      .text(menuItem->getText())
-                                     .font(_resources->get(Font::DEFAULT_FONT))
+                                     .font(_resources->getFont(Font::DEFAULT_FONT))
                                      .fontSize(20)
                                      .marginLeft(ITEM_MARGIN_LEFT + 5)
                                      .marginTop(ITEM_MARGIN_TOP + i * ITEM_SPACING + 5)
@@ -126,11 +126,11 @@ void Menu::render() {
         if (menuItem == _currentSelected) {
             textColor = RGBA(255, 255, 255, 255);
             GRRLIB_DrawImg(ITEM_MARGIN_LEFT - 20, ITEM_MARGIN_TOP + (i * ITEM_SPACING),
-                           _resources->get(Texture::MENU_BUTTON), 0, 2.4f, 1,
+                           _resources->getTexture(Texture::MENU_BUTTON), 0, 2.4f, 1,
                            RGBA(255, 255, 255, 255));
         } else {
             GRRLIB_DrawImg(ITEM_MARGIN_LEFT - 10, ITEM_MARGIN_TOP + (i * ITEM_SPACING),
-                           _resources->get(Texture::MENU_BUTTON), 0, 2.2f, 1,
+                           _resources->getTexture(Texture::MENU_BUTTON), 0, 2.2f, 1,
                            RGBA(255, 255, 255, 200));
         }
         menuItem->getTextBox()->setColor(textColor);
@@ -151,7 +151,7 @@ void Menu::_select(MenuItem* menuItem, Clock& clock) {
     if (menuItem->getRenderable() == nullptr) {
         _currentSubMenu = menuItem;
     } else {
-        menuItem->getRenderable()->runUntilDone(clock, _resources->get(Texture::CURSOR));
+        menuItem->getRenderable()->runUntilDone(clock, _resources->getTexture(Texture::CURSOR));
     }
 }
 

@@ -17,7 +17,7 @@ void ResourceFileManager::saveResource(std::string& resourceName, BinaryChunk co
     std::string fileName = _resourceNameToFileName(resourceName);
     FILE* f = fopen(fileName.c_str(), "wb");
     if (f == NULL) {
-        std::string err("File read failed ");
+        std::string err("File write failed ");
         err += fileName;
         BSOD::raise(err);
     }
@@ -25,11 +25,16 @@ void ResourceFileManager::saveResource(std::string& resourceName, BinaryChunk co
     fclose(f);
 }
 
+void ResourceFileManager::saveResourceJson(std::string &resourceName, nlohmann::json json) {
+    std::string str = json.dump();
+    saveResource(resourceName, BinaryChunk((unsigned char*) str.c_str(), str.size()));
+}
+
 void ResourceFileManager::saveResourceStream(std::string &resourceName, InputStream* stream) {
     std::string fileName = _resourceNameToFileName(resourceName);
     FILE* f = fopen(fileName.c_str(), "wb");
     if (f == nullptr) {
-        std::string err("File read failed ");
+        std::string err("File write failed ");
         err += fileName;
         BSOD::raise(err);
     }
@@ -85,17 +90,17 @@ BinaryChunk ResourceFileManager::loadResource(std::string& resourceName) {
 }
 
 nlohmann::json ResourceFileManager::loadResourceJson(std::string &resourceName) {
-    BinaryChunk configBin = loadResource(resourceName);
-    if (configBin.data == nullptr) {
-        BSOD::raise("json file not found");
-    }
-    std::string configStr = (char const*) configBin.data;
-    nlohmann::json configJson = nlohmann::json::parse(configStr);
-    Mem::mfree(configBin.data);
-    return configJson;
+    BinaryChunk jsonBin = loadResource(resourceName);
+    if (jsonBin.data == nullptr) {
+        return nlohmann::json();
+    }    
+    std::string jsonStr((char const*) jsonBin.data, jsonBin.size);
+    nlohmann::json json = nlohmann::json::parse(jsonStr);
+    Mem::mfree(jsonBin.data);
+    return json;
 }
 
-InputStream *ResourceFileManager::loadResourceStream(std::string &resourceName) {
+InputStream *ResourceFileManager::loadResourceStream(std::string& resourceName) {
     std::string fileName = _resourceNameToFileName(resourceName);
     FILE* f = fopen(fileName.c_str(), "rb");
     

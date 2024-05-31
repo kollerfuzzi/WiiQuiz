@@ -10,8 +10,8 @@
 
 class MJpegPlayer : public Renderable {
 public:
-    MJpegPlayer(Video video, ResourceFileManager* fileManager);
-    MJpegPlayer(Video video, Audio audio, ResourceFileManager* fileManager);
+    MJpegPlayer(std::string videoHash, ResourceFileManager* fileManager);
+    MJpegPlayer(std::string videoHash, std::string audioHash, ResourceFileManager* fileManager);
     ~MJpegPlayer();
     void update(Clock& clock);
     void render();
@@ -26,8 +26,8 @@ private:
     InputStream* _videoStream = nullptr;
     BinaryChunk _currentFrameBuffer;
     GRRLIB_texImg* _currentFrameImg = nullptr;
-    Video _video;
-    Audio _audio;
+    std::string _videoHash;
+    std::string _audioHash;
     BinaryChunk _audioData;
     bool _playAudio = false;
     Mjpeg _mjpeg;

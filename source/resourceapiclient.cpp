@@ -12,6 +12,14 @@ ResourceAPIClient::~ResourceAPIClient() {
 
 }
 
+std::string ResourceAPIClient::fetchResourceHash(std::string &resourcePath) {
+    nlohmann::json request = {
+        {"filePath", resourcePath}
+    };
+    nlohmann::json response = requestJson(APICommand::GET_FILEHASH, request);
+    return response["hash"];
+}
+
 s32 ResourceAPIClient::fetchResourceVersion() {
     nlohmann::json response =
         requestJson(APICommand::GET_RESOURCESVERSION);
@@ -29,6 +37,6 @@ void ResourceAPIClient::unregisterWii() {
 
 InputStream* ResourceAPIClient::fetchResource(std::string& resourcePath) {
     s32 socket = _connect();
-    _sendRequest(socket, APICommand::GET_RESOURCE, resourcePath);
+    _sendRequest(socket, APICommand::GET_FILE, resourcePath);
     return _getResponseStream(socket);
 }

@@ -43,7 +43,7 @@ void QAQuestion::_startInputState() {
 void QAQuestion::_createQuestionAndTimeLeftText() {
     _textQuestion = TextBox::builder()
         .text(_question.getPrompt())
-        .font(_resources->get(Font::DEFAULT_FONT))
+        .font(_resources->getFont(Font::DEFAULT_FONT))
         .fontSize(25)
         .marginTop(50)
         .animationSpeed(50)
@@ -51,7 +51,7 @@ void QAQuestion::_createQuestionAndTimeLeftText() {
     
     _textTimeLeft = TextBox::builder()
         .color(RGBA(255, 150, 150, 255))
-        .font(_resources->get(Font::DEFAULT_FONT))
+        .font(_resources->getFont(Font::DEFAULT_FONT))
         .fontSize(35)
         .marginTop(400)
         .build();
@@ -62,7 +62,7 @@ void QAQuestion::_createAnswersText() {
         TextBox* answerBox = TextBox::builder()
             .text(answer.first)
             .color(RGBA(230, 230, 230, 255))
-            .font(_resources->get(Font::DEFAULT_FONT))
+            .font(_resources->getFont(Font::DEFAULT_FONT))
             .fontSize(25)
             .marginTop(100 + 25 * _textQuestion->lineCount())
             .animationSpeed(100)
@@ -178,7 +178,7 @@ void QAQuestion::update(Clock &clock) {
 void QAQuestion::render() {
     GRRLIB_DrawImg((int)(-100 + sin(_bgAnimation/2) * 100),
                    (int)(-100 + cos(_bgAnimation/3) * 100),
-                   _resources->get(Texture::QUIZ_BG), 0, 1, 1.6,
+                   _resources->getTexture(Texture::QUIZ_BG), 0, 1, 1.6,
                    RGBA(255, 255, 255, 255));
     _textQuestion->render();
     for (TextBox* answerBox : _textAnswers) {

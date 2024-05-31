@@ -29,7 +29,7 @@ void QAQuestionFreeText::_startShowAnswersState() {
         TextBox* playerAnswerTextBox = TextBox::builder()
             .text(playerAnswer)
             .color(RGBA(230, 230, 230, 255))
-            .font(_resources->get(Font::DEFAULT_FONT))
+            .font(_resources->getFont(Font::DEFAULT_FONT))
             .fontSize(25)
             .marginTop(100 + 25 * _textQuestion->lineCount())
             .animationSpeed(50)

@@ -8,6 +8,7 @@ class ResourceAPIClient : public APIClient {
 public:
     ResourceAPIClient();
     ~ResourceAPIClient();
+    std::string fetchResourceHash(std::string& resourcePath);
     s32 fetchResourceVersion();
     void registerWii();
     void unregisterWii();

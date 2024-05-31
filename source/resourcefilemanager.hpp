@@ -25,6 +25,7 @@ public:
     ResourceFileManager();
     void init();
     void saveResource(std::string& resourceName, BinaryChunk content);
+    void saveResourceJson(std::string& resourceName, nlohmann::json json);
     void saveResourceStream(std::string& resourceName, InputStream* stream);
     std::string loadIpAddressFromConfig();
     BinaryChunk loadResource(std::string& resourceName);

@@ -2,15 +2,13 @@
 #define RESOURCEMAP_HPP
 
 #include <string>
-
-enum ResourceLocation {
-    SERVER,
-    BINARY
-};
+#include <map>
 
 enum Font {
     DEFAULT_FONT
 };
+
+extern std::map<Font, std::string> FONT_PATHS;
 
 enum Texture {
     CURSOR,
@@ -32,6 +30,8 @@ enum Texture {
     ANIME
 };
 
+extern std::map<Texture, std::string> TEXTURE_PATHS;
+
 enum Audio {
     EVAN_MM,
     TEXT_LETTER,
@@ -43,38 +43,14 @@ enum Audio {
     TP_TRAILER_AUDIO
 };
 
+
+extern std::map<Audio, std::string> AUDIO_PATHS;
+
 enum Video {
     Z_TRAILER,
     TP_TRAILER
 };
 
-
-struct FontDef {
-    Font font;
-    std::string remotePath;
-};
-
-extern FontDef FONT_DEFINITIONS[];
-
-struct TextureDef {
-    Texture texture;
-    std::string remotePath;
-};
-
-extern TextureDef TEXTURE_DEFINITIONS[];
-
-struct AudioDef {
-    Audio audio;
-    std::string remotePath;
-};
-
-extern AudioDef AUDIO_DEFINITIONS[];
-
-struct VideoDef {
-    Video video;
-    std::string remotePath;
-};
-
-extern VideoDef VIDEO_DEFINITIONS[];
+extern std::map<Video, std::string> VIDEO_PATHS;
 
 #endif // RESOURCEMAP_HPP

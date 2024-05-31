@@ -44,6 +44,15 @@ Quiz::Builder Quiz::builder() {
     return Quiz::Builder();
 }
 
+std::set<std::string> Quiz::getResourcePaths() {
+    std::set<std::string> resourcePaths;
+    for (QuizAction* action : _state->getActons()) {
+        std::set<std::string> actionResourcePaths = action->getResourcePaths();
+        resourcePaths.insert(actionResourcePaths.begin(), actionResourcePaths.end());
+    }
+    return resourcePaths;
+}
+
 Quiz::Quiz(QuizState* state, QuizAPIClient *client) {
     _resources = state->getResources();
     _state = state;

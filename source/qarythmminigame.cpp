@@ -1,9 +1,9 @@
 #include "qarythmminigame.hpp"
 #include "grrlib.h"
 
-QARythmMinigame::QARythmMinigame(Audio audio, Texture img, std::string data, int delayMs, int maxPts) {
-    _audio = audio;
-    _cubeImg = img;
+QARythmMinigame::QARythmMinigame(std::string audioPath, std::string imgPath, std::string data, int delayMs, int maxPts) {
+    _audioPath = audioPath;
+    _cubeImgPath = imgPath;
     _rawData = data;
     _delayMs = delayMs;
     _maxPts = maxPts;
@@ -103,7 +103,7 @@ void QARythmMinigame::draw3dCube() {
     GRRLIB_3dMode(0.1,1000,45,1,0);
     for (f32 x = -15; x < 30; x += 3) {
         for (f32 y = -15; y < 30; y += 3) {
-            GRRLIB_SetTexture(_resources->get(_cubeImg),0);
+            GRRLIB_SetTexture(_resources->getTexture(_cubeImgPath),0);
             GRRLIB_ObjectView(x, y + _shiftx, _cubeZ - (y + _shiftx)*1.5f, _a,_a*2,_a*3,1,1,1);
 
             GX_Begin(GX_QUADS, GX_VTXFMT0, 24);
@@ -211,7 +211,7 @@ void QARythmMinigame::render() {
     if (_misinput > 0) {
         barColor = RGBA(255, 150, 150, 100);
     }
-    GRRLIB_DrawImg(0, 350 + _endingTimePassed/4, _resources->get(Texture::RYTHM_BAR), 0, 1, 1,
+    GRRLIB_DrawImg(0, 350 + _endingTimePassed/4, _resources->getTexture(Texture::RYTHM_BAR), 0, 1, 1,
                    barColor);
 
     for (RythmNote& note : _notes) {
@@ -227,7 +227,7 @@ void QARythmMinigame::render() {
             color = RGBA(255, 150, 150, 150);
         }
         GRRLIB_DrawImg(note.getXPos() - note.scaleXY*52/2, note.getYPos() -note.scaleXY*52/2,
-                       _resources->get(note.getTexture()), note.getRotation(),
+                       _resources->getTexture(note.getTexture()), note.getRotation(),
                        note.scaleXY, note.scaleXY,
                        color);
     }
@@ -246,6 +246,10 @@ void QARythmMinigame::reset() {
     _cleanup();
 }
 
+std::set<std::string> QARythmMinigame::getResourcePaths() {
+    return {_audioPath, _cubeImgPath};
+}
+
 QARythmMinigame::Builder QARythmMinigame::builder() {
     return QARythmMinigame::Builder();
 }
@@ -253,17 +257,17 @@ QARythmMinigame::Builder QARythmMinigame::builder() {
 void QARythmMinigame::_init() {
     if (_dataLoaded) {
         _initialized = true;
-        AudioPlayer::play(_audio, _resources);
+        AudioPlayer::play(_audioPath, _resources);
         return;
     }
 
-    _resources->get(Texture::BTN_A);
-    _resources->get(Texture::BTN_DPAD);
-    _resources->get(Texture::BTN_ONE);
-    _resources->get(Texture::BTN_TWO);
-    _resources->get(Texture::RYTHM_BAR);
-    _resources->get(_cubeImg);
-    _resources->get(_audio);
+    _resources->getTexture(Texture::BTN_A);
+    _resources->getTexture(Texture::BTN_DPAD);
+    _resources->getTexture(Texture::BTN_ONE);
+    _resources->getTexture(Texture::BTN_TWO);
+    _resources->getTexture(Texture::RYTHM_BAR);
+    _resources->getTexture(_cubeImgPath);
+    _resources->getAudio(_audioPath);
 
     std::string content = StringUtils::split(_rawData, '#')[1];
     for (std::string& note : StringUtils::split(content, ';')) {
@@ -295,7 +299,7 @@ void QARythmMinigame::_init() {
     _textBoxHits = TextBox::builder()
         .color(RGBA(150, 255, 150, 255))
         .text("Hits: -")
-        .font(_resources->get(Font::DEFAULT_FONT))
+        .font(_resources->getFont(Font::DEFAULT_FONT))
         .fontSize(25)
         .marginLeft(50)
         .marginTop(50)
@@ -304,7 +308,7 @@ void QARythmMinigame::_init() {
     _textBoxMiss = TextBox::builder()
         .color(RGBA(255, 150, 150, 255))
         .text("Miss: -")
-        .font(_resources->get(Font::DEFAULT_FONT))
+        .font(_resources->getFont(Font::DEFAULT_FONT))
         .fontSize(25)
         .marginLeft(400)
         .marginTop(50)
@@ -313,7 +317,7 @@ void QARythmMinigame::_init() {
     _textBoxScore = TextBox::builder()
         .color(RGBA(255, 255, 255, 255))
         .text("Name + 100 pts")
-        .font(_resources->get(Font::DEFAULT_FONT))
+        .font(_resources->getFont(Font::DEFAULT_FONT))
         .fontSize(25)
         .marginLeft(50)
         .marginTop(200)
@@ -359,17 +363,17 @@ void QARythmMinigame::_cleanup() {
     _endingTimePassed = 0;
 }
 
-QARythmMinigame::Builder& QARythmMinigame::Builder::img(Texture img) {
-    _img = img;
+QARythmMinigame::Builder& QARythmMinigame::Builder::img(std::string imgPath) {
+    _imgPath = imgPath;
     return *this;
 }
 
-QARythmMinigame::Builder &QARythmMinigame::Builder::audio(Audio audio) {
-    _audio = audio;
+QARythmMinigame::Builder& QARythmMinigame::Builder::audio(std::string audioPath) {
+    _audioPath = audioPath;
     return *this;
 }
 
-QARythmMinigame::Builder& QARythmMinigame::Builder::data(std::string data) {
+QARythmMinigame::Builder &QARythmMinigame::Builder::data(std::string data) {
     _data = data;
     return *this;
 }
@@ -385,5 +389,5 @@ QARythmMinigame::Builder& QARythmMinigame::Builder::maxPts(int maxPts) {
 }
 
 QARythmMinigame* QARythmMinigame::Builder::build() {
-    return new QARythmMinigame(_audio, _img, _data, _delayMs, _maxPts);
+    return new QARythmMinigame(_audioPath, _imgPath, _data, _delayMs, _maxPts);
 }

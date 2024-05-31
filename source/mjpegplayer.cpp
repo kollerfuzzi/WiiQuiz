@@ -5,17 +5,17 @@
 #include "mjpegio.hpp"
 #include "bsod.hpp"
 
-MJpegPlayer::MJpegPlayer(Video video, ResourceFileManager* fileManager){
-    _video = video;
+MJpegPlayer::MJpegPlayer(std::string videoHash, ResourceFileManager* fileManager){
+    _videoHash = videoHash;
     _fileManager = fileManager;
     _currentFrameBuffer = BinaryChunk(nullptr, 0);
     _audioData = BinaryChunk(nullptr, 0);
 }
 
-MJpegPlayer::MJpegPlayer(Video video, Audio audio, ResourceFileManager *fileManager) {
-    _video = video;
+MJpegPlayer::MJpegPlayer(std::string videoHash, std::string audioHash, ResourceFileManager *fileManager) {
+    _videoHash = videoHash;
     _fileManager = fileManager;
-    _audio = audio;
+    _audioHash = audioHash;
     _playAudio = true;
     _currentFrameBuffer = BinaryChunk(nullptr, 0);
     _audioData = BinaryChunk(nullptr, 0);
@@ -85,18 +85,12 @@ void MJpegPlayer::_init() {
 
 void MJpegPlayer::_loadMjpegStream() {
     MjpegIO mjpegio(_fileManager);
-
-    auto enumNameView = magic_enum::enum_name(_video);
-    std::string enumName(enumNameView);
-
-    _mjpeg = mjpegio.loadMjpegMeta(enumName);
-    _videoStream = _fileManager->loadResourceStream(enumName);
+    _mjpeg = mjpegio.loadMjpegMeta(_videoHash);
+    _videoStream = _fileManager->loadResourceStream(_videoHash);
 }
 
 void MJpegPlayer::_loadAudio() {
-    auto enumNameView = magic_enum::enum_name(_audio);
-    std::string enumName(enumNameView);
-    _audioData = _fileManager->loadResource(enumName);
+    _audioData = _fileManager->loadResource(_audioHash);
 }
 
 void MJpegPlayer::_cleanup() {
@@ -112,10 +106,10 @@ void MJpegPlayer::_cleanup() {
         Mem::mfree(_currentFrameBuffer.data);
         _currentFrameBuffer = BinaryChunk(nullptr, 0);
     }
-    /*if (_audioData.data != nullptr) {
+    if (_audioData.data != nullptr) {
         Mem::mfree(_audioData.data);
         _audioData = BinaryChunk(nullptr, 0);
-    }*/
+    }
     _isInitialized = false;
     _isDone = false;
 }
