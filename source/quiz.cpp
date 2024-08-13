@@ -30,6 +30,7 @@ bool Quiz::isDone() {
 }
 
 void Quiz::reset() {
+    _isDone = false;
     _state->setCurrentAction(0);
     for (QuizAction* action : _state->getActons()) {
         action->reset();

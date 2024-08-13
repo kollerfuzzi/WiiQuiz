@@ -1,12 +1,12 @@
 #ifndef QARYTHMMINIGAME_HPP
 #define QARYTHMMINIGAME_HPP
 
-#include "quizaction.hpp"
 #include "wiimote.hpp"
 #include "audioplayer.hpp"
 #include "stringutils.hpp"
 #include "textbox.hpp"
-
+#include "qasingleplayer.hpp"
+#include "confirm.hpp"
 
 struct RythmNote {
 public:
@@ -88,13 +88,21 @@ public:
 
 };
 
-class QARythmMinigame : public QuizAction {
+enum RythmMinigameState {
+    NOT_INITIALIZED,
+    SHOW_TUTORIAL,
+    PLAYING,
+    ENDING,
+    DONE
+};
+
+class QARythmMinigame : public QASinglePlayer {
 public:
     QARythmMinigame(std::string audioPath, std::string imgPath, std::string data, int delayMs, int maxPts);
     ~QARythmMinigame();
     void update(Clock& clock);
     void init3dCube();
-    void draw3dCube();
+    void draw3dCubes();
     void render();
     bool isDone();
     void reset();
@@ -118,8 +126,7 @@ public:
 private:
     void _init();
     void _cleanup();
-    bool _initialized = false;
-    bool _dataLoaded = false;
+    RythmMinigameState _gameState = RythmMinigameState::NOT_INITIALIZED;
     std::string _rawData;
     std::string _cubeImgPath;
     std::string _audioPath;
@@ -128,18 +135,21 @@ private:
     TextBox* _textBoxHits = nullptr;
     TextBox* _textBoxMiss = nullptr;
     TextBox* _textBoxScore = nullptr;
+    TextBox* _textBoxPlayer = nullptr;
+    Confirm* _confirmStart = nullptr; 
 
     // cube
     float _a = 0;
     int _cubeZ = 0;
     float _sinx=0;
-    int _misinput = 0;
+
+    int _misinput = 500;
     int _misinputsTotal = 0;
     int _hitinput = 0;
     f32 _shiftx = 0;
     int _delayMs = 0;
     int _maxPts = 200;
-    bool _ending = false;
+    u8 _tutorialVisibility = 0;
     int _endingTimePassed = 0;
 
     void renderCube(const f32 &x, const f32 &y);

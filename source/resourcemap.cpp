@@ -19,6 +19,7 @@ std::map<Texture, std::string> TEXTURE_PATHS = {
     {Texture::BTN_ONE, "textures/buttons/one.png"},
     {Texture::BTN_TWO, "textures/buttons/two.png"},
     {Texture::RYTHM_BAR, "textures/rythm_bar.png"},
+    {Texture::RYTHM_TUTORIAL, "textures/rythmgame_tutorial.png"},
 };
 
 std::map<Audio, std::string> AUDIO_PATHS = {

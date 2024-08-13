@@ -25,6 +25,7 @@ enum Texture {
     BTN_ONE,
     BTN_TWO,
     RYTHM_BAR,
+    RYTHM_TUTORIAL,
     QUALLE,
     LINK_BOLERO,
     ANIME

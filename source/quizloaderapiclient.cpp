@@ -1,6 +1,7 @@
 #include "quizloaderapiclient.hpp"
 
 #include "qaquestioncreator.hpp"
+#include "qarunforeveryplayer.hpp"
 #include "qalobby.hpp"
 #include "qachapter.hpp"
 #include "qascoreboard.hpp"
@@ -76,14 +77,15 @@ QuizAction* QuizLoaderApiClient::_createQuestionFromJson(nlohmann::json actionJs
     return QAQuestionCreator::of(questionBuilder.build());
 }
 
-QuizAction *QuizLoaderApiClient::_createRythmGameFromJson(nlohmann::json actionJson) {
-    return QARythmMinigame::builder()
+QuizAction* QuizLoaderApiClient::_createRythmGameFromJson(nlohmann::json actionJson) {
+    QARythmMinigame* game = QARythmMinigame::builder()
         .img(actionJson["cubeImg"])
         .audio(actionJson["audio"])
         .delayMs(actionJson["startDelay"])
         .data(actionJson["data"])
         .maxPts(actionJson["maxPts"])
         .build();
+    return new QARunForEveryPlayer(game);
 }
 
 QuizAction *QuizLoaderApiClient::_createScoreboardFromJson(nlohmann::json actionJson) {

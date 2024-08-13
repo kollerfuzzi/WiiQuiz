@@ -31,7 +31,6 @@ int main(int argc, char** argv) {
 
     Quiz* templateQuiz = QuizTemplate::getDefaultQuiz(resources);
     resources->fetchResourcesByPaths(templateQuiz->getResourcePaths());
-    resources->fetchResourcesByPaths({"videos/tp_trailer.avi", "videos/tp_trailer.mp3"});
 
     QuizLoaderApiClient quizLoaderApiClient;
     std::vector<Quiz*> quizzes = quizLoaderApiClient.loadQuizzes(resources);
@@ -43,6 +42,7 @@ int main(int argc, char** argv) {
 
     AudioPlayer::init();
 
+    resources->fetchResourcesByPaths({"videos/tp_trailer.avi", "videos/tp_trailer.mp3"});
     MJpegPlayer* player = resources->getVideo("videos/tp_trailer.avi", "videos/tp_trailer.mp3");
 
     MenuItem::Builder quizzesMenuItemBuidler = MenuItem::builder()

@@ -1,5 +1,6 @@
 #include "qarythmminigame.hpp"
 #include "grrlib.h"
+#include "bsod.hpp"
 
 QARythmMinigame::QARythmMinigame(std::string audioPath, std::string imgPath, std::string data, int delayMs, int maxPts) {
     _audioPath = audioPath;
@@ -23,6 +24,23 @@ QARythmMinigame::~QARythmMinigame() {
 
 void QARythmMinigame::update(Clock& clock) {
     _init();
+
+    _textBoxPlayer->update(clock);
+
+    _confirmStart->update(clock);
+    if (_gameState == RythmMinigameState::SHOW_TUTORIAL) {
+        _tutorialVisibility = _tutorialVisibility == 0xFF ? 0xFF : _tutorialVisibility + 3;
+    } else {
+        _tutorialVisibility = _tutorialVisibility == 0 ? 0 : _tutorialVisibility - 3;
+    }
+
+    if (_gameState == RythmMinigameState::SHOW_TUTORIAL && _confirmStart->isConfirmed()) {
+        _gameState = RythmMinigameState::PLAYING;
+        AudioPlayer::play(_audioPath, _resources);
+    } else if (_gameState == RythmMinigameState::SHOW_TUTORIAL) {
+        return;
+    }
+    
     std::vector<RythmNote*> greenNotes;
     size_t hits = 0;
     size_t misses = 0;
@@ -70,21 +88,28 @@ void QARythmMinigame::update(Clock& clock) {
     _textBoxMiss->copyBufferToContent();
 
     if (hits + misses >= _notes.size()) {
-        _ending = true;
+        _gameState = RythmMinigameState::ENDING;
     }
 
-    if (_ending && _endingTimePassed == 0) {
+    if (_gameState == RythmMinigameState::ENDING && _endingTimePassed == 0) {
         // (((Hit-Miss)/NotesSize+1)/2)*MAXPTS
         s32 score = ((((f32)hits - (misses + _misinputsTotal)) / (f32)_notes.size())) * _maxPts;
         std::string scoreText("You earned ");
         scoreText += std::to_string(score);
         scoreText += "pts.";
         _textBoxScore->setText(scoreText);
+        _player->addPoints(score);
+        _client->setPoints();
     }
 
-    if (_ending) {
+    if (_gameState == RythmMinigameState::ENDING) {
         _textBoxScore->update(clock);
         _endingTimePassed += clock.timeElapsedMillis();
+    }
+
+    if (_gameState == RythmMinigameState::ENDING && _endingTimePassed > 5000) {
+        _gameState = RythmMinigameState::DONE;
+        AudioPlayer::stop();
     }
 }
 
@@ -92,98 +117,98 @@ void QARythmMinigame::init3dCube() {
     GRRLIB_Settings.antialias = true;
 
     GRRLIB_SetBackgroundColour(0x00, 0x00, 0x00, 0xFF);
-    GRRLIB_Camera3dSettings(0.0f,0.0f,13.0f, 0,1,0, 0,0,0);
+    GRRLIB_Camera3dSettings(0.0f, 0.0f, 13.0f, 0, 1, 0, 0, 0, 0);
 }
 
-void QARythmMinigame::draw3dCube() {
+void QARythmMinigame::draw3dCubes() {
     if (_shiftx < -3) {
         _shiftx = 0.0f;
     }
     _shiftx -= 0.05f;
-    GRRLIB_3dMode(0.1,1000,45,1,0);
+    GRRLIB_3dMode(0.1, 1000, 45, 1, 0);
     for (f32 x = -15; x < 30; x += 3) {
         for (f32 y = -15; y < 30; y += 3) {
-            GRRLIB_SetTexture(_resources->getTexture(_cubeImgPath),0);
-            GRRLIB_ObjectView(x, y + _shiftx, _cubeZ - (y + _shiftx)*1.5f, _a,_a*2,_a*3,1,1,1);
+            GRRLIB_SetTexture(_resources->getTexture(_cubeImgPath), 0);
+            GRRLIB_ObjectView(x, y + _shiftx, _cubeZ - (y + _shiftx) * 1.5f, _a, _a * 2, _a * 3, 1, 1, 1);
 
             GX_Begin(GX_QUADS, GX_VTXFMT0, 24);
-            GX_Position3f32(-1.0f,1.0f,1.0f);
+            GX_Position3f32(-1.0f, 1.0f, 1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(0.0f,0.0f);
-            GX_Position3f32(1.0f,1.0f,1.0f);
+            GX_TexCoord2f32(0.0f, 0.0f);
+            GX_Position3f32(1.0f, 1.0f, 1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(1.0f,0.0f);
-            GX_Position3f32(1.0f,-1.0f,1.0f);
+            GX_TexCoord2f32(1.0f, 0.0f);
+            GX_Position3f32(1.0f, -1.0f, 1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(1.0f,1.0f);
-            GX_Position3f32(-1.0f,-1.0f,1.0f);
+            GX_TexCoord2f32(1.0f, 1.0f);
+            GX_Position3f32(-1.0f, -1.0f, 1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(0.0f,1.0f);
+            GX_TexCoord2f32(0.0f, 1.0f);
 
-            GX_Position3f32(1.0f,1.0f,-1.0f);
+            GX_Position3f32(1.0f, 1.0f, -1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(0.0f,0.0f);
-            GX_Position3f32(-1.0f,1.0f,-1.0f);
+            GX_TexCoord2f32(0.0f, 0.0f);
+            GX_Position3f32(-1.0f, 1.0f, -1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(1.0f,0.0f);
-            GX_Position3f32(-1.0f,-1.0f,-1.0f);
+            GX_TexCoord2f32(1.0f, 0.0f);
+            GX_Position3f32(-1.0f, -1.0f, -1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(1.0f,1.0f);
-            GX_Position3f32(1.0f,-1.0f,-1.0f);
+            GX_TexCoord2f32(1.0f, 1.0f);
+            GX_Position3f32(1.0f, -1.0f, -1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(0.0f,1.0f);
+            GX_TexCoord2f32(0.0f, 1.0f);
 
-            GX_Position3f32(1.0f,1.0f,1.0f);
+            GX_Position3f32(1.0f, 1.0f, 1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(0.0f,0.0f);
-            GX_Position3f32(1.0f,1.0f,-1.0f);
+            GX_TexCoord2f32(0.0f, 0.0f);
+            GX_Position3f32(1.0f, 1.0f, -1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(1.0f,0.0f);
-            GX_Position3f32(1.0f,-1.0f,-1.0f);
+            GX_TexCoord2f32(1.0f, 0.0f);
+            GX_Position3f32(1.0f, -1.0f, -1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(1.0f,1.0f);
-            GX_Position3f32(1.0f,-1.0f,1.0f);
+            GX_TexCoord2f32(1.0f, 1.0f);
+            GX_Position3f32(1.0f, -1.0f, 1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(0.0f,1.0f);
+            GX_TexCoord2f32(0.0f, 1.0f);
 
-            GX_Position3f32(-1.0f,1.0f,-1.0f);
+            GX_Position3f32(-1.0f, 1.0f, -1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(0.0f,0.0f);
-            GX_Position3f32(-1.0f,1.0f,1.0f);
+            GX_TexCoord2f32(0.0f, 0.0f);
+            GX_Position3f32(-1.0f, 1.0f, 1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(1.0f,0.0f);
-            GX_Position3f32(-1.0f,-1.0f,1.0f);
+            GX_TexCoord2f32(1.0f, 0.0f);
+            GX_Position3f32(-1.0f, -1.0f, 1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(1.0f,1.0f);
-            GX_Position3f32(-1.0f,-1.0f,-1.0f);
+            GX_TexCoord2f32(1.0f, 1.0f);
+            GX_Position3f32(-1.0f, -1.0f, -1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(0.0f,1.0f);
+            GX_TexCoord2f32(0.0f, 1.0f);
 
-            GX_Position3f32(-1.0f,1.0f,-1.0f);
+            GX_Position3f32(-1.0f, 1.0f, -1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(0.0f,0.0f);
-            GX_Position3f32(1.0f,1.0f,-1.0f);
+            GX_TexCoord2f32(0.0f, 0.0f);
+            GX_Position3f32(1.0f, 1.0f, -1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(1.0f,0.0f);
-            GX_Position3f32(1.0f,1.0f,1.0f);
+            GX_TexCoord2f32(1.0f, 0.0f);
+            GX_Position3f32(1.0f, 1.0f, 1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(1.0f,1.0f);
-            GX_Position3f32(-1.0f,1.0f,1.0f);
+            GX_TexCoord2f32(1.0f, 1.0f);
+            GX_Position3f32(-1.0f, 1.0f, 1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(0.0f,1.0f);
+            GX_TexCoord2f32(0.0f, 1.0f);
 
-            GX_Position3f32(1.0f,-1.0f,-1.0f);
+            GX_Position3f32(1.0f, -1.0f, -1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(0.0f,0.0f);
-            GX_Position3f32(-1.0f,-1.0f,-1.0f);
+            GX_TexCoord2f32(0.0f, 0.0f);
+            GX_Position3f32(-1.0f, -1.0f, -1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(1.0f,0.0f);
-            GX_Position3f32(-1.0f,-1.0f,1.0f);
+            GX_TexCoord2f32(1.0f, 0.0f);
+            GX_Position3f32(-1.0f, -1.0f, 1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(1.0f,1.0f);
-            GX_Position3f32(1.0f,-1.0f,1.0f);
+            GX_TexCoord2f32(1.0f, 1.0f);
+            GX_Position3f32(1.0f, -1.0f, 1.0f);
             GX_Color1u32(0xFFFFFFFF);
-            GX_TexCoord2f32(0.0f,1.0f);
+            GX_TexCoord2f32(0.0f, 1.0f);
             GX_End();
         }
     }
@@ -196,13 +221,24 @@ void QARythmMinigame::draw3dCube() {
 }
 
 void QARythmMinigame::render() {
-    if (!_initialized) {
+    if (_gameState == RythmMinigameState::NOT_INITIALIZED) {  
         return;
     }
 
     GRRLIB_SetBackgroundColour(10, 10, 10, 255);
 
-    draw3dCube();
+    draw3dCubes();
+
+    _textBoxPlayer->render();
+
+    if (_tutorialVisibility != 0) {
+        GRRLIB_DrawImg(120, 120, _resources->getTexture(Texture::RYTHM_TUTORIAL), 0, 1, 1, 0xFFFFFF00 | _tutorialVisibility);
+    }
+
+    if (_gameState == RythmMinigameState::SHOW_TUTORIAL) {
+        _confirmStart->render();
+        return;
+    }
 
     u32 barColor = RGBA(255, 255, 255, 100);
     if (_hitinput > 0) {
@@ -233,13 +269,13 @@ void QARythmMinigame::render() {
     }
     _textBoxHits->render();
     _textBoxMiss->render();
-    if (_ending) {
+    if (_gameState == RythmMinigameState::ENDING) {
         _textBoxScore->render();
     }
 }
 
 bool QARythmMinigame::isDone() {
-    return _endingTimePassed > 5000;
+    return _gameState == RythmMinigameState::DONE;
 }
 
 void QARythmMinigame::reset() {
@@ -255,9 +291,7 @@ QARythmMinigame::Builder QARythmMinigame::builder() {
 }
 
 void QARythmMinigame::_init() {
-    if (_dataLoaded) {
-        _initialized = true;
-        AudioPlayer::play(_audioPath, _resources);
+    if (_gameState != RythmMinigameState::NOT_INITIALIZED) {
         return;
     }
 
@@ -266,6 +300,7 @@ void QARythmMinigame::_init() {
     _resources->getTexture(Texture::BTN_ONE);
     _resources->getTexture(Texture::BTN_TWO);
     _resources->getTexture(Texture::RYTHM_BAR);
+    _resources->getTexture(Texture::RYTHM_TUTORIAL);
     _resources->getTexture(_cubeImgPath);
     _resources->getAudio(_audioPath);
 
@@ -323,17 +358,32 @@ void QARythmMinigame::_init() {
         .marginTop(200)
         .build();
 
+    _confirmStart = Confirm::builder()
+        .resources(_resources)
+        .build();
+
+    std::string playerStr = "Player: ";
+    playerStr += _player->getName();
+    _textBoxPlayer = TextBox::builder()
+        .color(RGBA(255, 255, 255, 255))
+        .text(playerStr)
+        .font(_resources->getFont(Font::DEFAULT_FONT))
+        .fontSize(25)
+        .marginTop(15)
+        .marginLeft(50)
+        .animationSpeed(100)
+        .build();
 
     AudioPlayer::stop();
 
     init3dCube();
 
-    _dataLoaded = true;
+    _gameState = RythmMinigameState::SHOW_TUTORIAL;
 }
 
 void QARythmMinigame::_cleanup() {
-    _initialized = false;
-    _dataLoaded = false;
+    _gameState = RythmMinigameState::NOT_INITIALIZED;
+    _player = nullptr;    
     _timePassed = 0;
     _notes.clear();
     if (_textBoxHits != nullptr) {
@@ -348,18 +398,26 @@ void QARythmMinigame::_cleanup() {
         delete _textBoxScore;
         _textBoxScore = nullptr;
     }
+    if (_confirmStart != nullptr) {
+        delete _confirmStart;
+        _confirmStart = nullptr;
+    }
+    if (_textBoxPlayer != nullptr) {
+        delete _textBoxPlayer;
+        _textBoxPlayer = nullptr;
+    }
     // cube
     _a = 0;
     _cubeZ = 0;
     _sinx = 0;
-    _misinput = 0;
+    _misinput = 500;
     _misinputsTotal = 0;
     _hitinput = 0;
     _shiftx = 0;
     
     _delayMs = 0;
     _maxPts = 200;
-    _ending = false;
+    _tutorialVisibility = 0;
     _endingTimePassed = 0;
 }
 
