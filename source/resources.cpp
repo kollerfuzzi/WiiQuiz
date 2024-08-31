@@ -59,7 +59,7 @@ GRRLIB_texImg* Resources::getTexture(Texture texture) {
     return getTexture(TEXTURE_PATHS[texture]);
 }
 
-GRRLIB_texImg *Resources::getTexture(std::string texturePath) {
+GRRLIB_texImg* Resources::getTexture(std::string texturePath) {
     std::string textureHash = hash(texturePath);
     if (!_textures.contains(textureHash)) {
         _loadTexture(textureHash);

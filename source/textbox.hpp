@@ -51,7 +51,7 @@ public:
         TextBox* build();
     private:
         GRRLIB_Font* _font;
-        std::string _text;
+        std::string _text = "";
         unsigned int _fontSize = 10;
         int _color = RGBA(255, 255, 255, 255);
         unsigned int _marginTop = 25;

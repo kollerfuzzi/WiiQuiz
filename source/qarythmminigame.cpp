@@ -263,7 +263,7 @@ void QARythmMinigame::render() {
             color = RGBA(255, 150, 150, 150);
         }
         GRRLIB_DrawImg(note.getXPos() - note.scaleXY*52/2, note.getYPos() -note.scaleXY*52/2,
-                       _resources->getTexture(note.getTexture()), note.getRotation(),
+                       _resources->getTexture(note.getTexture()), 0.,
                        note.scaleXY, note.scaleXY,
                        color);
     }
@@ -296,7 +296,10 @@ void QARythmMinigame::_init() {
     }
 
     _resources->getTexture(Texture::BTN_A);
-    _resources->getTexture(Texture::BTN_DPAD);
+    _resources->getTexture(Texture::BTN_DPAD_UP);
+    _resources->getTexture(Texture::BTN_DPAD_DOWN);
+    _resources->getTexture(Texture::BTN_DPAD_LEFT);
+    _resources->getTexture(Texture::BTN_DPAD_RIGHT);
     _resources->getTexture(Texture::BTN_ONE);
     _resources->getTexture(Texture::BTN_TWO);
     _resources->getTexture(Texture::RYTHM_BAR);

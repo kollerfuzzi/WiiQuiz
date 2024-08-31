@@ -28,22 +28,17 @@ public:
             return Texture::BTN_ONE;
         } else if (btn == Button::TWO) {
             return Texture::BTN_TWO;
-        } else if (btn == Button::UP || btn == Button::DOWN
-                   || btn == Button::LEFT || btn == Button::RIGHT) {
-            return Texture::BTN_DPAD;
+        } else if (btn == Button::UP) {
+            return Texture::BTN_DPAD_UP;
+        } else if (btn == Button::DOWN) {
+            return Texture::BTN_DPAD_DOWN;
+        } else if (btn == Button::LEFT) {
+            return Texture::BTN_DPAD_LEFT;
+        } else if (btn == Button::RIGHT) {
+            return Texture::BTN_DPAD_RIGHT;
         } else {
             throw -1;
         }
-    }
-    f32 getRotation() {
-        if (btn == Button::LEFT) {
-            return 180.0f;
-        } else if (btn == Button::UP) {
-            return 270.0f;
-        } else if (btn == Button::DOWN) {
-            return 90.0f;
-        }
-        return 0;
     }
     f32 getXPos() {
         if (btn == Button::A) {
@@ -53,13 +48,13 @@ public:
         } else if (btn == Button::TWO) {
             return 452.0f;
         } else if (btn == Button::DOWN) {
-            return 260.0f;
+            return 176.0f;
         } else if (btn == Button::LEFT) {
-            return 156.0f;
-        } else if (btn == Button::RIGHT) {
-            return 156.0f;
-        } else if (btn == Button::UP) {
             return 52.0f;
+        } else if (btn == Button::RIGHT) {
+            return 238.0f;
+        } else if (btn == Button::UP) {
+            return 114.0f;
         }
         throw -1;
     }
@@ -68,23 +63,12 @@ public:
     }
 
     f32 getYPos() {
-        if (btn == Button::UP) {
-            return scale() + 52.0f;
-        } else if (btn == Button::LEFT) {
-            return scale() + 52.0f;
-        }
-        return scale();
+        return scale() + 52.0f;
     }
 
     f32 getRealYPos() {
-        if (btn == Button::DOWN) {
-            return scale() + 0.000001f; // do not remove hack
-        } else if (btn == Button::LEFT) {
-            return scale() + 0.000001f;
-        }
         return scale();
     }
-
 
 };
 

@@ -17,7 +17,6 @@ enum Texture {
     QUIZ_BG,
     SCOREBOARD_BG,
     BTN_A,
-    BTN_DPAD,
     BTN_DPAD_UP,
     BTN_DPAD_LEFT,
     BTN_DPAD_DOWN,
