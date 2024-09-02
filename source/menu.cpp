@@ -1,5 +1,7 @@
 #include "menu.hpp"
 #include "audioplayer.hpp"
+#include "bsod.hpp"
+
 MenuItem::MenuItem(std::string text,
                    std::vector<MenuItem*> children,
                    MenuItem* parent,

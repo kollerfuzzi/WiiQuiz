@@ -27,33 +27,34 @@ int main(int argc, char** argv) {
     WiiMote::init();
 
     Resources* resources = new Resources();
-    resources->fetchStaticResources();
 
     Quiz* templateQuiz = QuizTemplate::getDefaultQuiz(resources);
-    resources->fetchResourcesByPaths(templateQuiz->getResourcePaths());
 
     QuizLoaderApiClient quizLoaderApiClient;
     std::vector<Quiz*> quizzes = quizLoaderApiClient.loadQuizzes(resources);
-    for (Quiz* quiz : quizzes) {
-        resources->fetchResourcesByPaths(quiz->getResourcePaths());
+
+    std::set<std::string> resourcePaths;
+
+    for (std::string path : templateQuiz->getResourcePaths()) {
+        resourcePaths.emplace(path);
     }
+    for (Quiz* quiz : quizzes) {
+        for (std::string path : quiz->getResourcePaths()) {
+            resourcePaths.emplace(path);
+        }
+    }
+    resources->fetchStaticAndPathResources(resourcePaths);
+
 
     Clock frameClock;
 
     AudioPlayer::init();
-
-    resources->fetchResourcesByPaths({"videos/tp_trailer.avi", "videos/tp_trailer.mp3"});
-    MJpegPlayer* player = resources->getVideo("videos/tp_trailer.avi", "videos/tp_trailer.mp3");
 
     MenuItem::Builder quizzesMenuItemBuidler = MenuItem::builder()
                    .text("Start")
                    .child(MenuItem::builder()
                           .text(templateQuiz->getName())
                           .renderable(templateQuiz)
-                          .build())
-                   .child(MenuItem::builder()
-                          .text("Video")
-                          .renderable(player)
                           .build());
     for (Quiz* loadedQuiz : quizzes) {
         quizzesMenuItemBuidler.child(MenuItem::builder()
@@ -74,7 +75,6 @@ int main(int argc, char** argv) {
     AudioPlayer::stop();
     ScreenDebug::destroy();
 
-    delete player;
     delete testMenu;
     delete templateQuiz;
     for (Quiz* loadedQuiz : quizzes) {

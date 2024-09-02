@@ -1,6 +1,7 @@
 #include "textbox.hpp"
 #include <codecvt>
 #include <locale>
+#include "bsod.hpp"
 
 void TextBox::setText(std::string text) {
     _sourceString = text;
@@ -18,7 +19,7 @@ void TextBox::setText(std::string text) {
         GRRLIB_2dMode();
         bool lineOverflow = GRRLIB_WidthTTFW(_font, line.c_str(), _fontSize)
                                 + _marginLeft
-                            > SCREEN_WIDTH - _marginRight;
+                            > rmode->fbWidth - _marginRight;
         bool breakLine = character == '\n';
 
         if (lineOverflow || breakLine) {
@@ -75,7 +76,7 @@ u32 TextBox::getTop() {
 u32 TextBox::getBottom() {
     int bottom = _marginTop;
     if (_above != nullptr) {
-        bottom = _above->getBottom();
+        bottom += _above->getBottom();
     }
     bottom += getHeight();
     return bottom;
@@ -232,6 +233,9 @@ TextBox::Builder& TextBox::Builder::below(TextBox* above) {
 }
 
 TextBox* TextBox::Builder::build() {
+    if (_font == nullptr) {
+        BSOD::raise("TextBox: font is required");
+    }
     TextBox* box = new TextBox(_font, _fontSize,
                           _color, _marginTop,
                           _marginLeft, _marginRight,

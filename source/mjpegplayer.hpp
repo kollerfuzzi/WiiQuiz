@@ -8,6 +8,14 @@
 #include "asndlib.h"
 #include "mp3player.h"
 
+struct AVResource {
+    static AVResource of(std::string videoPath, std::string audioPath);
+    static AVResource none();
+    std::string videoPath;
+    std::string audioPath;
+    const bool operator==(const AVResource other);
+};
+
 class MJpegPlayer : public Renderable {
 public:
     MJpegPlayer(std::string videoHash, ResourceFileManager* fileManager);

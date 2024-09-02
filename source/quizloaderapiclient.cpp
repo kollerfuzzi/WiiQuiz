@@ -4,6 +4,7 @@
 #include "qarunforeveryplayer.hpp"
 #include "qalobby.hpp"
 #include "qachapter.hpp"
+#include "qaslide.hpp"
 #include "qascoreboard.hpp"
 #include "qarythmminigame.hpp"
 #include "magic_enum.hpp"
@@ -12,6 +13,7 @@
 QuizLoaderApiClient::QuizLoaderApiClient() {
     _typeToQuizAction["LOBBY"] = &QuizLoaderApiClient::_createLobbyFromJson;
     _typeToQuizAction["CHAPTER"] = &QuizLoaderApiClient::_createChapterFromJson;
+    _typeToQuizAction["SLIDE"] = &QuizLoaderApiClient::_createSlideFromJson;
     _typeToQuizAction["QUESTION"] = &QuizLoaderApiClient::_createQuestionFromJson;
     _typeToQuizAction["RYTHM_GAME"] = &QuizLoaderApiClient::_createRythmGameFromJson;
     _typeToQuizAction["SCOREBOARD"] = &QuizLoaderApiClient::_createScoreboardFromJson;
@@ -57,6 +59,32 @@ QuizAction* QuizLoaderApiClient::_createChapterFromJson(nlohmann::json actionJso
             .build();
 }
 
+QuizAction* QuizLoaderApiClient::_createSlideFromJson(nlohmann::json actionJson) {
+    QASlide::Builder builder = QASlide::builder();
+    if (actionJson.contains("title")) {
+        builder.title(actionJson["title"]);
+    }
+    if (actionJson.contains("titleFontSize")) {
+        builder.titleFontSize(actionJson["titleFontSize"]);
+    }
+    if (actionJson.contains("text")) {
+        builder.text(actionJson["text"]);
+    }
+    if (actionJson.contains("textFontSize")) {
+        builder.textFontSize(actionJson["textFontSize"]);
+    }
+    if (actionJson.contains("bgImg")) {
+        builder.bgImgPath(actionJson["bgImg"]);
+    }
+    if (actionJson.contains("bgVideo")) {
+        builder.bgVideo(_loadVideoFromJson(actionJson["bgVideo"]));
+    }
+    if (actionJson.contains("bgAudio")) {
+        builder.bgAudioPath(actionJson["bgAudio"]);
+    }
+    return builder.build();
+}
+
 QuizAction* QuizLoaderApiClient::_createQuestionFromJson(nlohmann::json actionJson) {
     std::string id;
     if (actionJson.contains("id")) {
@@ -91,4 +119,13 @@ QuizAction* QuizLoaderApiClient::_createRythmGameFromJson(nlohmann::json actionJ
 QuizAction *QuizLoaderApiClient::_createScoreboardFromJson(nlohmann::json actionJson) {
     return QAScoreboard::builder()
             .build();
+}
+
+AVResource QuizLoaderApiClient::_loadVideoFromJson(nlohmann::json videoJson) {
+    if (!videoJson.contains("video")) {
+        BSOD::raise("Video definition without video source");
+    }
+    std::string video = videoJson["video"];
+    std::string audio = videoJson.contains("audio") ? videoJson["audio"] : "";
+    return AVResource::of(video, audio);
 }

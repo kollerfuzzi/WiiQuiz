@@ -71,7 +71,7 @@ GRRLIB_ttfFont* Resources::getFont(Font font) {
     return getFont(FONT_PATHS[font]);
 }
 
-GRRLIB_ttfFont *Resources::getFont(std::string fontPath) {
+GRRLIB_ttfFont* Resources::getFont(std::string fontPath) {
     std::string fontHash = hash(fontPath);
     if (!_fonts.contains(fontHash)) {
         _loadFont(fontHash);
@@ -95,7 +95,7 @@ MJpegPlayer* Resources::getVideo(Video video) {
     return new MJpegPlayer(hash(pathOf(video)), _resourceFileManager);
 }
 
-MJpegPlayer *Resources::getVideo(std::string videoPath) {
+MJpegPlayer* Resources::getVideo(std::string videoPath) {
     return new MJpegPlayer(hash(videoPath), _resourceFileManager);
 }
 
@@ -103,8 +103,11 @@ MJpegPlayer* Resources::getVideo(Video video, Audio audio){
     return new MJpegPlayer(hash(pathOf(video)), hash(pathOf(audio)), _resourceFileManager);
 }
 
-MJpegPlayer *Resources::getVideo(std::string videoPath, std::string audioPath) {
-    return new MJpegPlayer(hash(videoPath), hash(audioPath), _resourceFileManager);
+MJpegPlayer* Resources::getVideo(AVResource video) {
+    if (video.audioPath != "") {
+        return new MJpegPlayer(hash(video.videoPath), hash(video.audioPath), _resourceFileManager);
+    }
+    return new MJpegPlayer(hash(video.videoPath), _resourceFileManager);
 }
 
 void Resources::clearAll() {
@@ -127,8 +130,24 @@ void Resources::fetchStaticResources() {
     _fetchNetworkAudio();
     _fetchNetworkTextures();
     _fetchNetworkFonts();
-
     ScreenDebug::clear();
+}
+
+void Resources::fetchStaticAndPathResources(std::set<std::string> resourcePaths) {
+    std::set<std::string> allResourcePaths;
+    std::set<std::string> staticResources = _getStaticHashes();
+    for (std::string resourcePath : resourcePaths) {
+        allResourcePaths.emplace(resourcePath);
+    }
+    for (std::string staticPath : staticResources) {
+        allResourcePaths.emplace(staticPath);
+    }
+    _resourceAPIClient->cacheResourceHashes(allResourcePaths);
+    fetchStaticResources();
+    fetchResourcesByPaths(resourcePaths);
+
+    _resourceFileManager->saveCachedJson();
+    _resourceAPIClient->clearCache();
 }
 
 void Resources::fetchResourcesByPaths(std::set<std::string> resourcePaths) {
@@ -154,7 +173,7 @@ bool Resources::_updateFileHash(std::string filePath) {
 
     if (hashUpdate) {
         fileMeta[filePath] = remoteResourceHash;
-        _resourceFileManager->saveResourceJson(fileMetaResourceName, fileMeta);
+        _resourceFileManager->saveResourceJsonCached(fileMetaResourceName, fileMeta);
     }
 
     return hashUpdate;
@@ -168,6 +187,23 @@ void Resources::_initDefaultFont() {
         GRRLIB_LoadTTF(font.data, font.size),
         font
     };
+}
+
+std::set<std::string> Resources::_getStaticHashes() {
+    std::set<std::string> hashes;
+    for (auto & [texture, path] : TEXTURE_PATHS) {
+        hashes.emplace(path);
+    }
+    for (auto & [font, path] : FONT_PATHS) {
+        hashes.emplace(path);
+    }
+    for (auto & [audio, path] : AUDIO_PATHS) {
+        hashes.emplace(path);
+    }
+    for (auto & [audio, path] : VIDEO_PATHS) {
+        hashes.emplace(path);
+    }
+    return hashes;
 }
 
 void Resources::_fetchNetworkTextures() {
@@ -256,5 +292,5 @@ void Resources::_renderDebugStr(std::string text) {
     loadingStr += loadingAnimation[loadCount % 4];
     loadingStr += "\n";
     loadingStr += text;
-    ScreenDebug::printAndRender(loadingStr);
+   // ScreenDebug::printAndRender(loadingStr); // todo loading bar
 }

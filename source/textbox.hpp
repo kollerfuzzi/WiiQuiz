@@ -7,9 +7,7 @@
 #include "clock.hpp"
 #include "renderable.hpp"
 
-#define SCREEN_WIDTH 640
 #define NO_ANIMATION -1
-
 
 enum TextBoxAnimationState {
     RUNNING,
@@ -50,7 +48,7 @@ public:
         Builder& below(TextBox* above);
         TextBox* build();
     private:
-        GRRLIB_Font* _font;
+        GRRLIB_Font* _font = nullptr;
         std::string _text = "";
         unsigned int _fontSize = 10;
         int _color = RGBA(255, 255, 255, 255);

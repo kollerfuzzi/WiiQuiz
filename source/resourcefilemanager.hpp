@@ -26,6 +26,8 @@ public:
     void init();
     void saveResource(std::string& resourceName, BinaryChunk content);
     void saveResourceJson(std::string& resourceName, nlohmann::json json);
+    void saveResourceJsonCached(std::string& resourceName, nlohmann::json json);
+    void saveCachedJson();
     void saveResourceStream(std::string& resourceName, InputStream* stream);
     std::string loadIpAddressFromConfig();
     BinaryChunk loadResource(std::string& resourceName);
@@ -34,6 +36,7 @@ public:
     void freeResource(const BinaryChunk& resource);
 private:
     std::string _resourceNameToFileName(std::string& resourceName);
+    std::map<std::string, nlohmann::json> _cachedJson; 
 };
 
 #endif // RESOURCEFILEMANAGER_HPP

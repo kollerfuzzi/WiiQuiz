@@ -30,6 +30,18 @@ void ResourceFileManager::saveResourceJson(std::string &resourceName, nlohmann::
     saveResource(resourceName, BinaryChunk((unsigned char*) str.c_str(), str.size()));
 }
 
+void ResourceFileManager::saveResourceJsonCached(std::string &resourceName, nlohmann::json json) {
+    _cachedJson[resourceName] = json;
+}
+
+void ResourceFileManager::saveCachedJson() {
+    for (auto& [key, value] : _cachedJson) {
+        std::string resourceName = key;
+        saveResourceJson(resourceName, value);
+    }
+    _cachedJson.clear();
+}
+
 void ResourceFileManager::saveResourceStream(std::string &resourceName, InputStream* stream) {
     std::string fileName = _resourceNameToFileName(resourceName);
     FILE* f = fopen(fileName.c_str(), "wb");
@@ -90,6 +102,9 @@ BinaryChunk ResourceFileManager::loadResource(std::string& resourceName) {
 }
 
 nlohmann::json ResourceFileManager::loadResourceJson(std::string &resourceName) {
+    if (_cachedJson.contains(resourceName)) {
+        return _cachedJson[resourceName];
+    }
     BinaryChunk jsonBin = loadResource(resourceName);
     if (jsonBin.data == nullptr) {
         return nlohmann::json();

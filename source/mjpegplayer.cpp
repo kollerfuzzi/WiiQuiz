@@ -25,7 +25,7 @@ MJpegPlayer::~MJpegPlayer(){
     _cleanup();
 }
 
-void MJpegPlayer::update(Clock &clock) {
+void MJpegPlayer::update(Clock& clock) {
     if (!_isInitialized) {
         _init();
         _isInitialized = true;
@@ -57,9 +57,11 @@ void MJpegPlayer::update(Clock &clock) {
 }
 
 void MJpegPlayer::render() {
-    // x, y
     if (_currentFrameImg != nullptr) {
-        GRRLIB_DrawImg(0, 0, _currentFrameImg, 0, 1.2, 1.2, RGBA(0xff, 0xff, 0xff, 0xff));
+        GRRLIB_DrawImg(0, 0, _currentFrameImg, 0, 
+            (f32) rmode->fbWidth / (f32) _currentFrameImg->w,
+            (f32) rmode->xfbHeight / (f32) _currentFrameImg->h, 
+            0xffffffff);
     }
 }
 
@@ -112,4 +114,20 @@ void MJpegPlayer::_cleanup() {
     }
     _isInitialized = false;
     _isDone = false;
+}
+
+AVResource AVResource::of(std::string mjpegPath, std::string audioPath) {
+    AVResource video;
+    video.videoPath = mjpegPath;
+    video.audioPath = audioPath;
+    return video;
+}
+
+AVResource AVResource::none() {
+    return AVResource::of("", "");
+}
+
+const bool AVResource::operator==(const AVResource other) {
+    return videoPath == other.videoPath
+        && audioPath == other.audioPath;
 }

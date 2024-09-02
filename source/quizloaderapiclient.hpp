@@ -15,9 +15,11 @@ public:
 private:
     QuizAction* _createLobbyFromJson(nlohmann::json actionJson);
     QuizAction* _createChapterFromJson(nlohmann::json actionJson);
+    QuizAction* _createSlideFromJson(nlohmann::json actionJson);
     QuizAction* _createQuestionFromJson(nlohmann::json actionJson);
     QuizAction* _createRythmGameFromJson(nlohmann::json actionJson);
     QuizAction* _createScoreboardFromJson(nlohmann::json actionJson);
+    AVResource _loadVideoFromJson(nlohmann::json videoJson);
     std::map<std::string, QuizAction* (QuizLoaderApiClient::*)(nlohmann::json)> _typeToQuizAction; 
 };
 

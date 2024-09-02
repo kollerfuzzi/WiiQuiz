@@ -33,9 +33,10 @@ public:
     MJpegPlayer* getVideo(Video video);
     MJpegPlayer* getVideo(std::string videoPath);
     MJpegPlayer* getVideo(Video video, Audio audio);
-    MJpegPlayer* getVideo(std::string videoPath, std::string audioPath);
+    MJpegPlayer* getVideo(AVResource video);
     void clearAll();
     void fetchStaticResources();
+    void fetchStaticAndPathResources(std::set<std::string> resourcePaths);
     void fetchResourcesByPaths(std::set<std::string> resourcePaths);
 private:
     std::map<std::string, GRRLIB_texImg*> _textures;
@@ -43,6 +44,7 @@ private:
     std::map<std::string, BinaryChunk> _audio;
     bool _updateFileHash(std::string filePath);
     void _initDefaultFont();
+    std::set<std::string> _getStaticHashes();
     void _fetchNetworkTextures();
     void _fetchNetworkFonts();
     void _fetchNetworkAudio();
@@ -57,7 +59,7 @@ private:
     void _renderDebugStr(std::string text);
     ResourceAPIClient* _resourceAPIClient = nullptr;
     ResourceFileManager* _resourceFileManager = nullptr;
-    MjpegIO* _mjpegIO;
+    MjpegIO* _mjpegIO = nullptr;
     int loadCount = 0;
 };
 

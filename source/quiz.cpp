@@ -9,7 +9,7 @@ Quiz::~Quiz() {
     }
 }
 
-void Quiz::update(Clock &clock) {
+void Quiz::update(Clock& clock) {
     QuizAction* currentAction = _state->getCurrentAction();
     if (currentAction->isDone()) {
         if (_state->hasNextAction()) {

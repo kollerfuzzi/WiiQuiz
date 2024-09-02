@@ -1,28 +1,162 @@
 #include "qaslide.hpp"
+#include "audioplayer.hpp"
+#include "bsod.hpp"
 
-QASlide::QASlide() {
-
+QASlide::QASlide(std::string title, int titleFontSize, std::string text, int textFontSize, std::string bgImgPath, AVResource bgVideo, std::string bgAudioPath) {
+    _title = title;
+    _titleFontSize = titleFontSize;
+    _text = text;
+    _textFontSize = textFontSize;
+    _bgImgPath = bgImgPath;
+    _bgVideo = bgVideo;
+    _bgAudioPath = bgAudioPath;
 }
 
 QASlide::~QASlide() {
+    reset();
+}
+
+QASlide::Builder QASlide::builder() {
+    return Builder();
 }
 
 void QASlide::init() {
+    _textBoxTitle = TextBox::builder()
+        .marginTop(20)
+        .marginLeft(20)
+        .marginRight(20)
+        .text(_title)
+        .font(_resources->getFont(Font::DEFAULT_FONT))
+        .fontSize(_titleFontSize)
+        .animationSpeed(20)
+        .build();
+    _textBoxContent = TextBox::builder()
+        .below(_textBoxTitle)
+        .marginTop(10)
+        .marginLeft(30)
+        .marginRight(30)
+        .text(_text)
+        .font(_resources->getFont(Font::DEFAULT_FONT))
+        .fontSize(_textFontSize)
+        .animationSpeed(20)
+        .build();
+
+    _confirm = Confirm::builder()
+        .resources(_resources)
+        .build();
+    
+    if (_bgVideo != AVResource::none()) {
+        _bgVideoPlayer = _resources->getVideo(_bgVideo);
+    }
+    if (_bgAudioPath != "") {
+        AudioPlayer::play(_bgAudioPath, _resources);
+    }
 }
 
 void QASlide::update(Clock &clock) {
+    if (!_initialized) {
+        init();
+        _initialized = true;
+    }
+    if (_bgVideoPlayer != nullptr) {
+        _bgVideoPlayer->update(clock);
+    }
+    _textBoxTitle->update(clock);
+    _textBoxContent->update(clock);
+    _confirm->update(clock);
 }
 
 void QASlide::render() {
+    if (_bgImgPath != "") {
+        GRRLIB_texImg* bgImg = _resources->getTexture(_bgImgPath);
+        GRRLIB_DrawImg(0, 0, _resources->getTexture(_bgImgPath), 0, 
+            (f32) rmode->fbWidth / (f32) bgImg->w,
+            (f32) rmode->xfbHeight / (f32) bgImg->h, 
+            0xffffffff);
+    }
+    if (_bgVideoPlayer != nullptr) {
+        _bgVideoPlayer->render();
+    }
+    _textBoxTitle->render();
+    _textBoxContent->render();
 }
 
 bool QASlide::isDone() {
-    return false;
+    return _initialized && _confirm->isConfirmed();
 }
 
 void QASlide::reset() {
+    if (_textBoxTitle != nullptr) {
+        delete _textBoxTitle;
+        _textBoxTitle = nullptr;
+    }
+    if (_textBoxContent != nullptr) {
+        delete _textBoxContent;
+        _textBoxContent = nullptr;
+    }
+    if (_bgVideoPlayer != nullptr) {
+        delete _bgVideoPlayer;
+        _bgVideoPlayer = nullptr;
+    }
+    if (_confirm != nullptr) {
+        delete _confirm;
+        _confirm = nullptr;
+    }
+    _initialized = false;
 }
 
 std::set<std::string> QASlide::getResourcePaths() {
-    return std::set<std::string>();
+    std::set<std::string> paths;
+    if (_bgImgPath != "") {
+        paths.insert(_bgImgPath);
+    }
+    if (_bgAudioPath != "") {
+        paths.insert(_bgAudioPath);
+    }
+    if (_bgVideo.videoPath != "") {
+        paths.insert(_bgVideo.videoPath);
+    }
+    if (_bgVideo.audioPath != "") {
+        paths.insert(_bgVideo.audioPath);
+    }
+    return paths;
+}
+
+QASlide::Builder& QASlide::Builder::title(std::string title) {
+    _title = title;
+    return *this;
+}
+
+QASlide::Builder& QASlide::Builder::titleFontSize(int titleFontSize) {
+    _titleFontSize = titleFontSize;
+    return *this;
+}
+
+QASlide::Builder& QASlide::Builder::text(std::string text) {
+    _text = text;
+    return *this;
+}
+
+QASlide::Builder& QASlide::Builder::textFontSize(int textFontSize) {
+    _textFontSize = textFontSize;
+    return *this;
+}
+
+QASlide::Builder& QASlide::Builder::bgImgPath(std::string bgImgPath) {
+    _bgImgPath = bgImgPath;
+    return *this;
+}
+
+QASlide::Builder& QASlide::Builder::bgVideo(AVResource bgVideo) {
+    _bgVideo = bgVideo;
+    return *this;
+}
+
+QASlide::Builder& QASlide::Builder::bgAudioPath(std::string bgAudioPath) {
+    _bgAudioPath = bgAudioPath;
+    return *this;
+}
+
+QASlide* QASlide::Builder::build() {
+    return new QASlide(_title, _titleFontSize, _text, _textFontSize, _bgImgPath, _bgVideo, _bgAudioPath);
 }

@@ -6,6 +6,9 @@ QAQuestionFreeText::QAQuestionFreeText(Question question) : QAQuestion(question)
 }
 
 QAQuestionFreeText::~QAQuestionFreeText() {
+    for (auto const& [key, val]  : _playerAnswerMap) {
+        delete val;
+    }
 }
 
 void QAQuestionFreeText::init() {
@@ -13,7 +16,6 @@ void QAQuestionFreeText::init() {
 }
 
 void QAQuestionFreeText::_startInputState() {
-    ScreenDebug::printLn("Start input");
     _createQuestionAndTimeLeftText();
     _client->askQuestion(_question);
 }
