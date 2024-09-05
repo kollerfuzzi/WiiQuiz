@@ -56,7 +56,7 @@ private:
     void _loadTexture(std::string& hash);
     void _loadFont(std::string& hash);
     void _loadAudio(std::string& hash);
-    void _renderDebugStr(std::string text);
+    void _advanceLoadingBar();
     ResourceAPIClient* _resourceAPIClient = nullptr;
     ResourceFileManager* _resourceFileManager = nullptr;
     MjpegIO* _mjpegIO = nullptr;

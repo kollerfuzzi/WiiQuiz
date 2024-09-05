@@ -60,29 +60,13 @@ QuizAction* QuizLoaderApiClient::_createChapterFromJson(nlohmann::json actionJso
 }
 
 QuizAction* QuizLoaderApiClient::_createSlideFromJson(nlohmann::json actionJson) {
-    QASlide::Builder builder = QASlide::builder();
-    if (actionJson.contains("title")) {
-        builder.title(actionJson["title"]);
-    }
-    if (actionJson.contains("titleFontSize")) {
-        builder.titleFontSize(actionJson["titleFontSize"]);
-    }
-    if (actionJson.contains("text")) {
-        builder.text(actionJson["text"]);
-    }
-    if (actionJson.contains("textFontSize")) {
-        builder.textFontSize(actionJson["textFontSize"]);
-    }
-    if (actionJson.contains("bgImg")) {
-        builder.bgImgPath(actionJson["bgImg"]);
-    }
-    if (actionJson.contains("bgVideo")) {
-        builder.bgVideo(_loadVideoFromJson(actionJson["bgVideo"]));
-    }
-    if (actionJson.contains("bgAudio")) {
-        builder.bgAudioPath(actionJson["bgAudio"]);
-    }
-    return builder.build();
+    return QASlide::Builder()
+        .title(actionJson.contains("title") ? _loadTextboxFromJson(actionJson["title"]) : TextBox::builder())
+        .text(actionJson.contains("text") ? _loadTextboxFromJson(actionJson["text"]) : TextBox::builder())
+        .bgImgPath(actionJson.contains("bgImg") ? actionJson["bgImg"] : "")
+        .bgVideo(actionJson.contains("bgVideo") ? _loadVideoFromJson(actionJson["bgVideo"]) : AVResource::none())
+        .bgAudioPath(actionJson.contains("bgAudio") ? actionJson["bgAudio"] : "")
+        .build();
 }
 
 QuizAction* QuizLoaderApiClient::_createQuestionFromJson(nlohmann::json actionJson) {
@@ -128,4 +112,23 @@ AVResource QuizLoaderApiClient::_loadVideoFromJson(nlohmann::json videoJson) {
     std::string video = videoJson["video"];
     std::string audio = videoJson.contains("audio") ? videoJson["audio"] : "";
     return AVResource::of(video, audio);
+}
+
+TextBox::Builder QuizLoaderApiClient::_loadTextboxFromJson(nlohmann::json textJson) {
+    return TextBox::Builder()
+        .text(textJson.contains("text") ? textJson["text"] : "")
+        .color(textJson.contains("color") ? _rgbaStrToInt(textJson["color"]) : 0xFFFFFFFF)
+        .fontSize(textJson.contains("fontSize") ? (int) textJson["fontSize"] : 20)
+        .marginTop(textJson.contains("marginTop") ? (int) textJson["marginTop"] : 40)
+        .marginLeft(textJson.contains("marginLeft") ? (int) textJson["marginLeft"] : 40)
+        .marginRight(textJson.contains("marginRight") ? (int) textJson["marginRight"] : 40)
+        .animationSpeed(textJson.contains("animationSpeed") ? (int) textJson["animationSpeed"] : 30);
+}
+
+int QuizLoaderApiClient::_rgbaStrToInt(std::string string) {
+    unsigned int x;   
+    std::stringstream ss;
+    ss << std::hex << string;
+    ss >> x;
+    return x;
 }

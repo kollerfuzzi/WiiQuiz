@@ -263,7 +263,7 @@ void QARythmMinigame::render() {
             color = RGBA(255, 150, 150, 150);
         }
         GRRLIB_DrawImg(note.getXPos() - note.scaleXY*52/2, note.getYPos() -note.scaleXY*52/2,
-                       _resources->getTexture(note.getTexture()), 0.,
+                       _resources->getTexture(note.getTexture()), 0,
                        note.scaleXY, note.scaleXY,
                        color);
     }

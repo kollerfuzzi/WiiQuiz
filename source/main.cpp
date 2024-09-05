@@ -15,7 +15,6 @@
 #include "screendebug.hpp"
 #include "wiimote.hpp"
 #include "audioplayer.hpp"
-#include "bsod.hpp"
 #include "menu.hpp"
 #include "mjpegplayer.hpp"
 #include "quizloaderapiclient.hpp"
@@ -25,9 +24,7 @@ int main(int argc, char** argv) {
     GRRLIB_SetBackgroundColour(0x00, 0x00, 0x00, 0xFF);
 
     WiiMote::init();
-
     Resources* resources = new Resources();
-
     Quiz* templateQuiz = QuizTemplate::getDefaultQuiz(resources);
 
     QuizLoaderApiClient quizLoaderApiClient;

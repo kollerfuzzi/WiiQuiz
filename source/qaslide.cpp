@@ -2,17 +2,16 @@
 #include "audioplayer.hpp"
 #include "bsod.hpp"
 
-QASlide::QASlide(std::string title, int titleFontSize, std::string text, int textFontSize, std::string bgImgPath, AVResource bgVideo, std::string bgAudioPath) {
+QASlide::QASlide(TextBox::Builder title, TextBox::Builder text, std::string bgImgPath, AVResource bgVideo, std::string bgAudioPath) {
     _title = title;
-    _titleFontSize = titleFontSize;
     _text = text;
-    _textFontSize = textFontSize;
     _bgImgPath = bgImgPath;
     _bgVideo = bgVideo;
     _bgAudioPath = bgAudioPath;
 }
 
-QASlide::~QASlide() {
+QASlide::~QASlide()
+{
     reset();
 }
 
@@ -21,24 +20,12 @@ QASlide::Builder QASlide::builder() {
 }
 
 void QASlide::init() {
-    _textBoxTitle = TextBox::builder()
-        .marginTop(20)
-        .marginLeft(20)
-        .marginRight(20)
-        .text(_title)
+    _textBoxTitle = _title
         .font(_resources->getFont(Font::DEFAULT_FONT))
-        .fontSize(_titleFontSize)
-        .animationSpeed(20)
         .build();
-    _textBoxContent = TextBox::builder()
+    _textBoxContent = _text
         .below(_textBoxTitle)
-        .marginTop(10)
-        .marginLeft(30)
-        .marginRight(30)
-        .text(_text)
         .font(_resources->getFont(Font::DEFAULT_FONT))
-        .fontSize(_textFontSize)
-        .animationSpeed(20)
         .build();
 
     _confirm = Confirm::builder()
@@ -122,23 +109,13 @@ std::set<std::string> QASlide::getResourcePaths() {
     return paths;
 }
 
-QASlide::Builder& QASlide::Builder::title(std::string title) {
+QASlide::Builder &QASlide::Builder::title(TextBox::Builder title) {
     _title = title;
     return *this;
 }
 
-QASlide::Builder& QASlide::Builder::titleFontSize(int titleFontSize) {
-    _titleFontSize = titleFontSize;
-    return *this;
-}
-
-QASlide::Builder& QASlide::Builder::text(std::string text) {
+QASlide::Builder &QASlide::Builder::text(TextBox::Builder text) {
     _text = text;
-    return *this;
-}
-
-QASlide::Builder& QASlide::Builder::textFontSize(int textFontSize) {
-    _textFontSize = textFontSize;
     return *this;
 }
 
@@ -158,5 +135,5 @@ QASlide::Builder& QASlide::Builder::bgAudioPath(std::string bgAudioPath) {
 }
 
 QASlide* QASlide::Builder::build() {
-    return new QASlide(_title, _titleFontSize, _text, _textFontSize, _bgImgPath, _bgVideo, _bgAudioPath);
+    return new QASlide(_title, _text, _bgImgPath, _bgVideo, _bgAudioPath);
 }

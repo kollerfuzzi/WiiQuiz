@@ -7,7 +7,7 @@
 
 class QASlide : public QuizAction {
 public:
-    QASlide(std::string title, int titleFontSize, std::string text, int textFontSize, std::string bgImgPath, AVResource bgVideo, std::string bgAudioPath);
+    QASlide(TextBox::Builder title, TextBox::Builder text, std::string bgImgPath, AVResource bgVideo, std::string bgAudioPath);
     ~QASlide();
     void update(Clock& clock);
     void render();
@@ -17,19 +17,15 @@ public:
 
     class Builder {
     public:
-        Builder& title(std::string title);
-        Builder& titleFontSize(int titleFontSize);
-        Builder& text(std::string text);
-        Builder& textFontSize(int textFontSize);
+        Builder& title(TextBox::Builder title);
+        Builder& text(TextBox::Builder text);
         Builder& bgImgPath(std::string bgImgPath);
         Builder& bgVideo(AVResource bgVideo);
         Builder& bgAudioPath(std::string bgAudioPath);
         QASlide* build();
     private:
-        std::string _title = "";
-        int _titleFontSize = 30;
-        std::string _text = "";
-        int _textFontSize = 20;
+        TextBox::Builder _title;
+        TextBox::Builder _text;
         std::string _bgImgPath = "";
         AVResource _bgVideo = AVResource::none();
         std::string _bgAudioPath = "";
@@ -37,10 +33,8 @@ public:
     static Builder builder();
 protected:
     void init();
-    std::string _title;
-    int _titleFontSize;
-    std::string _text;
-    int _textFontSize;
+    TextBox::Builder _title;
+    TextBox::Builder _text;
     std::string _bgImgPath;
     std::string _bgAudioPath;
     AVResource _bgVideo;

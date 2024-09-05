@@ -6,12 +6,13 @@
 #include "asndlib.h"
 #include "mp3player.h"
 
-namespace AudioPlayer {
-    void init();
-    void play(Audio audio, Resources* resources);
-    void play(std::string audioPath, Resources* resources);
-    bool isPlaying();
-    void stop();
+class AudioPlayer {
+public:
+    static void init();
+    static void play(Audio audio, Resources* resources);
+    static void play(std::string audioPath, Resources* resources);
+    static bool isPlaying();
+    static void stop();
 }
 
 #endif // AUDIOPLAYER_HPP

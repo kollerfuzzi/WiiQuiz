@@ -22,6 +22,7 @@ public:
     }
 
     Texture getTexture() {
+        // because wiimote is hold sideways
         if (btn == Button::A) {
             return Texture::BTN_A;
         } else if (btn == Button::ONE) {
@@ -29,13 +30,13 @@ public:
         } else if (btn == Button::TWO) {
             return Texture::BTN_TWO;
         } else if (btn == Button::UP) {
-            return Texture::BTN_DPAD_UP;
-        } else if (btn == Button::DOWN) {
-            return Texture::BTN_DPAD_DOWN;
-        } else if (btn == Button::LEFT) {
             return Texture::BTN_DPAD_LEFT;
-        } else if (btn == Button::RIGHT) {
+        } else if (btn == Button::DOWN) {
             return Texture::BTN_DPAD_RIGHT;
+        } else if (btn == Button::LEFT) {
+            return Texture::BTN_DPAD_DOWN;
+        } else if (btn == Button::RIGHT) {
+            return Texture::BTN_DPAD_UP;
         } else {
             throw -1;
         }

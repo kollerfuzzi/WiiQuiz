@@ -64,7 +64,7 @@ void QAQuestion::_createAnswersText() {
             .color(RGBA(230, 230, 230, 255))
             .font(_resources->getFont(Font::DEFAULT_FONT))
             .fontSize(25)
-            .marginTop(100 + 25 * _textQuestion->lineCount())
+            .marginTop(_textAnswers.size() == 0 ? 100 + 25 * _textQuestion->lineCount() : 0)
             .animationSpeed(100)
             .build();
         if (_textAnswers.size() > 0) {

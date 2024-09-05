@@ -6,6 +6,7 @@
 #include "bsod.hpp"
 #include "mem.hpp"
 #include "xxhashstr.hpp"
+#include "loadingbar.hpp"
 
 std::string loadingAnimation = "|/-\\";
 extern std::string APIClient::ipAddress; 
@@ -142,6 +143,8 @@ void Resources::fetchStaticAndPathResources(std::set<std::string> resourcePaths)
     for (std::string staticPath : staticResources) {
         allResourcePaths.emplace(staticPath);
     }
+    LoadingBar::setTicks(allResourcePaths.size()); 
+
     _resourceAPIClient->cacheResourceHashes(allResourcePaths);
     fetchStaticResources();
     fetchResourcesByPaths(resourcePaths);
@@ -240,10 +243,7 @@ void Resources::_fetchResourceByPath(std::string& path) {
 
 void Resources::_fetchAndStoreResource(std::string& path) {
     std::string pathHash = hash(path);
-    std::string debugStr = path;
-    debugStr += ": ";
-    debugStr += pathHash;
-    _renderDebugStr(debugStr);
+    _advanceLoadingBar();
     if (_updateFileHash(path)) {
         InputStream* stream = _resourceAPIClient->fetchResource(path);
         _resourceFileManager->saveResourceStream(pathHash, stream);
@@ -252,10 +252,7 @@ void Resources::_fetchAndStoreResource(std::string& path) {
 
 void Resources::_fetchAndStoreMjpegResource(std::string& path) {
     std::string pathHash = hash(path);
-    std::string debugStr = path;
-    debugStr += ": ";
-    debugStr += pathHash;
-    _renderDebugStr(debugStr);
+    _advanceLoadingBar();
     if (_updateFileHash(path)) {
         InputStream* stream = _resourceAPIClient->fetchResource(path);
         _mjpegIO->saveMjpegStream(pathHash, stream);
@@ -286,11 +283,6 @@ void Resources::_loadAudio(std::string& hash) {
     _audio[hash] = _loadResource(hash);
 }
 
-void Resources::_renderDebugStr(std::string text) {
-    loadCount++;
-    std::string loadingStr("Loading resources ");
-    loadingStr += loadingAnimation[loadCount % 4];
-    loadingStr += "\n";
-    loadingStr += text;
-   // ScreenDebug::printAndRender(loadingStr); // todo loading bar
+void Resources::_advanceLoadingBar() {
+    LoadingBar::tick(getFont(Font::DEFAULT_FONT));
 }

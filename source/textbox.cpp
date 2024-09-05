@@ -76,7 +76,7 @@ u32 TextBox::getTop() {
 u32 TextBox::getBottom() {
     int bottom = _marginTop;
     if (_above != nullptr) {
-        bottom += _above->getBottom();
+        bottom = _above->getBottom();
     }
     bottom += getHeight();
     return bottom;

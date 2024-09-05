@@ -6,6 +6,7 @@
 #include "quiz.hpp"
 #include "bsod.hpp"
 #include "resources.hpp"
+#include "textbox.hpp"
 
 class QuizLoaderApiClient : public APIClient {
 public:
@@ -20,6 +21,8 @@ private:
     QuizAction* _createRythmGameFromJson(nlohmann::json actionJson);
     QuizAction* _createScoreboardFromJson(nlohmann::json actionJson);
     AVResource _loadVideoFromJson(nlohmann::json videoJson);
+    TextBox::Builder _loadTextboxFromJson(nlohmann::json textJson);
+    int _rgbaStrToInt(std::string string);
     std::map<std::string, QuizAction* (QuizLoaderApiClient::*)(nlohmann::json)> _typeToQuizAction; 
 };
 
