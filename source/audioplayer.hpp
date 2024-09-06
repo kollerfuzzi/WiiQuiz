@@ -16,5 +16,3 @@ public:
 }
 
 #endif // AUDIOPLAYER_HPP
-
-

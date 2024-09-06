@@ -83,7 +83,7 @@ QuizAction* QuizLoaderApiClient::_createQuestionFromJson(nlohmann::json actionJs
         .prompt(actionJson["prompt"]);
 
     for (nlohmann::json answer : actionJson["answers"]) {
-        questionBuilder.answer(answer["answer"], answer["correct"]);
+        questionBuilder.answer(answer["text"], answer["correct"]);
     }
 
     return QAQuestionCreator::of(questionBuilder.build());
@@ -94,7 +94,7 @@ QuizAction* QuizLoaderApiClient::_createRythmGameFromJson(nlohmann::json actionJ
         .img(actionJson["cubeImg"])
         .audio(actionJson["audio"])
         .delayMs(actionJson["startDelay"])
-        .data(actionJson["data"])
+        .data(actionJson["notes"])
         .maxPts(actionJson["maxPts"])
         .build();
     return new QARunForEveryPlayer(game);
