@@ -3,9 +3,11 @@
 Quiz::~Quiz() {
     if (_state != nullptr) {
         delete _state;
+        _state = nullptr;
     }
     if (_client != nullptr) {
         delete _client;
+        _client = nullptr;
     }
 }
 

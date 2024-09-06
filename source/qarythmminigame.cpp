@@ -295,6 +295,10 @@ void QARythmMinigame::_init() {
         return;
     }
 
+    if (_player == nullptr) {
+        BSOD::raise("RYTHM_GAME player not set");
+    }
+
     _resources->getTexture(Texture::BTN_A);
     _resources->getTexture(Texture::BTN_DPAD_UP);
     _resources->getTexture(Texture::BTN_DPAD_DOWN);
@@ -389,6 +393,7 @@ void QARythmMinigame::_cleanup() {
     _player = nullptr;    
     _timePassed = 0;
     _notes.clear();
+
     if (_textBoxHits != nullptr) {
         delete _textBoxHits;
         _textBoxHits = nullptr;
@@ -419,7 +424,6 @@ void QARythmMinigame::_cleanup() {
     _shiftx = 0;
     
     _delayMs = 0;
-    _maxPts = 200;
     _tutorialVisibility = 0;
     _endingTimePassed = 0;
 }

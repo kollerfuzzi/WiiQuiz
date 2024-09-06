@@ -46,6 +46,7 @@ class APIClient {
 public:
     APIClient();
     ~APIClient();
+    static bool testConnection();
     nlohmann::json requestJson(APICommand command);
     std::string request(APICommand command);
     nlohmann::json requestJson(APICommand, nlohmann::json& json);

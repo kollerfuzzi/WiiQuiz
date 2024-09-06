@@ -13,6 +13,6 @@ public:
     static void play(std::string audioPath, Resources* resources);
     static bool isPlaying();
     static void stop();
-}
+};
 
 #endif // AUDIOPLAYER_HPP

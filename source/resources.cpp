@@ -7,6 +7,7 @@
 #include "mem.hpp"
 #include "xxhashstr.hpp"
 #include "loadingbar.hpp"
+#include "serverdiscovery.hpp"
 
 std::string loadingAnimation = "|/-\\";
 extern std::string APIClient::ipAddress; 
@@ -16,7 +17,7 @@ Resources::Resources() {
     ScreenDebug::init(_fonts[hash(pathOf(Font::DEFAULT_FONT))].ttfFont);
     srand(time(NULL));
     _resourceFileManager = new ResourceFileManager();
-    APIClient::ipAddress = _resourceFileManager->loadIpAddressFromConfig();
+    _setServerIp();
     _resourceAPIClient = new ResourceAPIClient();
     _resourceAPIClient->registerWii();
     _mjpegIO = new MjpegIO(_resourceFileManager);
@@ -27,12 +28,15 @@ Resources::~Resources() {
     if (_resourceAPIClient != nullptr) {
         _resourceAPIClient->unregisterWii();
         delete _resourceAPIClient;
+        _resourceAPIClient = nullptr;
     }
     if (_resourceFileManager != nullptr) {
         delete _resourceFileManager;
+        _resourceFileManager = nullptr;
     }
     if (_mjpegIO != nullptr) {
         delete _mjpegIO;
+        _mjpegIO = nullptr;
     }
 }
 
@@ -285,4 +289,15 @@ void Resources::_loadAudio(std::string& hash) {
 
 void Resources::_advanceLoadingBar() {
     LoadingBar::tick(getFont(Font::DEFAULT_FONT));
+}
+
+void Resources::_setServerIp() {
+    APIClient::ipAddress = _resourceFileManager->loadIpAddressFromConfig();
+    if (APIClient::testConnection()) {
+        return;
+    }
+    APIClient::ipAddress = ServerDiscovery::waitForServerGetAddr();
+    if (!APIClient::testConnection()) {
+        BSOD::raise("No server discovered");
+    }
 }

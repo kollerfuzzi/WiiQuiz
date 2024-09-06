@@ -32,11 +32,11 @@ private:
     void _cleanup();
     ResourceFileManager* _fileManager = nullptr;
     InputStream* _videoStream = nullptr;
-    BinaryChunk _currentFrameBuffer;
+    BinaryChunk _currentFrameBuffer = {nullptr, 0};
     GRRLIB_texImg* _currentFrameImg = nullptr;
     std::string _videoHash;
     std::string _audioHash;
-    BinaryChunk _audioData;
+    BinaryChunk _audioData = {nullptr, 0};
     bool _playAudio = false;
     Mjpeg _mjpeg;
     size_t _currentFrame = 0;

@@ -63,13 +63,13 @@ void QAChapter::_init() {
 void QAChapter::_cleanup() {
     if (_titleBox != nullptr) {
         delete _titleBox;
+        _titleBox = nullptr;
     }
     if (_confirm != nullptr) {
         delete _confirm;
+        _confirm = nullptr;
     }
     _initialized = false;
-    _titleBox = nullptr;
-    _confirm = nullptr;
 }
 
 QAChapter::Builder& QAChapter::Builder::title(std::string title) {

@@ -21,8 +21,10 @@ MenuItem::~MenuItem() {
     for (MenuItem* child : _children) {
         delete child;
     }
+    _children.clear();
     if (_textBox != nullptr) {
         delete _textBox;
+        _textBox = nullptr;
     }
 }
 
@@ -70,10 +72,14 @@ Menu::Menu(Resources* resources, MenuItem* root) {
 }
 
 Menu::~Menu() {
+    if (_root != nullptr) {
+        delete _root;
+        _root = nullptr;
+    }
     if (_swingingLights != nullptr) {
         delete _swingingLights;
+        _swingingLights = nullptr;
     }
-    delete _root;
 }
 
 void Menu::update(Clock& clock) {

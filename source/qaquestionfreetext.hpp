@@ -8,6 +8,7 @@
 class QAQuestionFreeText : public QAQuestion {
 public:
     QAQuestionFreeText(Question question);
+    void reset() override;
     ~QAQuestionFreeText();
 protected:
     void init() override;

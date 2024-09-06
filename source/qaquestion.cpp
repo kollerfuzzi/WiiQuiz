@@ -142,15 +142,7 @@ void QAQuestion::_startContinueState() {
 }
 
 QAQuestion::~QAQuestion() {
-    if (_textQuestion != nullptr) {
-        delete _textQuestion;
-    }
-    for (TextBox* answer : _textAnswers) {
-        delete answer;
-    }
-    if (_textTimeLeft != nullptr) {
-        delete _textTimeLeft;
-    }
+    _cleanup();
 }
 
 void QAQuestion::update(Clock &clock) {
@@ -246,6 +238,7 @@ void QAQuestion::_cleanup() {
     }
     if (_continueConfirm != nullptr) {
         delete _continueConfirm;
+        _continueConfirm = nullptr;
     }
     _timePerState.clear();
     _initialized = false;

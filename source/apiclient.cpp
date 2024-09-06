@@ -15,11 +15,27 @@ APIClient::~APIClient() {
 
 }
 
+bool APIClient::testConnection() {
+    while(net_init() == -EAGAIN);
+    struct sockaddr_in address;
+    s32 socket = net_socket(PF_INET, SOCK_STREAM, IPPROTO_IP);
+    if (socket < 0) {
+        return false;
+    }
+    address.sin_family = AF_INET;
+    address.sin_port = htons(3110);
+    address.sin_addr.s_addr = inet_addr(ipAddress.c_str());
+    s32 connection_status = net_connect(socket, (struct sockaddr *)&address, sizeof(address));
+    if (connection_status < 0) {
+        net_close(socket);
+        return false;
+
+    }
+    net_close(socket);
+    return true;
+}
+
 void APIClient::_init() {
-    std::string initPrompt = "Initializing Network\n";
-    initPrompt += "Connecting to ";
-    initPrompt += ipAddress;
-    ScreenDebug::printAndRender(initPrompt);
     while(net_init() == -EAGAIN);
 }
 

@@ -5,10 +5,12 @@ QAQuestionFreeText::QAQuestionFreeText(Question question) : QAQuestion(question)
 
 }
 
+void QAQuestionFreeText::reset() {
+    QAQuestion::reset();
+}
+
 QAQuestionFreeText::~QAQuestionFreeText() {
-    for (auto const& [key, val]  : _playerAnswerMap) {
-        delete val;
-    }
+
 }
 
 void QAQuestionFreeText::init() {

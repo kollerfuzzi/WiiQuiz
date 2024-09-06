@@ -20,6 +20,7 @@ void ScreenDebug::init(GRRLIB_ttfFont* font) {
 void ScreenDebug::destroy() {
     if (_instance != nullptr) {
         delete _instance;
+        _instance = nullptr;
     }
 }
 

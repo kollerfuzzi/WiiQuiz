@@ -77,10 +77,12 @@ void QuizState::_deletePlayers() {
     for (Player* player : _players) {
         delete player;
     }
+    _players.clear();
 }
 
 void QuizState::_deleteActions() {
     for (QuizAction* action : _actions) {
         delete action;
     }
+    _actions.clear();
 }

@@ -57,6 +57,7 @@ private:
     void _loadFont(std::string& hash);
     void _loadAudio(std::string& hash);
     void _advanceLoadingBar();
+    void _setServerIp();
     ResourceAPIClient* _resourceAPIClient = nullptr;
     ResourceFileManager* _resourceFileManager = nullptr;
     MjpegIO* _mjpegIO = nullptr;
