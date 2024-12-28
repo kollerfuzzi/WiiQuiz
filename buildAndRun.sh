@@ -1,3 +1,3 @@
 #!/bin/sh
 make
-dolphin-emu WiiQuiz.dol
+env QT_QPA_PLATFORM=xcb dolphin-emu WiiQuiz.dol

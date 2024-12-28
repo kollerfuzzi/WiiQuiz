@@ -29,6 +29,7 @@ private:
     void _init();
     void _loadMjpegStream();
     void _loadAudio();
+    void _deleteCurrentFrame();
     void _cleanup();
     ResourceFileManager* _fileManager = nullptr;
     InputStream* _videoStream = nullptr;
@@ -41,6 +42,7 @@ private:
     Mjpeg _mjpeg;
     size_t _currentFrame = 0;
     size_t _frameBufferSize = 1048576;
+    u32 _timeSinceLastFrameMicros = 0;
     bool _isInitialized = false;
     bool _isDone = false;
 };

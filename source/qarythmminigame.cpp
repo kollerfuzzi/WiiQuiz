@@ -109,7 +109,7 @@ void QARythmMinigame::update(Clock& clock) {
 
     if (_gameState == RythmMinigameState::ENDING && _endingTimePassed > 5000) {
         _gameState = RythmMinigameState::DONE;
-        AudioPlayer::stop();
+        AudioPlayer::stop(_resources);
     }
 }
 
@@ -381,7 +381,7 @@ void QARythmMinigame::_init() {
         .animationSpeed(100)
         .build();
 
-    AudioPlayer::stop();
+    AudioPlayer::stop(_resources);
 
     init3dCube();
 

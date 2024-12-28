@@ -69,9 +69,11 @@ Menu::Menu(Resources* resources, MenuItem* root) {
     _root = root;
     _currentSubMenu = _root;
     _swingingLights = new SwingingLights();
+    _resources->addReserved(_resources->pathOf(Texture::MENU_BUTTON));
 }
 
 Menu::~Menu() {
+    _resources->removeReserved(_resources->pathOf(Texture::MENU_BUTTON));
     if (_root != nullptr) {
         delete _root;
         _root = nullptr;

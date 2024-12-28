@@ -30,30 +30,30 @@ void MJpegPlayer::update(Clock& clock) {
         _init();
         _isInitialized = true;
     }
+    _timeSinceLastFrameMicros += clock.timeElapsedMicros();
+    while (_timeSinceLastFrameMicros >= _mjpeg.usBetweenFrames) {
+        _timeSinceLastFrameMicros -= _mjpeg.usBetweenFrames;
+        _currentFrame++;
+    }
     if (_currentFrame >= _mjpeg.frames.size()) {
         _isDone = true;
-        if (_currentFrameImg != nullptr) {
-            GRRLIB_FreeTexture(_currentFrameImg);
-            _currentFrameImg = nullptr;
-        }
+        _deleteCurrentFrame();
         return;
     }
+    
     Frame current = _mjpeg.frames[_currentFrame];
-    if (_videoStream->getStreamPos() != 0) {
-        GRRLIB_FreeTexture(_currentFrameImg);
-        _currentFrameImg = nullptr;
-    }
 
-    if (_videoStream->getStreamPos() < current.frameStart) {
+    if (_videoStream->getStreamPos() <= current.frameStart) {
+        _deleteCurrentFrame();
         _videoStream->advance(_currentFrameBuffer, current.frameStart - _videoStream->getStreamPos());
+
+        size_t frameSize = current.frameEnd - current.frameStart;
+        if (frameSize > _frameBufferSize) {
+            BSOD::raise("Frame buffer size exceeded");
+        }
+        _videoStream->read(BinaryChunk(_currentFrameBuffer.data, frameSize));    
+        _currentFrameImg = GRRLIB_LoadTextureJPGEx(_currentFrameBuffer.data, frameSize);
     }
-    size_t frameSize = current.frameEnd - current.frameStart;
-    if (frameSize > _frameBufferSize) {
-        BSOD::raise("Frame buffer size exceeded");
-    }
-    _videoStream->read(BinaryChunk(_currentFrameBuffer.data, frameSize));    
-    _currentFrameImg = GRRLIB_LoadTextureJPGEx(_currentFrameBuffer.data, frameSize);
-    _currentFrame++;
 }
 
 void MJpegPlayer::render() {
@@ -95,6 +95,13 @@ void MJpegPlayer::_loadAudio() {
     _audioData = _fileManager->loadResource(_audioHash);
 }
 
+void MJpegPlayer::_deleteCurrentFrame() {
+    if (_currentFrameImg != nullptr) {
+        GRRLIB_FreeTexture(_currentFrameImg);
+        _currentFrameImg = nullptr;
+    }
+}
+
 void MJpegPlayer::_cleanup() {
     if (_videoStream != nullptr) {
         delete _videoStream;
@@ -113,6 +120,7 @@ void MJpegPlayer::_cleanup() {
         _audioData = BinaryChunk(nullptr, 0);
     }
     _isInitialized = false;
+    _timeSinceLastFrameMicros = 0;
     _isDone = false;
 }
 

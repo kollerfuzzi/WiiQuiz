@@ -9,7 +9,6 @@
 #include "loadingbar.hpp"
 #include "serverdiscovery.hpp"
 
-std::string loadingAnimation = "|/-\\";
 extern std::string APIClient::ipAddress; 
 
 Resources::Resources() {
@@ -24,7 +23,8 @@ Resources::Resources() {
 }
 
 Resources::~Resources() {
-    clearAll();
+    _reservedResources.clear();
+    clearUnreserved();
     if (_resourceAPIClient != nullptr) {
         _resourceAPIClient->unregisterWii();
         delete _resourceAPIClient;
@@ -115,18 +115,38 @@ MJpegPlayer* Resources::getVideo(AVResource video) {
     return new MJpegPlayer(hash(video.videoPath), _resourceFileManager);
 }
 
-void Resources::clearAll() {
-    for (const auto& [key, value] : _textures) {
-        GRRLIB_FreeTexture(value);
-    }
+void Resources::addReserved(std::string path) {
+    _reservedResources.insert(hash(path));
+}
 
-    for (const auto& [key, value] : _fonts) {
-        GRRLIB_FreeTTF(value.ttfFont);
-        _resourceFileManager->freeResource(value.resource);
-    }
+void Resources::removeReserved(std::string path) {
+    _reservedResources.erase(hash(path));
+}
 
-    for (const auto& [key, value] : _audio) {
-        _resourceFileManager->freeResource(value);
+void Resources::clearUnreserved() {
+    for (auto it = _textures.cbegin(); it != _textures.cend();) {
+        if (!_reservedResources.contains(it->first)) {
+            GRRLIB_FreeTexture(it->second);
+            _textures.erase(it++);
+        } else {
+            ++it;
+        }
+    }
+    for (auto it = _fonts.cbegin(); it != _fonts.cend();) {
+        if (!_reservedResources.contains(it->first)) {
+            _resourceFileManager->freeResource(it->second.resource);
+            _fonts.erase(it++);
+        } else {
+            ++it;
+        }
+    }
+    for (auto it = _audio.cbegin(); it != _audio.cend();) {
+        if (!_reservedResources.contains(it->first)) {
+            _resourceFileManager->freeResource(it->second);
+            _audio.erase(it++);
+        } else {
+            ++it;
+        }
     }
 }
 
@@ -190,6 +210,7 @@ void Resources::_initDefaultFont() {
     unsigned char* fontBin = (unsigned char*) Mem::alloc(NotoSansMono_ttf_len);
     std::memcpy(fontBin, NotoSansMono_ttf, NotoSansMono_ttf_len);
     BinaryChunk font = {fontBin, NotoSansMono_ttf_len};
+    addReserved(pathOf(Font::DEFAULT_FONT));
     _fonts[hash(pathOf(Font::DEFAULT_FONT))] = {
         GRRLIB_LoadTTF(font.data, font.size),
         font

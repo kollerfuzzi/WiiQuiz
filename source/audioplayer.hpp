@@ -12,7 +12,9 @@ public:
     static void play(Audio audio, Resources* resources);
     static void play(std::string audioPath, Resources* resources);
     static bool isPlaying();
-    static void stop();
+    static void stop(Resources* resources);
+private:
+    static std::string _playingAudio;
 };
 
 #endif // AUDIOPLAYER_HPP

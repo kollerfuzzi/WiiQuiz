@@ -37,13 +37,12 @@ std::string ServerDiscovery::waitForServerGetAddr() {
                     (struct sockaddr *) &cliAddr, &len );
         std::string dataStr = buffer;
 
-        if (msgLen > 0 || dataStr == "WII_SERVER_DISCOVERY") {
+        if (msgLen > 0 || dataStr == "WII_SERVER_DISCOVER") {
             serverAddr = inet_ntoa(cliAddr.sin_addr);
             break;
         }
     }
     net_close(socket);
-
 
     ScreenDebug::printAndRender("Server found, connectiong to " + serverAddr);
 

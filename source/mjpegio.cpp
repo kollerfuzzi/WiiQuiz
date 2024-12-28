@@ -24,6 +24,13 @@ void MjpegIO::saveMjpegStream(std::string& resourceName, InputStream* stream) {
     int dataOffset = 0;
     std::vector<int> soi_eoi;
     stream->read(data);
+
+    // read time between frames
+    u32 usBetweenFrameds = data.data[32] 
+                            + (data.data[33] << 8)
+                            + (data.data[34] << 16)
+                            + (data.data[35] << 24);
+
     for (int pos = 0; pos < fileSize; pos++) {
         if (pos > 16384 + dataOffset) {
             stream->read(data); // todo does ignore actual size
@@ -61,14 +68,17 @@ void MjpegIO::saveMjpegStream(std::string& resourceName, InputStream* stream) {
         };
         frames.push_back(frame);
     }
-
-    std::string frameMetaStr = frames.dump();
-    BinaryChunk frameMetaStrResource = {
-        (unsigned char*) frameMetaStr.c_str(),
-        frameMetaStr.size()
+    nlohmann::json meta = {
+        {"usBetweenFrames", usBetweenFrameds},
+        {"frames", frames}
+    };
+    std::string metaStr = meta.dump();
+    BinaryChunk metaStrResource = {
+        (unsigned char*) metaStr.c_str(),
+        metaStr.size()
     };
     std::string metaName = _getMetaName(resourceName);
-    _resourceFileManager->saveResource(metaName, frameMetaStrResource);
+    _resourceFileManager->saveResource(metaName, metaStrResource);
 }
 
 Mjpeg MjpegIO::loadMjpegMeta(std::string& resourceName) {
@@ -78,16 +88,16 @@ Mjpeg MjpegIO::loadMjpegMeta(std::string& resourceName) {
     nlohmann::json metaJson = nlohmann::json::parse(metaString);
     _resourceFileManager->freeResource(meta);
 
+    u32 usBetweenFrames = metaJson["usBetweenFrames"];
     std::vector<Frame> frames;
-
-    for (nlohmann::json metaFrame : metaJson) {
+    for (nlohmann::json metaFrame : metaJson["frames"]) {
         size_t startOffset = metaFrame["S"];
         size_t endOffset = metaFrame["E"];
         Frame frame = {startOffset, endOffset};
         frames.push_back(frame);
     }
     
-    return Mjpeg(frames);
+    return Mjpeg(usBetweenFrames, frames);
 }
 
 std::string MjpegIO::_getMetaName(std::string &resourceName) {

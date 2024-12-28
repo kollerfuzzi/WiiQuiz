@@ -67,12 +67,14 @@ int main(int argc, char** argv) {
                    .quit(true)
                    .build())
         .build();
-    Menu* testMenu = new Menu(resources, root);
-    testMenu->runUntilDone(frameClock, resources->getTexture(Texture::CURSOR));
-    AudioPlayer::stop();
+    Menu* mainMenu = new Menu(resources, root);
+    resources->addReserved(resources->pathOf(Texture::CURSOR));
+    mainMenu->runUntilDone(frameClock, resources->getTexture(Texture::CURSOR));
+    resources->removeReserved(resources->pathOf(Texture::CURSOR));
+    AudioPlayer::stop(resources);
     ScreenDebug::destroy();
 
-    delete testMenu;
+    delete mainMenu;
     delete templateQuiz;
     for (Quiz* loadedQuiz : quizzes) {
         delete loadedQuiz;

@@ -9,6 +9,7 @@ struct Frame {
 };
 
 struct Mjpeg {
+    u32 usBetweenFrames;
     std::vector<Frame> frames;
 };
 
