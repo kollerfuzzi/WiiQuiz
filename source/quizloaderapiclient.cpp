@@ -78,9 +78,12 @@ QuizAction* QuizLoaderApiClient::_createQuestionFromJson(nlohmann::json actionJs
     }
 
     Question::Builder questionBuilder = Question::builder()
-        .id(id)
+        .id(actionJson.contains("id") ? (std::string) actionJson["id"] : TinyUuidV4::generate())
         .type(magic_enum::enum_cast<QuestionType>((std::string) actionJson["questionType"]).value())
-        .prompt(actionJson["prompt"]);
+        .prompt(actionJson["prompt"])
+        .bgImgPath(actionJson.contains("bgImg") ? actionJson["bgImg"] : "")
+        .bgVideo(actionJson.contains("bgVideo") ? _loadVideoFromJson(actionJson["bgVideo"]) : AVResource::none())
+        .bgAudioPath(actionJson.contains("bgAudio") ? actionJson["bgAudio"] : "");
 
     for (nlohmann::json answer : actionJson["answers"]) {
         questionBuilder.answer(answer["text"], answer["correct"]);

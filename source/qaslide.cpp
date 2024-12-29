@@ -56,7 +56,7 @@ void QASlide::update(Clock &clock) {
 void QASlide::render() {
     if (_bgImgPath != "") {
         GRRLIB_texImg* bgImg = _resources->getTexture(_bgImgPath);
-        GRRLIB_DrawImg(0, 0, _resources->getTexture(_bgImgPath), 0, 
+        GRRLIB_DrawImg(0, 0, bgImg, 0, 
             (f32) rmode->fbWidth / (f32) bgImg->w,
             (f32) rmode->xfbHeight / (f32) bgImg->h, 
             0xffffffff);

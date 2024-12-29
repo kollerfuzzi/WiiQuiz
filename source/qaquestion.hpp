@@ -36,6 +36,7 @@ public:
     bool isDone();
     void reset();
     Question getQuestion();
+    std::set<std::string> getResourcePaths();
 
     class Builder {
     public:
@@ -73,6 +74,7 @@ protected:
     float _bgAnimation = 0.0f;
     u32 _questionPoints = 100;
     s32 _answerTime = 10000;
+    MJpegPlayer* _bgVideoPlayer = nullptr;
 };
 
 #endif // QAQUESTION_HPP

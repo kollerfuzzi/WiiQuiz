@@ -1,5 +1,6 @@
 #include "qaquestion.hpp"
 #include "bsod.hpp"
+#include "audioplayer.hpp"
 
 #include <cmath>
 
@@ -14,6 +15,13 @@ void QAQuestion::init() {
     _timePerState[QAQuestionState::SHOW_SOLUTION] = QAQuestionStateDef(5000, &QAQuestion::_startShowSolutionState);
     _timePerState[QAQuestionState::WAIT_FOR_CONTINUE] = QAQuestionStateDef(-1, &QAQuestion::_startContinueState);
     _initialized = true;
+    if (_question.getBgVideo() != AVResource::none()) {
+        _bgVideoPlayer = _resources->getVideo(_question.getBgVideo());
+    }
+    if (_question.getBgAudioPath() != "") {
+        AudioPlayer::stop(_resources);
+        AudioPlayer::play(_question.getBgAudioPath(), _resources);
+    }
 }
 
 void QAQuestion::_manageState() {
@@ -165,13 +173,27 @@ void QAQuestion::update(Clock &clock) {
         _continueConfirm->update(clock);
         _done = _continueConfirm->isConfirmed();
     }
+
+    if (_bgVideoPlayer != nullptr) {
+        _bgVideoPlayer->update(clock);
+    }
 }
 
 void QAQuestion::render() {
-    GRRLIB_DrawImg((int)(-100 + sin(_bgAnimation/2) * 100),
-                   (int)(-100 + cos(_bgAnimation/3) * 100),
-                   _resources->getTexture(Texture::QUIZ_BG), 0, 1, 1.6,
-                   RGBA(255, 255, 255, 255));
+    if (_bgVideoPlayer != nullptr && !_bgVideoPlayer->isDone()) {
+        _bgVideoPlayer->render();
+    } else if (_question.getBgImgPath() != "") {
+        GRRLIB_texImg* bgImg = _resources->getTexture(_question.getBgImgPath());
+        GRRLIB_DrawImg(0, 0, bgImg, 0, 
+            (f32) rmode->fbWidth / (f32) bgImg->w,
+            (f32) rmode->xfbHeight / (f32) bgImg->h, 
+            0xffffffff);
+    } else {
+        GRRLIB_DrawImg((int)(-100 + sin(_bgAnimation/2) * 100),
+                    (int)(-100 + cos(_bgAnimation/3) * 100),
+                    _resources->getTexture(Texture::QUIZ_BG), 0, 1, 1.6,
+                    RGBA(255, 255, 255, 255));
+    }
     _textQuestion->render();
     for (TextBox* answerBox : _textAnswers) {
         answerBox->render();
@@ -240,6 +262,10 @@ void QAQuestion::_cleanup() {
         delete _continueConfirm;
         _continueConfirm = nullptr;
     }
+    if (_bgVideoPlayer != nullptr) {
+        delete _bgVideoPlayer;
+        _bgVideoPlayer = nullptr;
+    }
     _timePerState.clear();
     _initialized = false;
     _done = false;
@@ -255,6 +281,23 @@ void QAQuestion::reset() {
 
 Question QAQuestion::getQuestion() {
     return _question;
+}
+
+std::set<std::string> QAQuestion::getResourcePaths() {
+    std::set<std::string> paths;
+    if (_question.getBgImgPath() != "") {
+        paths.insert(_question.getBgImgPath());
+    }
+    if (_question.getBgAudioPath() != "") {
+        paths.insert(_question.getBgAudioPath());
+    }
+    if (_question.getBgVideo().videoPath != "") {
+        paths.insert(_question.getBgVideo().videoPath);
+    }
+    if (_question.getBgVideo().audioPath != "") {
+        paths.insert(_question.getBgVideo().audioPath);
+    }
+    return paths;
 }
 
 QAQuestion::Builder QAQuestion::builder() {

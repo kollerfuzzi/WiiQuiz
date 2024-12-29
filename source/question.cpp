@@ -1,14 +1,21 @@
 #include "question.hpp"
 #include "tinyuuidv4.hpp"
 
-Question::Question(std::string id, std::string prompt, QuestionType type, std::vector<std::pair<std::string, bool>> answers) {
+Question::Question(std::string id, std::string prompt, QuestionType type, 
+                   std::vector<std::pair<std::string, bool>> answers, 
+                   std::string bgImgPath, AVResource bgVideo, 
+                   std::string bgAudioPath) {
     _id = id;
     _prompt = prompt;
     _type = type;
     _answers = answers;
+    _bgImgPath = bgImgPath;
+    _bgVideo = bgVideo;
+    _bgAudioPath = bgAudioPath;
 }
 
-Question::Question() {
+Question::Question()
+{
 }
 
 std::string Question::getId() {
@@ -33,6 +40,18 @@ std::vector<std::string> Question::getAnswersStr() {
         answers.push_back(answer.first);
     }
     return answers; 
+}
+
+std::string Question::getBgImgPath() {
+    return _bgImgPath;
+}
+
+AVResource Question::getBgVideo() {
+    return _bgVideo;
+}
+
+std::string Question::getBgAudioPath() {
+    return _bgAudioPath;
 }
 
 Question::Builder Question::builder() {
@@ -90,6 +109,23 @@ Question::Builder& Question::Builder::wrongAnswer(std::string answer) {
     return *this;
 }
 
+
+Question::Builder& Question::Builder::bgImgPath(std::string bgImgPath) {
+    _bgImgPath = bgImgPath;
+    return *this;
+}
+
+Question::Builder& Question::Builder::bgVideo(AVResource bgVideo) {
+    _bgVideo = bgVideo;
+    return *this;
+}
+
+Question::Builder& Question::Builder::bgAudioPath(std::string bgAudioPath) {
+    _bgAudioPath = bgAudioPath;
+    return *this;
+}
+
 Question Question::Builder::build() {
-    return Question(_id, _prompt, _type, _answers);
+    return Question(_id, _prompt, _type, _answers, 
+                    _bgImgPath, _bgVideo, _bgAudioPath);
 }
