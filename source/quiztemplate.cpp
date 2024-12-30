@@ -10,7 +10,7 @@
 
 Quiz* QuizTemplate::getDefaultQuiz(Resources* resources) {
     return Quiz::builder()
-        .name("Template Quiz")
+        .name("Template.pptx")
         .resources(resources)
         .action(QALobby::builder().build())
         .action(QAQuestionCreator::of(Question::builder()

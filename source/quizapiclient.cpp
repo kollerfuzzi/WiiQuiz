@@ -6,6 +6,7 @@
 #include "screendebug.hpp"
 #include "magic_enum.hpp"
 #include "json.hpp"
+#include "bsod.hpp"
 
 QuizAPIClient::QuizAPIClient(QuizState* state) {
     _state = state;

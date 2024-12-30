@@ -29,6 +29,8 @@ public:
     QuizAction* getCurrentAction();
     QuizAction* nextAction();
     bool hasNextAction();
+
+    size_t _currentAction = 0;
 private:
     void _deletePlayers();
     void _deleteActions();
@@ -36,7 +38,6 @@ private:
     std::vector<Player*> _players;
     std::vector<QuizAction*> _actions;
     std::vector<Answer> _answers;
-    size_t _currentAction = 0;
 };
 
 #endif // QUIZSTATE_HPP

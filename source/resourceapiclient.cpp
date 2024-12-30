@@ -33,13 +33,6 @@ void ResourceAPIClient::cacheResourceHashes(std::set<std::string> &resourcePaths
     }
 }
 
-s32 ResourceAPIClient::fetchResourceVersion() {
-    nlohmann::json response =
-        requestJson(APICommand::GET_RESOURCESVERSION);
-    s32 resourceVersionNumber = response["resourceVersion"];
-    return resourceVersionNumber;
-}
-
 void ResourceAPIClient::clearCache() {
     _cachedResourceHashes.clear();
 }

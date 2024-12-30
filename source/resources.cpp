@@ -96,23 +96,8 @@ BinaryChunk Resources::getAudio(std::string audioPath) {
     return _audio[audioHash];
 }
 
-MJpegPlayer* Resources::getVideo(Video video) {
-    return new MJpegPlayer(hash(pathOf(video)), _resourceFileManager);
-}
-
-MJpegPlayer* Resources::getVideo(std::string videoPath) {
-    return new MJpegPlayer(hash(videoPath), _resourceFileManager);
-}
-
-MJpegPlayer* Resources::getVideo(Video video, Audio audio){
-    return new MJpegPlayer(hash(pathOf(video)), hash(pathOf(audio)), _resourceFileManager);
-}
-
 MJpegPlayer* Resources::getVideo(AVResource video) {
-    if (video.audioPath != "") {
-        return new MJpegPlayer(hash(video.videoPath), hash(video.audioPath), _resourceFileManager);
-    }
-    return new MJpegPlayer(hash(video.videoPath), _resourceFileManager);
+    return new MJpegPlayer(video, _resourceFileManager);
 }
 
 void Resources::addReserved(std::string path) {

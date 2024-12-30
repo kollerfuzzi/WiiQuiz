@@ -1,5 +1,5 @@
 #include "qalobby.hpp"
-
+#include "bsod.hpp"
 
 QALobby::QALobby() {
 
@@ -73,6 +73,9 @@ void QALobby::update(Clock &clock) {
     _startConfirm->update(clock);
     _startConfirm->setEnabled(!_state->getPlayers().empty());
     _started = _startConfirm->isConfirmed();
+    if (_started) {
+        AudioPlayer::stop(_resources);
+    }
 
     _loadTimer--;
     _swingingLights->update(clock);

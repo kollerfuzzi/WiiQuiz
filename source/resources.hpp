@@ -30,9 +30,6 @@ public:
     GRRLIB_ttfFont* getFont(std::string fontPath);
     BinaryChunk getAudio(Audio audio);
     BinaryChunk getAudio(std::string audioPath);
-    MJpegPlayer* getVideo(Video video);
-    MJpegPlayer* getVideo(std::string videoPath);
-    MJpegPlayer* getVideo(Video video, Audio audio);
     MJpegPlayer* getVideo(AVResource video);
     void addReserved(std::string path);
     void removeReserved(std::string path);

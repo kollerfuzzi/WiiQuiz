@@ -1,4 +1,5 @@
 #include "quiz.hpp"
+#include "bsod.hpp"
 
 Quiz::~Quiz() {
     if (_state != nullptr) {
@@ -13,7 +14,7 @@ Quiz::~Quiz() {
 
 void Quiz::update(Clock& clock) {
     QuizAction* currentAction = _state->getCurrentAction();
-    if (currentAction->isDone()) {
+    if (currentAction == nullptr || currentAction->isDone()) {
         _resources->clearUnreserved();
         if (_state->hasNextAction()) {
             currentAction = _state->nextAction();

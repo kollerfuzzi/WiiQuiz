@@ -91,9 +91,15 @@ void APIClient::_disconnect(s32 socket){
 }
 
 void APIClient::_assertStatusOk(nlohmann::json json) {
-    if (json.contains("status") && json["status"] != "OK") {
-        std::string error("server returned ");
+    if (json.contains("status") && json["status"] != "Success") {
+        std::string error("Status: ");
         error += json["status"];
+        if (json.contains("message")) {
+            error += "\nMessage: ";
+            error += json["message"];
+        } else {
+            error += "no message";
+        }
         BSOD::raise(error);
     }
 }

@@ -61,6 +61,9 @@ void QuizState::setCurrentAction(size_t currentAction) {
 }
 
 QuizAction* QuizState::getCurrentAction() {
+    if (_currentAction >= _actions.size()) {
+        return nullptr;
+    }
     return _actions[_currentAction];
 }
 
@@ -70,7 +73,7 @@ QuizAction* QuizState::nextAction() {
 }
 
 bool QuizState::hasNextAction() {
-    return _currentAction < _actions.size() - 1;
+    return (s32) _currentAction < (s32) _actions.size() - 1;
 }
 
 void QuizState::_deletePlayers() {

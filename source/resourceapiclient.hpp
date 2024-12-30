@@ -12,7 +12,6 @@ public:
     std::string fetchResourceHash(std::string& resourcePath);
     void cacheResourceHashes(std::set<std::string>& resourcePaths);
     void clearCache();
-    s32 fetchResourceVersion();
     void registerWii();
     void unregisterWii();
     InputStream* fetchResource(std::string& resourcePath);

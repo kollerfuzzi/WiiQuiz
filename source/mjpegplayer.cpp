@@ -4,21 +4,11 @@
 #include "mem.hpp"
 #include "mjpegio.hpp"
 #include "bsod.hpp"
+#include "xxhashstr.hpp"
 
-MJpegPlayer::MJpegPlayer(std::string videoHash, ResourceFileManager* fileManager){
-    _videoHash = videoHash;
+MJpegPlayer::MJpegPlayer(AVResource resource, ResourceFileManager* fileManager) {
+    _resource = resource;
     _fileManager = fileManager;
-    _currentFrameBuffer = BinaryChunk(nullptr, 0);
-    _audioData = BinaryChunk(nullptr, 0);
-}
-
-MJpegPlayer::MJpegPlayer(std::string videoHash, std::string audioHash, ResourceFileManager *fileManager) {
-    _videoHash = videoHash;
-    _fileManager = fileManager;
-    _audioHash = audioHash;
-    _playAudio = true;
-    _currentFrameBuffer = BinaryChunk(nullptr, 0);
-    _audioData = BinaryChunk(nullptr, 0);
 }
 
 MJpegPlayer::~MJpegPlayer(){
@@ -87,12 +77,16 @@ void MJpegPlayer::_init() {
 
 void MJpegPlayer::_loadMjpegStream() {
     MjpegIO mjpegio(_fileManager);
-    _mjpeg = mjpegio.loadMjpegMeta(_videoHash);
-    _videoStream = _fileManager->loadResourceStream(_videoHash);
+    std::string videoHash = XXHashStr::hashStr(_resource.videoPath);
+    _mjpeg = mjpegio.loadMjpegMeta(videoHash);
+    _videoStream = _fileManager->loadResourceStream(videoHash);
 }
 
 void MJpegPlayer::_loadAudio() {
-    _audioData = _fileManager->loadResource(_audioHash);
+    if (_resource.audioPath != "") {
+        std::string audioHash = XXHashStr::hashStr(_resource.audioPath);
+        _audioData = _fileManager->loadResource(audioHash);
+    }
 }
 
 void MJpegPlayer::_deleteCurrentFrame() {

@@ -16,10 +16,14 @@ struct AVResource {
     const bool operator==(const AVResource other);
 };
 
+/*
+You can convert videos to MJPeg with ffmpeg
+
+ffmpeg -i filename.mp4 filename.mp3
+ */
 class MJpegPlayer : public Renderable {
 public:
-    MJpegPlayer(std::string videoHash, ResourceFileManager* fileManager);
-    MJpegPlayer(std::string videoHash, std::string audioHash, ResourceFileManager* fileManager);
+    MJpegPlayer(AVResource resource, ResourceFileManager* fileManager);
     ~MJpegPlayer();
     void update(Clock& clock);
     void render();
@@ -35,6 +39,7 @@ private:
     InputStream* _videoStream = nullptr;
     BinaryChunk _currentFrameBuffer = {nullptr, 0};
     GRRLIB_texImg* _currentFrameImg = nullptr;
+    AVResource _resource;
     std::string _videoHash;
     std::string _audioHash;
     BinaryChunk _audioData = {nullptr, 0};
